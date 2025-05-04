@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="template">
+<head>
+    <meta charset="UTF-8">
+    <title>Éditer avis</title>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/webjars/bootstrap-icons/1.11.1/font/bootstrap-icons.css">
+    <script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 10;
+        }
+        .action-buttons {
+            white-space: nowrap;
+        }
+        .action-buttons .btn {
+            padding: 0.25rem 0.5rem;
+            margin: 0 2px;
+        }
+        @media print {
+            .no-print, .action-column {
+                display: none !important;
+            }
+            body {
+                padding: 20px;
+                font-size: 12px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 4px 8px;
+                border: 1px solid #ddd;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('formEdit');
+            const button = document.getElementById('submitBtn');
+
+            button.addEventListener('click', function () {
+                if (form.checkValidity()) {
+                    let confirmation = confirm("Confirmer ajout du colis ?");
+                    if (confirmation) {
+                        form.submit();
+                    }
+                } else {
+                    form.reportValidity();
+                }
+            });
+
+            // Validation du champ poids
+            document.getElementById('poidColis').addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+            });
+
+
+
+
+
+
+
+
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Supprimer un colis spécifique
+                    if(confirm("Voulez-vous vraiment supprimer ce colis ?")) {
+<!--                        const numColis = this.closest('tr').querySelector('td:first-child').textContent;-->
+<!--                        alert("Suppression du colis: " + numColis);-->
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+<div layout:fragment="content1">
+    <div class="container mt-4">
+        <!-- Formulaire -->
+        <div class="card shadow mb-4">
+            <div class="card-header text-center bg-primary text-white py-3">
+                <h4 class="mb-0">Édition des avis des colis sous douane</h4>
+            </div>
+            <div class="card-body">
+                <form id="formEdit" th:action="@{/addColis}" method="post">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-2">
+                            <label for="numColis" class="form-label">Numéro du colis</label>
+                            <input type="text" class="form-control" id="numColis" name="numColis" placeholder="Numéro" required>
+                        </div>
+                        <div class="col-md-1">
+                            <label for="nbColis" class="form-label">Nombre</label>
+                            <input type="number" min="1" class="form-control" id="nbColis" name="nbColis" placeholder="Nb" required>
+                        </div>
+                        <div class="col-md-1">
+                            <label for="poidColis" class="form-label">Poids (kg)</label>
+                            <input type="text" class="form-control" id="poidColis" name="poidColis" placeholder="0.0" step="0.1" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="nomDest" class="form-label">Destinataire</label>
+                            <input type="text" class="form-control" id="nomDest" name="nomDest" placeholder="Nom et coordonnées" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="observation" class="form-label">Observation</label>
+                            <input type="text" class="form-control" id="observation" name="observation" placeholder="Observations">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-success w-100 py-2" id="submitBtn">Ajouter</button>
+                        </div>
+                        <div  class=" bg-danger" th:if="${exist}">
+                            <span  class="text-center text-light py-4">Colis déja existant</span>
+                        </div>
+                        <div  class=" bg-success" th:if="${success}">
+                            <span  class="text-center text-light py-4">Ajouté avec succèss</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tableau -->
+        <div class="card shadow">
+            <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Liste des colis enregistrés</h5>
+                <a id="printBtn" class="btn btn-secondary no-print" href="/print-list" target="_blank" title="Imprimer la liste">
+                    <i th:class="${colisList.isEmpty()?'bi bi-printer-fill disabled':'bi bi-printer-fill'}"></i> Imprimer
+                </a>
+            </div>
+            <div class="card-body p-0 table-container">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="py-3">Numéro du colis</th>
+                        <th class="py-3">Destinataire</th>
+                        <th class="py-3">Nombre</th>
+                        <th class="py-3">Poids (kg)</th>
+                        <th class="py-3">Observation</th>
+                        <th class="py-3 action-column">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="col : ${colisList}">
+                        <td th:text="${col.numColis}" class="align-middle"></td>
+                        <td th:text="${col.nom}" class="align-middle"></td>
+                        <td th:text="${col.nbColis}" class="align-middle text-center"></td>
+                        <td th:text="${col.poid}" class="align-middle text-end"></td>
+                        <td th:text="${col.observation}" class="align-middle"></td>
+                        <td class="align-middle action-buttons action-column">
+                            <button class="btn btn-success btn-print" title="Imprimer ce colis">
+                                <i class="bi bi-printer-fill"></i>
+                            </button>
+                            <button class="btn btn-primary btn-edit" title="Modifier ce colis">
+                                <i class="bi bi-pen-fill"></i>
+                            </button>
+                            <button class="btn btn-danger btn-delete" title="Supprimer ce colis">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr th:if="${colisList.empty}">
+                        <td colspan="6" class="text-center py-4 text-muted">Aucun colis enregistré</td>
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

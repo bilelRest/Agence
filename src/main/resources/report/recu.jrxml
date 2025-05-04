@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 9.0.0.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="recu" pageWidth="496" pageHeight="637" columnWidth="456" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="b6303da9-caeb-4a69-b065-a82b2b53bcc1">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="cm"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<field name="idDouane" class="java.lang.Long"/>
+	<field name="nom" class="java.lang.String"/>
+	<field name="numColis" class="java.lang.String"/>
+	<field name="dateSortie" class="java.time.LocalDate"/>
+	<field name="dateArrivee" class="java.time.LocalDate"/>
+	<field name="nbColis" class="java.lang.Integer"/>
+	<field name="droitDouane" class="java.lang.Double"/>
+	<field name="fraisDedouane" class="java.lang.Double"/>
+	<field name="fraisReemballage" class="java.lang.Double"/>
+	<field name="fraisMagasin" class="java.lang.Double"></field>
+	<field name="totPayer" class="java.lang.Double"/>
+	<field name="poid" class="java.lang.Double"/>
+	<field name="observation" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="560" splitType="Stretch" >
+			<textField>
+				<reportElement x="0" y="120" width="460" height="56" uuid="34999da0-b3f6-4d63-9726-81014f03f798"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$F{nom}]]></textFieldExpression>
+
+
+			</textField>
+			<textField>
+				<reportElement x="100" y="271" width="130" height="18" uuid="da7fa4ac-c864-4495-adb3-da382f03d63a"/>
+				<textFieldExpression><![CDATA[$F{numColis}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="180" y="310" width="100" height="20" uuid="94146916-795a-4fe7-8e34-fbe33820e07b"/>
+
+				<textFieldExpression><![CDATA[$F{droitDouane}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="320" y="370" width="100" height="20" uuid="f2c17792-480d-41f2-bcda-051188b98b9d"/>
+				<textFieldExpression><![CDATA[$F{fraisDedouane}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="320" y="400" width="100" height="20" uuid="24d2742a-2452-4e3f-a16d-0cdcbdb8ee7b"/>
+				<textFieldExpression><![CDATA[$F{fraisMagasin}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="320" y="430" width="100" height="20" uuid="05272b6d-d402-4dd9-89d7-e27ce07b81ec"/>
+				<textFieldExpression><![CDATA[$F{fraisReemballage}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="320" y="500" width="100" height="20" uuid="306396d5-c2bf-45ea-b21c-03c4bef17e2b"/>
+				<textFieldExpression><![CDATA[$F{totPayer}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="530" width="100" height="20" uuid="f3b6610d-8ba9-4a89-94de-c6c900f3a04d"/>
+				<textFieldExpression><![CDATA[$F{poid}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+
+</jasperReport>

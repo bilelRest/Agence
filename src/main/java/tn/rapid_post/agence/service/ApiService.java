@@ -1,0 +1,59 @@
+package tn.rapid_post.agence.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+import tn.rapid_post.agence.entity.B3;
+import tn.rapid_post.agence.repo.b3Repo;
+
+import java.util.List;
+
+@Service
+public class ApiService {
+
+    private final RestTemplate restTemplate;
+    @Autowired
+    private b3Repo b3Rep;
+
+    // Constructeur pour injecter RestTemplate
+    public ApiService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    public boolean getApiData(B3 b3) {
+        String apiUrl = "http://192.168.43.1:8080/send_sms";
+        String messageAr = "";
+        // Message en arabe fixe
+        if (b3!=null) {
+
+                if (b3.getDestination().equals("Agence")) {
+                    messageAr = "حريفنا الكريم نعلمكم أن البطاقة عدد 3 موجودة بمسطحة البريد السريع باب بحر صفاقس. "+b3.getIdB3();
+                }if (!b3.getDestination().equals("Agence")) {
+                    messageAr = "حريفنا الكريم نعلمكم أن البطاقة عدد 3 موجودة بمكتب بريد:" + b3.getDestination();
+                }
+                // Construction du message bilingue
+                String fullMessage = messageAr + " /"+b3.getNumB3()+"/" ;
+
+              try {
+                    String fullUrl = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                            .queryParam("numero", b3.getNumTel())
+                            .queryParam("message", fullMessage)
+                            .toUriString();
+
+                     restTemplate.getForObject(fullUrl, String.class);
+                     b3.setNotified(true);
+                     b3Rep.save(b3);
+                     return true;
+
+                } catch (Exception e) {
+                  b3.setNotified(false);
+                    b3Rep.save(b3);
+                    return false;
+                }
+
+            }
+
+
+        return false;
+    }}

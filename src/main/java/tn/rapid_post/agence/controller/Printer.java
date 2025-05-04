@@ -1,0 +1,70 @@
+package tn.rapid_post.agence.controller;
+
+import net.sf.jasperreports.engine.JRException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.*;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import tn.rapid_post.agence.entity.Douane;
+import tn.rapid_post.agence.repo.douaneRepo;
+import tn.rapid_post.agence.reports.Reporter;
+
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Controller
+@Validated
+public class Printer {
+
+    @Autowired
+    private douaneRepo douaneRep;
+
+    @Autowired
+    private Reporter reporter;
+
+    @PostMapping(value = "/print-sortie", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> generateDouaneReport(
+            @RequestParam(value = "colis")String colis,
+            @RequestParam(value = "droit")double droit,
+            @RequestParam(value = "total")double total) throws JRException {
+        System.out.println("droit = "+droit+" total = "+total+" colis = "+colis);
+         Douane douane=douaneRep.findByNumColis(colis);
+         douane.setDroitDouane(droit);
+         douane.setTotPayer(total);
+         douane.setDateSortie(LocalDate.now());
+
+         douane.setDelivered(true);
+           douaneRep.save(douane);
+            List<Douane> douaneList = Collections.singletonList(douane);
+            Map<String, Object> parameters = new HashMap<>();
+            byte[] pdfBytes = reporter.reports(parameters, douaneList);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfBytes);
+
+
+    }
+    @GetMapping(value = "/print-list")
+    public ResponseEntity<byte[]> printLlist() throws JRException {
+        List<Douane> douaneList =douaneRep.findByPrintedFalse();
+        for (Douane d:douaneList){
+            d.setPrinted(true);
+            douaneRep.save(d);
+        }
+
+        Map<String, Object> parameters = new HashMap<>();
+
+
+        byte[] pdfBytes = reporter.reports(parameters, douaneList);
+        return  ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+    }
+}
