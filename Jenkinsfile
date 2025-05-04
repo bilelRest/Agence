@@ -36,12 +36,7 @@ pipeline {
                     sh "docker build -t agence-app ."
 
                     // Démarrer un nouveau conteneur
-                    sh """
-                        docker run -d \
-                        --name agence-app \
-                        -network host \
-                        agence-app
-                    """
+                    sh "docker run -d --name agence-app --network host agence-app"
                 }
             }
         }
