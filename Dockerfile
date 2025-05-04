@@ -10,4 +10,4 @@ COPY src/main/resources/application.properties /app/src/main/resources/applicati
 EXPOSE 6060
 
 
-CMD ["java", "-jar", "agence.jar"]
+CMD ["java", "-jar", "agence-0.0.1-SNAPSHOT.jar"]
