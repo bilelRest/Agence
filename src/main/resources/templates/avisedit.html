@@ -92,40 +92,62 @@
                         <!-- Colonne Numéro + Checkbox -->
                         <div class="col-md-2">
                             <label for="numColis" class="form-label">Numéro</label>
-                            <input type="text" class="form-control" id="numColis" name="numColis" required>
-                            <div class="form-check mt-2">
-                                <input class="form-check-input" type="checkbox" id="observation" name="observation">
-                                <label class="form-check-label" for="observation">Sans facture</label>
-                            </div>
+                            <input type="text" th:value="${douane.numColis}" class="form-control" id="numColis" name="numColis" required>
+
                         </div>
 
                         <!-- Autres champs inchangés -->
                         <div class="col-md-2">
                             <label for="bloc" class="form-label">Bloc</label>
-                            <input type="text" class="form-control" id="bloc" name="bloc" required>
+                            <input type="text"  th:value="${douane.bloc}" class="form-control" id="bloc" name="bloc" required>
                         </div>
                         <div class="col-md-1">
                             <label for="nbColis" class="form-label">Nombre</label>
-                            <input type="number" min="1" class="form-control" id="nbColis" name="nbColis" required>
+                            <input type="number" min="1"  th:value="${douane.nbColis}" class="form-control" id="nbColis" name="nbColis" required>
                         </div>
                         <div class="col-md-1">
                             <label for="poidColis" class="form-label">Poids (kg)</label>
-                            <input type="text" class="form-control" id="poidColis" name="poidColis" required>
+                            <input type="text"  th:value="${douane.poid}" class="form-control" id="poidColis" name="poidColis" required>
                         </div>
                         <div class="col-md-3">
                             <label for="nomDest" class="form-label">Destinataire</label>
-                            <input type="text" class="form-control" id="nomDest" name="nomDest" required>
+                            <input type="text"   th:value="${douane.nom}"class="form-control" id="nomDest" name="nomDest" required>
                         </div>
                         <div class="col-md-2">
                             <label for="origin" class="form-label">Origine</label>
-                            <input type="text" class="form-control" id="origin" name="origin" required>
+                            <input type="text"  th:value="${douane.origin}" class="form-control" id="origin" name="origin" required>
+                            <input type="hidden" th:value="${edit?douane.IdDouane:''} " name="id">
                         </div>
 
                         <!-- Bouton Ajouter déplacé à droite -->
-                        <div class="col-md-1">
-                            <button type="button" class="btn btn-success w-100" id="submitBtn">Ajouter</button>
+                        <div  class="col-md-1">
+                            <button  title="Ajouter un nouveaux colis" type="button" th:class="${edit?'d-none':'btn btn-success w-100'}" id="submitBtn">Ajouter</button>
+                            <button title="Enregistrer les modification"  type="submit" th:class="${edit?'btn btn-primary w-100':'d-none'}" id="editBtn">Modifier</button>
+
+
+                        </div>
+
+                    </div>
+                    <div class="form-check mt-4">
+                        <div class="row align-items-center justify-content-between">
+                            <!-- Checkbox à gauche -->
+                            <div class="col-auto">
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           th:checked="${douane.observation == 'Sans facture'}"
+                                           type="checkbox" id="observation" name="observation">
+                                    <label class="form-check-label" for="observation">Sans facture</label>
+                                </div>
+                            </div>
+
+                            <!-- Bouton à droite -->
+                            <div class="col-auto">
+                                <a href="/avisedit"  class="btn btn-warning" value="Annuler" title="Vider les champs" id="resetBtn">Annuler</a>
+                            </div>
                         </div>
                     </div>
+
+
 
                     <!-- Messages d'état -->
                     <div class="row mt-3">
@@ -156,9 +178,11 @@
                     <thead class="table-light">
                     <tr>
                         <th class="py-3">Numéro du colis</th>
+                        <th class="py-3">Bloc</th>
                         <th class="py-3">Destinataire</th>
                         <th class="py-3">Nombre</th>
                         <th class="py-3">Poids (kg)</th>
+                        <th class="py-3">Origine</th>
                         <th class="py-3">Observation</th>
                         <th class="py-3 action-column">Actions</th>
                     </tr>
@@ -166,9 +190,11 @@
                     <tbody>
                     <tr th:each="col : ${colisList}">
                         <td th:text="${col.numColis}" class="align-middle"></td>
+                        <td th:text="${col.bloc}" class="align-middle"></td>
                         <td th:text="${col.nom}" class="align-middle"></td>
                         <td th:text="${col.nbColis}" class="align-middle text-center"></td>
-                        <td th:text="${col.poid}" class="align-middle text-end"></td>
+                        <td th:text="${col.poid}" class="align-middle "></td>
+                        <td th:text="${col.origin}" class="align-middle"></td>
                         <td th:text="${col.observation}" class="align-middle"></td>
                         <td class="align-middle action-buttons action-column">
                             <a target="_blank" class="btn btn-success btn-print"
@@ -177,9 +203,9 @@
                                title="Imprimer ce colis">
                                 <i class="bi bi-printer-fill"></i>
                             </a>
-                            <button class="btn btn-primary btn-edit" title="Modifier ce colis">
+                            <a th:href="@{/avisedit(id=${col.idDouane})}" class="btn btn-primary btn-edit" title="Modifier ce colis">
                                 <i class="bi bi-pen-fill"></i>
-                            </button>
+                            </a>
                             <button class="btn btn-danger btn-delete" title="Supprimer ce colis">
                                 <i class="bi bi-trash-fill"></i>
                             </button>

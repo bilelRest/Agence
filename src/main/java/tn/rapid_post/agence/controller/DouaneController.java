@@ -1,9 +1,6 @@
 package tn.rapid_post.agence.controller;
 
-import net.sf.jasperreports.engine.JRException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +11,7 @@ import tn.rapid_post.agence.repo.douaneRepo;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Controller
 public class DouaneController {
@@ -83,8 +77,22 @@ public String etatdouane(Model model,@RequestParam(value = "date1",required = fa
 
 @GetMapping("/avisedit")
 public String avisedit(Model model,@RequestParam(value = "exist",required = false)boolean exist,
-                       @RequestParam(value = "success",required = false)boolean success){
+                       @RequestParam(value = "success",required = false)boolean success,
+                       @RequestParam(value = "id",required = false)String id){
+    Douane douane=new Douane();
+    boolean edit=false;
+if (id!=null&&id!=""){
+   Optional douane1=douaneRepo.findById(Long.parseLong(id));
+   if (douane1.isPresent()){
+       douane=(Douane) douane1.get();
 
+       edit=true;
+   }else {
+       douane=new Douane();
+   }
+}
+    model.addAttribute("douane",douane);
+model.addAttribute("edit",edit);
     List<Douane> colisList=new ArrayList<>();
     colisList=douaneRepo.findByPrintedFalse();
     model.addAttribute("success",success);
@@ -99,13 +107,20 @@ model.addAttribute("colisList",colisList);
                            @RequestParam(value = "nomDest")String nomDest,
                            @RequestParam(value = "observation",defaultValue = "false")boolean observation,
                            @RequestParam(value = "bloc")String bloc,
-                           @RequestParam(value = "origin")String origin){
-    if (douaneRepo.findByNumColis(numColis)!=null || douaneRepo.findByBloc(bloc)!=null){
+                           @RequestParam(value = "origin")String origin,
+                           @RequestParam(value = "id",required = false)String id){
+    Douane colis=new Douane();
+    if (id!=null&& !id.isEmpty()){
+        Optional<Douane> douane=douaneRepo.findById(Long.parseLong(id));
+        if (douane.isPresent()){
+            colis=(Douane) douane.get();
+        }
+    }else {if (douaneRepo.findByNumColis(numColis)!=null || douaneRepo.findByBloc(bloc)!=null){
         return "redirect:/avisedit?exist="+true;
 
-    }
+    }}
     System.out.println("Bloc recu : "+bloc);
-    Douane colis=new Douane();
+
     colis.setNbColis(nbColis);
     colis.setBloc(bloc);
     colis.setOrigin(origin);
@@ -122,6 +137,7 @@ model.addAttribute("colisList",colisList);
     colis.setDelivered(false);
     colis.setDateArrivee(LocalDate.now());
     colis.setDateSortie(LocalDate.now());
+    colis.setValidated(true);
     douaneRepo.save(colis);
 
     return "redirect:/avisedit?success="+true;

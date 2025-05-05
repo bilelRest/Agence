@@ -1,9 +1,7 @@
 package tn.rapid_post.agence.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import tn.rapid_post.agence.sec.entity.AppUser;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,15 +16,34 @@ public class B3 {
     private boolean notified;
     private int numTel;
     private final LocalDateTime dateNotif= LocalDateTime.now();
+    @OneToOne(fetch = FetchType.LAZY)
+    private AppUser appUser;
+
+    public B3(long idB3, String numB3, String destination, boolean notified, int numTel, AppUser appUser) {
+        this.idB3 = idB3;
+        this.numB3 = numB3;
+        this.destination = destination;
+        this.notified = notified;
+        this.numTel = numTel;
+        this.appUser = appUser;
+    }
+
+    public AppUser getAppUser() {
+        return appUser;
+    }
+
+    public void setAppUser(AppUser appUser) {
+        this.appUser = appUser;
+    }
 
     public B3() {
     }
 
-    public B3(String numB3, String destination, boolean notified, int numTel) {
+    public B3( String numB3, String destination, boolean notified, int numTel) {
+        this.idB3 = idB3;
         this.numB3 = numB3;
         this.destination = destination;
         this.notified = notified;
-        this.idB3 = idB3;
         this.numTel = numTel;
     }
 

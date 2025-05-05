@@ -31,8 +31,8 @@ public class SmsController {
     @GetMapping("/sms")
     public String sms(Model model,@RequestParam(value = "exist",required = false) boolean exist,
                       @RequestParam(value = "status",required = false)String status,@RequestParam(value = "id",required = false)String id){
-        String id2;
-        model.addAttribute("id",id2=id==null?"":id);
+
+        model.addAttribute("id",id==null?"":id);
         if (status!=null&& !status.equals("")){
             model.addAttribute("status", status.equals("true"));
         }

@@ -1,9 +1,8 @@
 package tn.rapid_post.agence.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import org.springframework.boot.context.properties.bind.DefaultValue;
+import tn.rapid_post.agence.sec.entity.AppUser;
 
 import java.time.LocalDate;
 
@@ -28,6 +27,47 @@ public class Douane {
     private boolean delivered;
     private String origin;
     private String bloc;
+    @OneToOne(fetch = FetchType.LAZY)
+    private AppUser appUser;
+
+    private boolean validated;
+
+    public Douane(String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, AppUser appUser, boolean validated) {
+        this.nom = nom;
+        this.numColis = numColis;
+        this.dateSortie = dateSortie;
+        this.dateArrivee = dateArrivee;
+        this.nbColis = nbColis;
+        this.droitDouane = droitDouane;
+        this.fraisDedouane = fraisDedouane;
+        this.fraisReemballage = fraisReemballage;
+        this.fraisMagasin = fraisMagasin;
+        this.totPayer = totPayer;
+        this.poid = poid;
+        this.observation = observation;
+        this.printed = printed;
+        this.delivered = delivered;
+        this.origin = origin;
+        this.bloc = bloc;
+        this.appUser = appUser;
+        this.validated = validated;
+    }
+
+    public AppUser getAppUser() {
+        return appUser;
+    }
+
+    public void setAppUser(AppUser appUser) {
+        this.appUser = appUser;
+    }
+
+    public boolean isValidated() {
+        return validated;
+    }
+
+    public void setValidated(boolean vallidated) {
+        this.validated = vallidated;
+    }
 
     public String getOrigin() {
         return origin;
@@ -65,7 +105,7 @@ public class Douane {
         this.delivered = delivered;
     }
 
-    public Douane(long idDouane, String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc) {
+    public Douane(long idDouane, String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc,boolean validated) {
         this.idDouane = idDouane;
         this.nom = nom;
         this.numColis = numColis;
@@ -83,6 +123,7 @@ public class Douane {
         this.delivered = delivered;
         this.origin = origin;
         this.bloc = bloc;
+        this.validated=validated;
     }
 
     public long getIdDouane() {
