@@ -1,5 +1,6 @@
 package tn.rapid_post.agence.controller;
 
+import net.sf.jasperreports.engine.JRException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -96,17 +97,22 @@ model.addAttribute("colisList",colisList);
                            @RequestParam(value = "nbColis") int nbColis,
                            @RequestParam(value = "poidColis")double poidColis,
                            @RequestParam(value = "nomDest")String nomDest,
-                           @RequestParam(value = "observation")String observation){
-    if (douaneRepo.findByNumColis(numColis)!=null){
+                           @RequestParam(value = "observation",defaultValue = "false")boolean observation,
+                           @RequestParam(value = "bloc")String bloc,
+                           @RequestParam(value = "origin")String origin){
+    if (douaneRepo.findByNumColis(numColis)!=null || douaneRepo.findByBloc(bloc)!=null){
         return "redirect:/avisedit?exist="+true;
 
     }
+    System.out.println("Bloc recu : "+bloc);
     Douane colis=new Douane();
     colis.setNbColis(nbColis);
+    colis.setBloc(bloc);
+    colis.setOrigin(origin);
     colis.setNumColis(numColis);
     colis.setPoid(poidColis);
     colis.setNom(nomDest);
-    colis.setObservation(observation!=null?observation:"");
+    colis.setObservation(observation?"Sans facture":"");
     colis.setDroitDouane(0);
     colis.setFraisMagasin(0);
     colis.setFraisDedouane(4);

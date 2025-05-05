@@ -14,10 +14,7 @@ import tn.rapid_post.agence.reports.Reporter;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @Validated
@@ -39,6 +36,7 @@ public class Printer {
          douane.setDroitDouane(droit);
          douane.setTotPayer(total);
          douane.setDateSortie(LocalDate.now());
+         douane.setNom("Societe Sivo commerciale 74215746");
 
          douane.setDelivered(true);
            douaneRep.save(douane);
@@ -52,8 +50,17 @@ public class Printer {
 
     }
     @GetMapping(value = "/print-list")
-    public ResponseEntity<byte[]> printLlist() throws JRException {
-        List<Douane> douaneList =douaneRep.findByPrintedFalse();
+    public ResponseEntity<byte[]> printLlist(@RequestParam(value = "id",required = false)String id) throws JRException {
+        List<Douane> douaneList =new ArrayList<>();
+        if (id!=null){
+            Optional douane=douaneRep.findById(Long.parseLong(id));
+            if (douane.isPresent()){
+                douaneList.add((Douane) douane.get());
+            }
+        }else {
+            douaneList=douaneRep.findByPrintedFalse();
+        }
+
         for (Douane d:douaneList){
             d.setPrinted(true);
             douaneRep.save(d);

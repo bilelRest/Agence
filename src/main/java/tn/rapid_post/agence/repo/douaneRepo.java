@@ -14,6 +14,8 @@ public interface douaneRepo extends JpaRepository<Douane,Long> {
     List<Douane> findByPrintedFalse();
 
     Douane findByNumColis(String num);
+
+    Douane findByBloc(String bloc);
 //    @Query("SELECT d FROM Douane d WHERE d.delivered = false AND d.dateSortie BETWEEN ?1 AND ?2 OR d.dateSortie BETWEEN ?1 AND ?2")
 //
 //    List<Douane> findBetweenDatesAndDeliverdTrue(LocalDate date1, LocalDate date2);

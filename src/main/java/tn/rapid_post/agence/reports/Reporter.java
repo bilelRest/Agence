@@ -7,6 +7,7 @@ import tn.rapid_post.agence.entity.Douane;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,20 @@ public class Reporter {
 
 
     public byte[] reports(Map<String, Object> params, List<Douane> list) throws JRException {
-        InputStream inputStream = getClass().getResourceAsStream("/report/recu.jrxml");
+        List<Douane> douaneList=new ArrayList<>();
+        InputStream inputStream = null;
+        for (Douane douane:list){
+            if (!douane.isDelivered()){
+                douaneList.add(douane);
+            }
+        }
+        if (!douaneList.isEmpty()){
+            inputStream = getClass().getResourceAsStream("/report/recu-sans-montant.jrxml");
+
+        }else {
+            inputStream = getClass().getResourceAsStream("/report/recu.jrxml");
+
+        }
 
         if (inputStream == null) {
             System.out.println("Fichier vide ou non trouvé");

@@ -1,6 +1,5 @@
 package tn.rapid_post.agence.entity;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,6 +26,24 @@ public class Douane {
     private String observation;
     private boolean printed;
     private boolean delivered;
+    private String origin;
+    private String bloc;
+
+    public String getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
+    public String getBloc() {
+        return bloc;
+    }
+
+    public void setBloc(String bloc) {
+        this.bloc = bloc;
+    }
 
     public Douane(boolean printed) {
         this.printed = printed;
@@ -48,32 +65,13 @@ public class Douane {
         this.delivered = delivered;
     }
 
-    @Override
-    public String toString() {
-        return "Douane{" +
-                "idDouane=" + idDouane +
-                ", nom='" + nom + '\'' +
-                ", numColis='" + numColis + '\'' +
-                ", dateSortie=" + dateSortie +
-                ", dateArrivee=" + dateArrivee +
-                ", nbColis=" + nbColis +
-                ", droitDouane=" + droitDouane +
-                ", fraisDedouane=" + fraisDedouane +
-                ", fraisReemballage=" + fraisReemballage +
-                ", fraisMagasin=" + fraisMagasin +
-                ", totPayer=" + totPayer +
-                ", poid=" + poid +
-                ", observation='" + observation + '\'' +
-                '}';
-    }
-
-    public Douane(long idDouane, String nom, String numColis, LocalDate dateSortie, int nbColis, LocalDate dateArrivee, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed) {
+    public Douane(long idDouane, String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc) {
         this.idDouane = idDouane;
         this.nom = nom;
         this.numColis = numColis;
         this.dateSortie = dateSortie;
-        this.nbColis = nbColis;
         this.dateArrivee = dateArrivee;
+        this.nbColis = nbColis;
         this.droitDouane = droitDouane;
         this.fraisDedouane = fraisDedouane;
         this.fraisReemballage = fraisReemballage;
@@ -82,6 +80,9 @@ public class Douane {
         this.poid = poid;
         this.observation = observation;
         this.printed = printed;
+        this.delivered = delivered;
+        this.origin = origin;
+        this.bloc = bloc;
     }
 
     public long getIdDouane() {
