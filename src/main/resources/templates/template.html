@@ -147,13 +147,14 @@
                     <i class="bi bi-speedometer text-warning me-3 fs-5"></i>
                     Dashboard
                     <i class="bi bi-chevron-down float-end mt-1"></i>
+
                 </a>
             </li>
 
             <div id="dropMenu3" class="sub-menu ms-4 mb-2" style="display:none;">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="#">
+                        <a class="nav-link text-light py-2" href="dashdouane">
                             <i class="bi bi-search text-orange me-2"></i>
                             Douane
                         </a>
@@ -226,11 +227,31 @@
 
 
             <li class="nav-item">
-                <a class="nav-link text-light py-3" href="#">
-                    <i class="bi bi-buildings text-warning me-3 fs-5"></i>
-                    Agence
+                <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu4()">
+<!--                    <i class="bi bi-3-square text-warning me-3 fs-5"></i>-->
+                    <i class="bi bi-arrow-90deg-left text-warning me-3 fs-5"></i>
+
+                    Retour B3
+                    <i class="bi bi-chevron-down float-end mt-1"></i>
                 </a>
             </li>
+
+            <div id="dropMenu4" class="sub-menu ms-4 mb-2" style="display:none;">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="/retourb3">
+                            <i class="bi bi-search text-orange me-2"></i>
+                            Consulter
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="/retourb3rcp">
+                            <i class="bi bi-chat-text text-orange me-2"></i>
+                            Réception
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </ul>
 
         <div class="position-absolute bottom-0 start-0 end-0 p-3 bg-dark">
@@ -251,6 +272,17 @@
 <script>
     function toggleMenu() {
         const menu = document.getElementById('dropMenu');
+        const isHidden = menu.style.display === "none" || menu.style.display === "";
+        menu.style.display = isHidden ? "block" : "none";
+
+        // Change l'icône
+        const icon = document.querySelector('#offcanvasMenu .bi-chevron-down');
+        if (icon) {
+            icon.className = isHidden ? 'bi bi-chevron-up float-end mt-1' : 'bi bi-chevron-down float-end mt-1';
+        }
+    }
+    function toggleMenu4() {
+        const menu = document.getElementById('dropMenu4');
         const isHidden = menu.style.display === "none" || menu.style.display === "";
         menu.style.display = isHidden ? "block" : "none";
 
