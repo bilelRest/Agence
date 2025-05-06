@@ -42,7 +42,6 @@
             const isSameDay = date1 === date2;
 
             // Calculer les totaux
-            let totalColis = 0;
             let totalMontant = 0;
             let totalPoids = 0;
             let totalDroitDouane = 0;
@@ -51,36 +50,36 @@
             let totalFraisMagasin = 0;
 
             const rows = Array.from(document.querySelectorAll('tbody tr')).map(row => {
-                const montant = parseFloat(row.cells[10].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
-                const nbColis = parseInt(row.cells[4].textContent) || 1;
-                const poids = parseFloat(row.cells[5].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
-                const droitDouane = parseFloat(row.cells[6].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
-                const fraisDedouane = parseFloat(row.cells[7].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
-                const fraisReemballage = parseFloat(row.cells[8].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
-                const fraisMagasin = parseFloat(row.cells[9].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+                const cells = row.cells;
+                const montant = parseFloat(cells[9].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+                const poids = parseFloat(cells[4].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+                const droitDouane = parseFloat(cells[5].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+                const fraisDedouane = parseFloat(cells[6].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+                const fraisReemballage = parseFloat(cells[7].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+                const fraisMagasin = parseFloat(cells[8].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
 
                 totalMontant += montant;
-                totalColis += nbColis;
                 totalPoids += poids;
                 totalDroitDouane += droitDouane;
                 totalFraisDedouane += fraisDedouane;
                 totalFraisReemballage += fraisReemballage;
                 totalFraisMagasin += fraisMagasin;
+                tot2=totalFraisReemballage+totalFraisMagasin
+
+
 
                 return `
                     <tr>
-                        <td>${row.cells[0].textContent}</td>
-                        <td>${row.cells[1].textContent}</td>
-                        <td>${row.cells[2].textContent}</td>
-                        <td>${row.cells[3].textContent}</td>
-                        <td class="text-end">${nbColis}</td>
-                        <td class="text-end">${poids.toFixed(2)}</td>
-                        <td class="text-end">${droitDouane.toFixed(2)}</td>
-                        <td class="text-end">${fraisDedouane.toFixed(2)}</td>
-                        <td class="text-end">${fraisReemballage.toFixed(2)}</td>
-                        <td class="text-end">${fraisMagasin.toFixed(2)}</td>
-                        <td class="text-end">${montant.toFixed(2)}</td>
-                        <td>${row.cells[11].textContent}</td>
+                        <td>${cells[0].textContent}</td>
+                        <td>${cells[1].textContent}</td>
+                        <td>${cells[2].textContent}</td>
+                        <td>${cells[3].textContent}</td>
+                        <td class="text-end">${poids.toFixed(3)}</td>
+                        <td class="text-end">${droitDouane.toFixed(3)}</td>
+                        <td class="text-end">${fraisDedouane.toFixed(3)}</td>
+                        <td class="text-end">${fraisReemballage.toFixed(3)}</td>
+                        <td class="text-end">${fraisMagasin.toFixed(3)}</td>
+                        <td class="text-end">${montant.toFixed(3)}</td>
                     </tr>
                 `;
             });
@@ -121,18 +120,16 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>N° Colis</th>
+                                    <th>N° Séquence</th>
                                     <th>Client</th>
                                     <th>Date Sortie</th>
                                     <th>Date Arrivée</th>
-                                    <th>Nb Colis</th>
                                     <th>Poids</th>
                                     <th>Droit Douane</th>
                                     <th>Frais Dédouane</th>
                                     <th>Frais Reemballage</th>
                                     <th>Frais Magasin</th>
                                     <th>Total</th>
-                                    <th>Observation</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -141,15 +138,33 @@
                             <tfoot>
                                 <tr class="text-bold">
                                     <td colspan="4" class="text-end">Totaux:</td>
-                                    <td class="text-end">${totalColis}</td>
-                                    <td class="text-end">${totalPoids.toFixed(2)}</td>
-                                    <td class="text-end">${totalDroitDouane.toFixed(2)}</td>
-                                    <td class="text-end">${totalFraisDedouane.toFixed(2)}</td>
-                                    <td class="text-end">${totalFraisReemballage.toFixed(2)}</td>
-                                    <td class="text-end">${totalFraisMagasin.toFixed(2)}</td>
-                                    <td class="text-end">${totalMontant.toFixed(2)}</td>
-                                    <td></td>
+                                    <td class="text-end">${totalPoids.toFixed(3)}</td>
+                                    <td class="text-end">${totalDroitDouane.toFixed(3)}</td>
+                                    <td class="text-end">${totalFraisDedouane.toFixed(3)}</td>
+                                    <td class="text-end">${totalFraisReemballage.toFixed(3)}</td>
+                                    <td class="text-end">${totalFraisMagasin.toFixed(3)}</td>
+                                    <td class="text-end">${totalMontant.toFixed(3)}</td>
                                 </tr>
+                                <table class="tabel">
+                                <br>
+                <thead>
+                <th>Ligne CRA</th>
+                <th>603</th>
+                <th>606</th>
+                <th>600</th>
+                <th>Total</th>
+
+                </thead>
+                <tbody>
+                <td style="font-weight:bold;text-align:center">Montant</td>
+                <td>${totalFraisDedouane.toFixed(3)}</td>
+                <td>${totalDroitDouane.toFixed(3)}</td>
+                <td>${tot2.toFixed(3)}</td>
+                <td>${totalMontant.toFixed(3)}</td>
+                </tbody>
+            </table>
+
+
                             </tfoot>
                         </table>
 
@@ -208,47 +223,41 @@
                 <table class="table table-striped table-bordered table-hover">
                     <thead class="table-dark">
                     <tr>
-                        <th>N° Colis</th>
-                        <th>Nom</th>
+                        <th>N° Séquence</th>
+                        <th>Client</th>
                         <th>Date Sortie</th>
                         <th>Date Arrivée</th>
-                        <th>Nb Colis</th>
                         <th>Poids</th>
                         <th>Droit Douane</th>
                         <th>Frais Dédouane</th>
                         <th>Frais Reemballage</th>
                         <th>Frais Magasin</th>
                         <th>Total à Payer</th>
-                        <th>Observation</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="colis : ${colislise}">
-                        <td th:text="${colis.numColis}"></td>
+                        <td th:text="${colis.sequence}" class="text-truncate"></td>
                         <td th:text="${colis.nom}"></td>
                         <td th:text="${colis.dateSortie}"></td>
                         <td th:text="${colis.dateArrivee}"></td>
-                        <td th:text="${colis.nbColis}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.poid, 1, 2)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.droitDouane, 1, 2)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.fraisDedouane, 1, 2)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.fraisReemballage, 1, 2)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.fraisMagasin, 1, 2)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.totPayer, 1, 2)}" class="text-end fw-bold"></td>
-                        <td th:text="${colis.observation}" class="text-truncate"></td>
                     </tr>
                     </tbody>
                     <tfoot>
                     <tr class="total-row">
                         <td colspan="4" class="text-end">Totaux:</td>
-                        <td th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![nbColis]), 1, 2)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![poid]), 1, 2)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![droitDouane]), 1, 2)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![fraisDedouane]), 1, 2)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![fraisReemballage]), 1, 2)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![fraisMagasin]), 1, 2)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![totPayer]), 1, 2)}" class="text-end fw-bold"></td>
-                        <td></td>
                     </tr>
                     </tfoot>
                 </table>

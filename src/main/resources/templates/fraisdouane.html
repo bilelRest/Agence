@@ -90,6 +90,11 @@
                                     <input id="droit" th:value="${douane.droitDouane}" name="droit" type="number" step="0.001"
                                            class="form-control" required>
                                 </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Numéro de séquence</label>
+                                    <input id="sequence" th:value="${douane.sequence}" name="sequence" type="number" step="0.001"
+                                           class="form-control" required>
+                                </div>
 
                                 <div class="col-md-4 d-flex align-items-end">
                                     <button type="submit" id="calculBtn" class="btn btn-primary w-100">

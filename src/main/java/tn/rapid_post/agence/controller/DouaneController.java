@@ -38,7 +38,7 @@ public String etatdouane(Model model,@RequestParam(value = "date1",required = fa
     @GetMapping("/dounecalc")
     public String frais(Model model,
                         @RequestParam(value = "colis",required = false)String colis,
-                        @RequestParam(value = "droit" ,required = false)String droit){
+                        @RequestParam(value = "droit" ,required = false)String droit,@RequestParam(value = "sequence",required = false)String sequence){
     Douane douane=new Douane();
         long daysBetween=0;
     if (colis!=null){
@@ -52,6 +52,7 @@ public String etatdouane(Model model,@RequestParam(value = "date1",required = fa
                  droit1=Double.parseDouble(droit);
                  System.out.println("droit1 = "+droit1);
                  douane.setDroitDouane(droit1);
+                 douane.setSequence(Long.parseLong(sequence));
 
 
 
@@ -61,7 +62,7 @@ public String etatdouane(Model model,@RequestParam(value = "date1",required = fa
             if(daysBetween<7){
                 douane.setTotPayer(douane.getNbColis()*6+douane.getDroitDouane());
             }else {
-                douane.setTotPayer(daysBetween*douane.getNbColis()+douane.getNbColis()*6+douane.getDroitDouane());
+                douane.setTotPayer((daysBetween-6)*douane.getNbColis()+douane.getNbColis()*6+douane.getDroitDouane());
 
             }
 
@@ -91,6 +92,7 @@ if (id!=null&&id!=""){
        douane=new Douane();
    }
 }
+model.addAttribute("datear",LocalDate.now());
     model.addAttribute("douane",douane);
 model.addAttribute("edit",edit);
     List<Douane> colisList=new ArrayList<>();
@@ -108,7 +110,8 @@ model.addAttribute("colisList",colisList);
                            @RequestParam(value = "observation",defaultValue = "false")boolean observation,
                            @RequestParam(value = "bloc")String bloc,
                            @RequestParam(value = "origin")String origin,
-                           @RequestParam(value = "id",required = false)String id){
+                           @RequestParam(value = "id",required = false)String id,
+                           @RequestParam(value = "datear")LocalDate datear){
     Douane colis=new Douane();
     if (id!=null&& !id.isEmpty()){
         Optional<Douane> douane=douaneRepo.findById(Long.parseLong(id));
@@ -120,6 +123,8 @@ model.addAttribute("colisList",colisList);
 
     }}
     System.out.println("Bloc recu : "+bloc);
+    System.out.println("Date arrivee"+datear);
+    colis.setDateArrivee(datear);
 
     colis.setNbColis(nbColis);
     colis.setBloc(bloc);
@@ -135,7 +140,7 @@ model.addAttribute("colisList",colisList);
     colis.setTotPayer(0);
     colis.setPrinted(false);
     colis.setDelivered(false);
-    colis.setDateArrivee(LocalDate.now());
+
     colis.setDateSortie(LocalDate.now());
     colis.setValidated(true);
     douaneRepo.save(colis);
