@@ -41,10 +41,24 @@ public String etatdouane(Model model,@RequestParam(value = "date1",required = fa
                         @RequestParam(value = "droit" ,required = false)String droit,
                         @RequestParam(value = "sequence",required = false)String sequence){
     Douane douane=new Douane();
+    boolean exist=false;
+    boolean empty=false;
         long daysBetween=0;
     if (colis!=null){
 
         douane=douaneRepo.findByNumColis(colis);
+        if (douane==null){
+            empty=true;
+            model.addAttribute("empty",empty);
+            return "fraisdouane";
+        }
+        if (douane!=null){
+            if (douane.isDelivered()){
+                exist=true;
+                model.addAttribute("exist",exist);
+                return "fraisdouane";
+            }
+        }
         double droit1=0;
         System.out.println("droit = "+droit);
         System.out.println("colis = "+colis);
@@ -72,7 +86,7 @@ public String etatdouane(Model model,@RequestParam(value = "date1",required = fa
             douane.setFraisReemballage(douane.getNbColis()*2);
             douane.setFraisMagasin(magasinage);
 
-            douaneRepo.save(douane);
+    douaneRepo.save(douane);
 
             model.addAttribute("daysBetween",daysBetween);
             model.addAttribute("douane",douane);
