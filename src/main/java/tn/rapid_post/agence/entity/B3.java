@@ -12,6 +12,7 @@ public class B3 {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long idB3;
     private String numB3;
+    private String nom="";
     private String destination;
     private boolean notified;
     private int numTel;
@@ -19,13 +20,32 @@ public class B3 {
     @OneToOne(fetch = FetchType.LAZY)
     private AppUser appUser;
 
-    public B3(long idB3, String numB3, String destination, boolean notified, int numTel, AppUser appUser) {
+    public B3(long idB3, String numB3, String destination, boolean notified, int numTel,String nom, AppUser appUser) {
         this.idB3 = idB3;
         this.numB3 = numB3;
         this.destination = destination;
         this.notified = notified;
         this.numTel = numTel;
+        this.nom=nom;
         this.appUser = appUser;
+    }
+
+    public B3(String ref, String post, boolean b, int i, String nom) {
+
+        this.numB3 = ref;
+        this.destination = post;
+        this.notified=b;
+        this.numTel = i;
+        this.nom=nom;
+
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
     }
 
     public AppUser getAppUser() {

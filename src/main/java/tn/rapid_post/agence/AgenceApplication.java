@@ -27,10 +27,10 @@ public class AgenceApplication {
 
 //RetourB3 retourB3=new RetourB3("123456","hdhhdhd");
 //b3Rep.save(retourB3);
-				List<RetourB3> retourB3List=b3Rep.findAll();
-				for (RetourB3 b3:retourB3List){
-					System.out.println(b3.getId());
-				}
+//				List<RetourB3> retourB3List=b3Rep.findAll();
+//				for (RetourB3 b3:retourB3List){
+//					System.out.println(b3.getId());
+//				}
 			};
 		}
 

@@ -9,14 +9,13 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tn.rapid_post.agence.entity.B3;
+import tn.rapid_post.agence.entity.RetourB3;
+import tn.rapid_post.agence.sec.entity.AppUser;
 import tn.rapid_post.agence.service.ApiService;
 import tn.rapid_post.agence.repo.b3Repo;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -50,6 +49,7 @@ public class SmsController {
     public String sms(@RequestParam String tel,
                       @RequestParam String ref,
                       @RequestParam String post,
+                      @RequestParam(value = "nom",defaultValue = "")String nom,
                       @RequestParam(value = "resend",required = false)boolean resend
                      ) throws UnsupportedEncodingException {
 if (resend){
@@ -73,7 +73,7 @@ if (resend){
         }if (post.isEmpty()){
             post="Agence";
         }
-        B3 b3=new B3(ref,post,false,Integer.parseInt(tel));
+        B3 b3=new B3(ref,post,false,Integer.parseInt(tel),nom);
         b3Rep.save(b3);
 
 
@@ -109,29 +109,57 @@ if (resend){
         return "b3consul";
     }
 
-    @PostMapping("/findb3")
-    public String rechercherB3(@RequestParam(value = "query") String query,
-                               RedirectAttributes redirectAttributes) {
-
-        // Validation de l'entrée
-        if (!StringUtils.hasText(query)) {
-            redirectAttributes.addAttribute("error", true);
-            return "redirect:/b3consul";
-        }
-
-        // Recherche par numéro B3
-        B3 b3 = b3Rep.findByNumB3(query.trim());
-
-        if (b3 != null) {
-            return "redirect:/b3consul?query=" + b3.getIdB3();
-        } else {
-            redirectAttributes.addAttribute("error", true);
-            return "redirect:/b3consul";
-        }
-    }
+//    @PostMapping("/findb3")
+//    public String rechercherB3(@RequestParam(value = "query") String query,
+//                               RedirectAttributes redirectAttributes) {
+//
+//        // Validation de l'entrée
+//        if (!StringUtils.hasText(query)) {
+//            redirectAttributes.addAttribute("error", true);
+//            return "redirect:/b3consul";
+//        }
+//
+//        // Recherche par numéro B3
+//        B3 b3 = b3Rep.findByNumB3(query.trim());
+//
+//        if (b3 != null) {
+//            return "redirect:/b3consul?query=" + b3.getIdB3();
+//        } else {
+//            redirectAttributes.addAttribute("error", true);
+//            return "redirect:/b3consul";
+//        }
+//    }
     @GetMapping("/")
     public String home(Model model){
         return "template";
+    }
+    @GetMapping("/findb3")
+    public String retourb3(Model model,
+                           @RequestParam(value = "numb3", required = false) String numb3,
+                           @RequestParam(value = "name", required = false) String name) {
+
+        List<B3> results = new ArrayList<>();
+
+        try {
+            if (StringUtils.hasText(numb3)) {
+                // Recherche par numéro B3
+
+                B3 retourB3 = b3Rep.findByNumB3(numb3);
+                if (retourB3!=null) {
+                    results.add(( retourB3));
+                }
+            }
+            if (StringUtils.hasText(name)) {
+                // Recherche par nom (insensible à la casse)
+                results = b3Rep.findByNumB3RoOrNomPrenB3Ro(Long.parseLong(name),name);
+            }
+
+        } catch (NumberFormatException e) {
+            model.addAttribute("error", "Format de numéro B3 invalide");
+        }
+
+        model.addAttribute("results", results);
+        return "b3consul";
     }
 
 //    @GetMapping("/send_sms")

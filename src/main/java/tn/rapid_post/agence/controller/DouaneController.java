@@ -38,7 +38,8 @@ public String etatdouane(Model model,@RequestParam(value = "date1",required = fa
     @GetMapping("/dounecalc")
     public String frais(Model model,
                         @RequestParam(value = "colis",required = false)String colis,
-                        @RequestParam(value = "droit" ,required = false)String droit,@RequestParam(value = "sequence",required = false)String sequence){
+                        @RequestParam(value = "droit" ,required = false)String droit,
+                        @RequestParam(value = "sequence",required = false)String sequence){
     Douane douane=new Douane();
         long daysBetween=0;
     if (colis!=null){
@@ -57,14 +58,21 @@ public String etatdouane(Model model,@RequestParam(value = "date1",required = fa
 
 
             }
+            double magasinage=0;
             daysBetween= ChronoUnit.DAYS.between(douane.getDateArrivee(), LocalDate.now());
             System.out.println(daysBetween);
             if(daysBetween<7){
                 douane.setTotPayer(douane.getNbColis()*6+douane.getDroitDouane());
             }else {
                 douane.setTotPayer((daysBetween-6)*douane.getNbColis()+douane.getNbColis()*6+douane.getDroitDouane());
+                magasinage=(daysBetween-6)*douane.getNbColis();
 
             }
+            douane.setFraisDedouane(douane.getNbColis()*4);
+            douane.setFraisReemballage(douane.getNbColis()*2);
+            douane.setFraisMagasin(magasinage);
+
+            douaneRepo.save(douane);
 
             model.addAttribute("daysBetween",daysBetween);
             model.addAttribute("douane",douane);
@@ -146,6 +154,25 @@ model.addAttribute("colisList",colisList);
     douaneRepo.save(colis);
 
     return "redirect:/avisedit?success="+true;
+}
+@GetMapping("quinzaine")
+    public String quinzaine(Model model,
+                            @RequestParam(value = "date1",required = false)LocalDate date1,
+                            @RequestParam(value = "date2",required = false)LocalDate date2){
+    List<Douane> results=new ArrayList<>();
+    long nbTot=0;
+    long douaneTot=0;
+    if (date1!=null&&date2!=null){
+        results=douaneRepo.findBetweenDates(date1,date2);
+        for (Douane douane:results){
+            nbTot+=douane.getNbColis();
+            douaneTot+= (long) douane.getDroitDouane();
+        }
+    }
+    model.addAttribute("nbTot",nbTot);
+    model.addAttribute("douaneTot",douaneTot);
+    model.addAttribute("results",results);
+    return "quinzaine";
 }
 
 }
