@@ -185,20 +185,30 @@
 <div layout:fragment="content1">
     <div class="card mb-3">
         <div class="card-header text-center bg-primary text-white">
-            <h1>Etat du règlement des colis sous douane</h1>
+            <h1>Etat périodique du règlement des colis sous douane</h1>
         </div>
     </div>
 
     <div class="card">
-
-<div class="card-header">
-    <h1> </h1><h1 th:text="'Journée du :' +${date1}"></h1>
-</div>
-                        <input type="hidden" id="date1" name="date1" class="form-control" th:value="${date1}">
-
-                        <input type="hidden"  id="date2" name="date2" class="form-control" th:value="${date2}">
-
-
+        <form th:action="@{/etatdouane}" method="get" class="form">
+            <div class="card-header bg-light">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-5">
+                        <label for="date1" class="form-label">Date de début</label>
+                        <input type="date" id="date1" name="date1" class="form-control" th:value="${date1}">
+                    </div>
+                    <div class="col-md-5">
+                        <label for="date2" class="form-label">Date de fin</label>
+                        <input type="date" id="date2" name="date2" class="form-control" th:value="${date2}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button title="Rechercher" type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
 
         <div class="card-body">
             <div class="table-responsive">
@@ -207,7 +217,7 @@
                     <tr>
                         <th>N° Séquence</th>
                         <th>Client</th>
-                        <th>Numéro du colis</th>
+                        <th>Date Livraison</th>
                         <th>Nbre de colis</th>
                         <th>Droit Douane</th>
                         <th>Frais Dédouane</th>
@@ -220,7 +230,7 @@
                     <tr th:each="colis : ${colislise}">
                         <td th:text="${colis.sequence}" class="text-truncate"></td>
                         <td th:text="${colis.nom}"></td>
-                        <td th:text="${colis.numColis}"></td>
+                        <td th:text="${colis.dateSortie}"></td>
                         <td th:text="${colis.nbColis}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.droitDouane, 1, 3)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.fraisDedouane, 1, 3)}" class="text-end"></td>

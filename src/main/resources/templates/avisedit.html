@@ -81,79 +81,72 @@
 <body>
 <div layout:fragment="content1">
     <div class="container mt-4">
-        <!-- Formulaire réorganisé -->
         <div class="card shadow mb-4">
             <div class="card-header text-center bg-primary text-white py-3">
                 <h4 class="mb-0">Édition des avis des colis sous douane</h4>
             </div>
             <div class="card-body">
                 <form id="formEdit" th:action="@{/addColis}" method="post">
-                    <div class="row g-3 align-items-end"> <!-- align-items-end pour aligner les bas -->
-                        <!-- Colonne Numéro + Checkbox -->
-                        <div class="col-md-2">
+                    <!-- Tous les champs sur une seule ligne -->
+                    <div class="row g-2 align-items-end mb-3">
+                        <!-- Numéro -->
+                        <div class="col-auto">
                             <label for="numColis" class="form-label">Numéro</label>
-                            <input type="text" th:value="${douane.numColis}" class="form-control" id="numColis" name="numColis" required>
-
+                            <input type="text" style="width: 100px" class="form-control" id="numColis" name="numColis" required>
                         </div>
 
-                        <!-- Autres champs inchangés -->
-                        <div class="col-md-2">
+                        <!-- Bloc -->
+                        <div class="col-auto">
                             <label for="bloc" class="form-label">Bloc</label>
-                            <input type="text"  th:value="${douane.bloc}" class="form-control" id="bloc" name="bloc" required>
+                            <input type="text" style="width: 80px" class="form-control" id="bloc" name="bloc" required>
                         </div>
-                        <div class="col-md-1">
+
+                        <!-- Nombre -->
+                        <div class="col-auto">
                             <label for="nbColis" class="form-label">Nombre</label>
-                            <input type="number" min="1"  th:value="${douane.nbColis}" class="form-control" id="nbColis" name="nbColis" required>
+                            <input type="number" style="width: 60px" class="form-control" id="nbColis" name="nbColis" value="0" required>
                         </div>
-                        <div class="col-md-1">
+
+                        <!-- Poids -->
+                        <div class="col-auto">
                             <label for="poidColis" class="form-label">Poids (kg)</label>
-                            <input type="text"  th:value="${douane.poid}" class="form-control" id="poidColis" name="poidColis" required>
+                            <input type="text" style="width: 80px" class="form-control" id="poidColis" name="poidColis" value="0.0" required>
                         </div>
-                        <div class="col-md-3">
+
+                        <!-- Destinataire -->
+                        <div class="col-auto">
                             <label for="nomDest" class="form-label">Destinataire</label>
-                            <input type="text"   th:value="${douane.nom}"class="form-control" id="nomDest" name="nomDest" required>
+                            <input type="text" style="width: 300px" class="form-control" id="nomDest" name="nomDest" required>
                         </div>
-                        <div class="col-md-2">
+
+                        <!-- Origine -->
+                        <div class="col-auto">
                             <label for="origin" class="form-label">Origine</label>
-                            <input type="text"  th:value="${douane.origin}" class="form-control" id="origin" name="origin" required>
-                            <input type="hidden" th:value="${edit?douane.IdDouane:''} " name="id">
+                            <input type="text" style="width: 150px" class="form-control" id="origin" name="origin" required>
                         </div>
 
-                        <!-- Bouton Ajouter déplacé à droite -->
-                        <div  class="col-md-1">
-                            <button  title="Ajouter un nouveaux colis" type="button" th:class="${edit?'d-none':'btn btn-success w-100'}" id="submitBtn">Ajouter</button>
-                            <button title="Enregistrer les modification"  type="submit" th:class="${edit?'btn btn-primary w-100':'d-none'}" id="editBtn">Modifier</button>
-
-
+                        <!-- Date arrivée -->
+                        <div class="col-auto">
+                            <label for="datear" class="form-label">Date arrivée</label>
+                            <input type="date" style="width: 150px" class="form-control" id="datear" name="datear" value="2025-05-08">
                         </div>
 
-                    </div>
-                    <div class="form-check mt-4">
-                        <div class="row align-items-center justify-content-between">
-                            <!-- Checkbox à gauche -->
-                            <div class="col-auto">
-                                <div class="form-check">
-                                    <input class="form-check-input"
-                                           th:checked="${douane.observation == 'Sans facture'}"
-                                           type="checkbox" id="observation" name="observation">
-                                    <label class="form-check-label" for="observation">Sans facture</label>
-                                </div>
+                        <!-- Checkbox et bouton Ajouter -->
+                        <div class="col-auto d-flex align-items-end">
+                            <div class="form-check me-3">
+                                <input class="form-check-input" type="checkbox" id="observation" name="observation">
+                                <label class="form-check-label" for="observation">Sans facture</label>
                             </div>
-
-                            <!-- Bouton à droite -->
-                            <div class="col-auto">
-                                <a href="/avisedit"  class="btn btn-warning" value="Annuler" title="Vider les champs" id="resetBtn">Annuler</a>
-                            </div>
-                            <div class="container-fluid ">
-                                <br>
-                                <label for="datear" class="label">Date d'arrivée:</label>
-
-                                <input id="datear" style="width:150px" type="date"class="form-control  mt-2" name="datear" th:value="${datear}">
-                            </div>
+                            <button type="submit" class="btn btn-success">Ajouter</button>
                         </div>
                     </div>
 
-
+                    <!-- Bouton Annuler seul sur une ligne -->
+                    <div class="row">
+                        <div class="col-auto">
+                            <a href="/avisedit" class="btn btn-warning">Annuler</a>
+                        </div>
+                    </div>
 
                     <!-- Messages d'état -->
                     <div class="row mt-3">
@@ -169,6 +162,7 @@
                 </form>
             </div>
         </div>
+    </div>
 
         <!-- Tableau inchangé -->
         <div class="card shadow">

@@ -20,18 +20,24 @@ public class Dashboard {
     public String dashboard(Model model, @RequestParam(value = "etat",required = false)String etat1){
         System.out.println(etat1);
         List<Douane> douaneList=new ArrayList<>();
+        boolean not=true;
 
         if (StringUtils.hasText(etat1)){
 
             if(etat1.equals("true")){
+                not=false;
+                model.addAttribute("etat",true);
                 douaneList=douaneRepo.findByDeliveredTrue();
             }else if(etat1.equals("false")) {
+                model.addAttribute("etat",false);
+                not=false;
 
                 douaneList = douaneRepo.findByDeliveredFalse();
             }
         }else {
             douaneList=douaneRepo.findAll();
         }
+        model.addAttribute("not",not);
 
 
         model.addAttribute("list",douaneList);
