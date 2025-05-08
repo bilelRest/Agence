@@ -104,9 +104,12 @@
                                 </div>
 
                                 <div  class="col-md-4 d-flex align-items-end">
-                                    <button type="submit" id="calculBtn" class="btn btn-primary w-100">
+                                    <button style="width:150px" type="submit" id="calculBtn" class="btn btn-primary w-100">
                                         <i class="bi bi-calculator"></i> Calculer
                                     </button>
+                                    <div th:if="${validated}">
+                                    <a target="_blank" class="btn btn-warning" style="width:150px ;margin-left:100px"  th:href="@{print-sortie?colis=}+${douane.numColis}">Valider</a>
+                                    </div>
                                 </div>
                             </div>
 
@@ -117,15 +120,7 @@
                                 </div>
                             </div>
                         </form>
-                        <form th:action="@{/print-sortie}" method="post" target="_blank"
-                              onsubmit="return confirm('Les données seront enregistrées avant impression. Continuer?')">
-                            <input type="hidden" name="colis" th:value="${douane.numColis}">
-                            <input type="hidden" name="droit" th:value="${douane.droitDouane}">
-                            <input type="hidden" name="total" th:value="${douane.totPayer}">
 
-
-                            <button title="Enregistrer et imprimer" type="submit" class="btn btn-success"><i class="bi bi-printer"></i> </button>
-                        </form>
                     </div>
                 </div>
             </div>

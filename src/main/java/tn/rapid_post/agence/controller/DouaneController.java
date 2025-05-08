@@ -3,6 +3,7 @@ package tn.rapid_post.agence.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,8 +44,14 @@ public String etatdouane(Model model,@RequestParam(value = "date1",required = fa
     Douane douane=new Douane();
     boolean exist=false;
     boolean empty=false;
+    boolean validated=false;
         long daysBetween=0;
-    if (colis!=null){
+        if (StringUtils.hasText(colis)&&StringUtils.hasText(droit)&&StringUtils.hasText(sequence)){
+            validated=true;
+        }
+
+
+        if (colis!=null){
 
         douane=douaneRepo.findByNumColis(colis);
         if (douane==null){
@@ -77,16 +84,24 @@ public String etatdouane(Model model,@RequestParam(value = "date1",required = fa
             System.out.println(daysBetween);
             if(daysBetween<7){
                 douane.setTotPayer(douane.getNbColis()*6+douane.getDroitDouane());
+
             }else {
                 douane.setTotPayer((daysBetween-6)*douane.getNbColis()+douane.getNbColis()*6+douane.getDroitDouane());
                 magasinage=(daysBetween-6)*douane.getNbColis();
+
 
             }
             douane.setFraisDedouane(douane.getNbColis()*4);
             douane.setFraisReemballage(douane.getNbColis()*2);
             douane.setFraisMagasin(magasinage);
 
+
+
     douaneRepo.save(douane);
+
+
+
+    model.addAttribute("validated",validated);
 
             model.addAttribute("daysBetween",daysBetween);
             model.addAttribute("douane",douane);

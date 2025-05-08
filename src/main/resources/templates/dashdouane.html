@@ -25,7 +25,14 @@
                         <th scope="col">Numéro</th>
                         <th scope="col">Déstinataire</th>
                         <th scope="col">Bloc</th>
-                        <th scope="col">Statut</th>
+
+                        <th scope="col">
+                            <select onchange="location = this.value;">
+                                <option value=""></option>
+                                <option value="/dashdouane?etat=true">Livré</option>
+                                <option value="/dashdouane?etat=false">En attente</option>
+                            </select>
+                        </th>
                     </tr>
                     </thead>
                     <tbody>

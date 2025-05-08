@@ -26,17 +26,15 @@ public class Printer {
     @Autowired
     private Reporter reporter;
 
-    @PostMapping(value = "/print-sortie", produces = MediaType.APPLICATION_PDF_VALUE)
+    @GetMapping(value = "/print-sortie", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> generateDouaneReport(
-            @RequestParam(value = "colis")String colis,
-            @RequestParam(value = "droit")double droit,
-            @RequestParam(value = "total")double total) throws JRException {
-        System.out.println("droit = "+droit+" total = "+total+" colis = "+colis);
+            @RequestParam(value = "colis")String colis
+            ) throws JRException {
+
          Douane douane=douaneRep.findByNumColis(colis);
-         douane.setDroitDouane(droit);
-         douane.setTotPayer(total);
+
          douane.setDateSortie(LocalDate.now());
-         douane.setNom("Societe Sivo commerciale 74215746");
+
 
          douane.setDelivered(true);
            douaneRep.save(douane);

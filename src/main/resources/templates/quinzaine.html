@@ -41,6 +41,7 @@
                         <thead class="table-dark">
                         <tr>
                             <th class="text-center">N° de séquence</th>
+                            <th class="text-center">N° de bloc</th>
                             <th class="text-center">Nombre de colis</th>
                             <th class="text-center">Droit de douane</th>
                         </tr>
@@ -48,13 +49,29 @@
                         <tbody>
                         <tr th:each="q,index:${results}">
                             <td class="text-center" th:text="${q.sequence}"></td>
+                            <td class="text-center" th:text="${q.bloc}"></td>
                             <td class="text-center" th:text="${q.nbColis}"></td>
-                            <td class="text-center" th:text="${q.droitDouane}"></td>
+                            <td class="text-center" th:text="${#numbers.formatDecimal(q.droitDouane,1,3)}"></td>
                         </tr>
-                        <tr class="fw-bold table-active">
-                            <td class="text-center">Total</td>
-                            <td class="text-center" th:text="${nbTot}"></td>
-                            <td class="text-center" th:text="${douaneTot}"></td>
+
+                        </tbody>
+                    </table>
+                    <table class="table">
+                        <thead>
+                        <th></th>
+                        <th></th>
+                        <th>Total colis</th>
+                        <th>Total montant</th>
+
+
+                        </thead>
+                        <tbody style="border:solid 2px">
+                        <tr style="border:solid 2px" class="fw-bold table-active">
+
+                            <td style="border:solid 2px" colspan="2" class="text-end" >Total </td>
+
+                            <td style="border:solid 2px" class="text-center" th:text="${nbTot}"></td>
+                            <td style="border:solid 2px" class="text-center" th:text="${#numbers.formatDecimal(douaneTot,1,3)}"></td>
                         </tr>
                         </tbody>
                     </table>
