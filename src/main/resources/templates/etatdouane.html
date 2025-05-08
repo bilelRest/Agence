@@ -47,12 +47,12 @@
 
             const rows = Array.from(document.querySelectorAll('tbody tr')).map(row => {
                 const cells = row.cells;
-                const montant = parseFloat(cells[9].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
-                const nbColis = parseFloat(cells[4].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
-                const droitDouane = parseFloat(cells[5].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
-                const fraisDedouane = parseFloat(cells[6].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
-                const fraisReemballage = parseFloat(cells[7].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
-                const fraisMagasin = parseFloat(cells[8].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+                const montant = parseFloat(cells[8].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+                const nbColis = parseFloat(cells[3].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+                const droitDouane = parseFloat(cells[4].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+                const fraisDedouane = parseFloat(cells[5].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+                const fraisReemballage = parseFloat(cells[6].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
+                const fraisMagasin = parseFloat(cells[7].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
 
                 totalMontant += montant;
                 totalColis += nbColis;
@@ -66,7 +66,6 @@
                         <td>${cells[0].textContent}</td>
                         <td>${cells[1].textContent}</td>
                         <td>${cells[2].textContent}</td>
-                        <td>${cells[3].textContent}</td>
                         <td class="text-end">${nbColis}</td>
                         <td class="text-end">${droitDouane.toFixed(3)}</td>
                         <td class="text-end">${fraisDedouane.toFixed(3)}</td>
@@ -114,8 +113,7 @@
                                 <tr>
                                     <th>N° Séquence</th>
                                     <th>Client</th>
-                                    <th>Date Sortie</th>
-                                    <th>Date Arrivée</th>
+                                    <th>Date de livraison</th>
                                     <th>Nbre de colis</th>
                                     <th>Droit Douane</th>
                                     <th>Frais Dédouane</th>
@@ -129,7 +127,7 @@
                             </tbody>
                             <tfoot>
                                 <tr class="text-bold">
-                                    <td colspan="4" class="text-end">Totaux:</td>
+                                    <td colspan="3" class="text-end">Totaux:</td>
                                     <td class="text-end">${totalColis}</td>
                                     <td class="text-end">${totalDroitDouane.toFixed(3)}</td>
                                     <td class="text-end">${totalFraisDedouane.toFixed(3)}</td>
@@ -152,7 +150,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr style="font-weight:bold;text-align:center">
+                                <tr style="text-align:center">
                                     <td>Montant</td>
                                     <td class="text-end">${totCRA603.toFixed(3)}</td>
                                     <td class="text-end">${totalDroitDouane.toFixed(3)}</td>
@@ -219,8 +217,7 @@
                     <tr>
                         <th>N° Séquence</th>
                         <th>Client</th>
-                        <th>Date Sortie</th>
-                        <th>Date Arrivée</th>
+                        <th>Date Livraison</th>
                         <th>Nbre de colis</th>
                         <th>Droit Douane</th>
                         <th>Frais Dédouane</th>
@@ -234,7 +231,6 @@
                         <td th:text="${colis.sequence}" class="text-truncate"></td>
                         <td th:text="${colis.nom}"></td>
                         <td th:text="${colis.dateSortie}"></td>
-                        <td th:text="${colis.dateArrivee}"></td>
                         <td th:text="${colis.nbColis}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.droitDouane, 1, 3)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.fraisDedouane, 1, 3)}" class="text-end"></td>
@@ -247,9 +243,7 @@
                 <button onclick="printTable()" class="btn btn-outline-secondary mt-3">
                     <i class="bi bi-printer"></i> Imprimer le rapport
                 </button>
-                <div style="margin-left:80%">
-                    <button type="button" class="btn btn-primary"><i class="bi bi-printer"></i> Quinzaine</button>
-                </div>
+
             </div>
         </div>
     </div>
