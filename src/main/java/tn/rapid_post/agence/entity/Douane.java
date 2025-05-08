@@ -27,21 +27,21 @@ public class Douane {
     private boolean delivered;
     private String origin;
     private String bloc;
-    private long sequence;
+    private String sequence;
     @OneToOne(fetch = FetchType.LAZY)
     private AppUser appUser;
 
     private boolean validated;
 
-    public long getSequence() {
+    public String getSequence() {
         return sequence;
     }
 
-    public void setSequence(long sequence) {
+    public void setSequence(String sequence) {
         this.sequence = sequence;
     }
 
-    public Douane(String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, AppUser appUser, boolean validated,long sequence) {
+    public Douane(String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, AppUser appUser, boolean validated,String sequence) {
         this.nom = nom;
         this.numColis = numColis;
         this.dateSortie = dateSortie;

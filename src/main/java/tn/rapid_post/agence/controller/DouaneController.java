@@ -43,106 +43,96 @@ public class DouaneController {
                         @RequestParam(value = "colis", required = false) String colis,
                         @RequestParam(value = "droit", required = false) String droit,
                         @RequestParam(value = "sequence", required = false) String sequence,
-                        @RequestParam(value = "echec",required = false)String notValidated) {
-        System.out.println("Sequence recu = "+sequence);
+                        @RequestParam(value = "echec", required = false) String notValidated) {
+
+
+
+
+        System.out.println("Sequence reçue = " + sequence);
         Douane douane = new Douane();
-        boolean exist = false;
-        boolean empty = false;
-        boolean validated = false;
-        long daysBetween = 0;
         model.addAttribute("notValidated", false);
+
         if (StringUtils.hasText(notValidated)) {
             model.addAttribute("notValidated", Boolean.parseBoolean(notValidated));
         }
 
-        if (StringUtils.hasText(sequence)){
-            if (sequence.equals("0")){
-
-                System.out.println("Sequence = 0");
-
-                return "redirect:/dounecalc?colis="+colis+"&echec=true";
-            }
-            Douane douane1=douaneRepo.findByNumColis(colis);
-            if (douane1!=null){
-                if (douane1.getSequence()==Long.parseLong(sequence));
-                {
-
-
-                    return "redirect:/dounecalc?colis="+colis+"&echec=true";
-                }
-            }
-        }
-        if (StringUtils.hasText(colis) && StringUtils.hasText(droit) && StringUtils.hasText(sequence)) {
-
-            validated = true;
+        if (!StringUtils.hasText(colis)) {
+            return "fraisdouane";
         }
 
+        // Récupération du colis
+        douane = douaneRepo.findByNumColis(colis);
+        if (douane == null) {
+            model.addAttribute("empty", true);
+            return "fraisdouane";
+        }
 
-        if (colis != null) {
+        // Si le colis est déjà livré
+        if (douane.isDelivered()) {
+            model.addAttribute("douane", douane);
+            model.addAttribute("exist", true);
+            return "fraisdouane";
+        }
 
-            douane = douaneRepo.findByNumColis(colis);
-            if (douane == null) {
-                empty = true;
-                model.addAttribute("empty", empty);
-                return "fraisdouane";
-            }
-            if (douane != null) {
-                if (douane.isDelivered()) {
-                    model.addAttribute("douane", douane);
-                    exist = true;
-                    model.addAttribute("exist", exist);
-                    return "fraisdouane";
+        model.addAttribute("exist", false);
+        model.addAttribute("douane", douane);
+
+        // Validation de la saisie (calcul)
+        if (StringUtils.hasText(sequence) && StringUtils.hasText(droit)) {
+            try {
+                double droitValue = Double.parseDouble(droit);
+                douane.setDroitDouane(droitValue);
+                douaneRepo.save(douane);
+
+                // Vérifie si la séquence est déjà utilisée par un autre colis
+                Optional<Douane> existingWithSequence = douaneRepo.findBySequence(sequence);
+                if (existingWithSequence.isPresent() &&
+                        !existingWithSequence.get().getNumColis().equals(douane.getNumColis())) {
+                    return "redirect:/dounecalc?colis=" + colis + "&echec=true";
                 }
-            }
-            double droit1 = 0;
-            System.out.println("droit = " + droit);
-            System.out.println("colis = " + colis);
-            if (douane != null) {
-                if (droit != "" && droit != null) {
-                    droit1 = Double.parseDouble(droit);
-                    System.out.println("droit1 = " + droit1);
-                    douane.setDroitDouane(droit1);
-                    douane.setSequence(Long.parseLong(sequence));
 
+                // Calcul des frais
+                douane.setDroitDouane(droitValue);
+                douane.setSequence(sequence);
 
-                }
-                double magasinage = 0;
-                daysBetween = ChronoUnit.DAYS.between(douane.getDateArrivee(), LocalDate.now());
-                System.out.println(daysBetween);
-                if (daysBetween < 7) {
-                    douane.setTotPayer(douane.getNbColis() * 6 + douane.getDroitDouane());
+                long daysBetween = ChronoUnit.DAYS.between(douane.getDateArrivee(), LocalDate.now());
+                double magasinage = Math.max(0, (daysBetween - 6) * douane.getNbColis());
+                double fraisFixes = douane.getNbColis() * 6;
+                double total = fraisFixes + magasinage + droitValue;
 
-                } else {
-                    douane.setTotPayer((daysBetween - 6) * douane.getNbColis() + douane.getNbColis() * 6 + douane.getDroitDouane());
-                    magasinage = (daysBetween - 6) * douane.getNbColis();
-
-
-                }
+                douane.setFraisMagasin(magasinage);
                 douane.setFraisDedouane(douane.getNbColis() * 4);
                 douane.setFraisReemballage(douane.getNbColis() * 2);
-                douane.setFraisMagasin(magasinage);
-
+                douane.setTotPayer(total);
 
                 douaneRepo.save(douane);
 
 
-                model.addAttribute("validated", validated);
-                model.addAttribute("exist",exist);
-
+                model.addAttribute("validated", true);
                 model.addAttribute("daysBetween", daysBetween);
-                model.addAttribute("douane", douane);
-            }
-        }
 
+            } catch (NumberFormatException e) {
+                return "redirect:/dounecalc?colis=" + colis + "&echec=true";
+            }
+
+        }
 
         return "fraisdouane";
     }
 
 
     @GetMapping("/avisedit")
-    public String avisedit(Model model, @RequestParam(value = "exist", required = false) boolean exist,
+    public String avisedit(Model model,
+                           @RequestParam(value = "exist", required = false) boolean exist,
                            @RequestParam(value = "success", required = false) boolean success,
-                           @RequestParam(value = "id", required = false) String id) {
+                           @RequestParam(value = "id", required = false) String id,
+                           @RequestParam(value = "error",required = false)String error) {
+        boolean echec=false;
+        if (StringUtils.hasText(error)){
+            echec=true;
+        }
+        model.addAttribute("echec",echec);
+
         Douane douane = new Douane();
         boolean edit = false;
         if (id != null && id != "") {
@@ -176,15 +166,17 @@ public class DouaneController {
                            @RequestParam(value = "origin") String origin,
                            @RequestParam(value = "id", required = false) String id,
                            @RequestParam(value = "datear") LocalDate datear) {
+
         Douane colis = new Douane();
         if (id != null && !id.isEmpty()) {
             Optional<Douane> douane = douaneRepo.findById(Long.parseLong(id));
             if (douane.isPresent()) {
                 colis = (Douane) douane.get();
+
             }
         } else {
             if (douaneRepo.findByNumColis(numColis) != null || douaneRepo.findByBloc(bloc) != null) {
-                return "redirect:/avisedit?exist=" + true;
+                return "redirect:/avisedit?exist=" + true+"&colis="+colis;
 
             }
         }
@@ -211,7 +203,7 @@ public class DouaneController {
         colis.setValidated(true);
         douaneRepo.save(colis);
 
-        return "redirect:/avisedit?success=" + true;
+        return "redirect:/avisedit";
     }
 
     @GetMapping("quinzaine")
@@ -250,6 +242,39 @@ public class DouaneController {
         model.addAttribute("date2", date2);
         model.addAttribute("colislise", colislise);
         return "etatdouaneadmin";
+
+    }
+    @GetMapping("avisconsul")
+    public String avisconsul(Model model,@RequestParam(value = "colis",required = false)String colis){
+        Douane douane=new Douane();
+        if(StringUtils.hasText(colis)){
+            douane=douaneRepo.findByNumColis(colis);
+            if (douane!=null){
+                model.addAttribute("douane",douane);
+            }
+
+        }else {
+            model.addAttribute("douane",new Douane());
+        }
+
+        return "avisconsul";
+    }
+    @PostMapping("delete")
+    public String delete(@RequestParam(value = "id",required = true)long id,
+                         @RequestParam(value = "dash",required = false)String dash){
+        try {
+            douaneRepo.deleteById(id);
+            if (StringUtils.hasText(dash)){
+                return "redirect:/dashdouane";
+            }
+            System.out.println("id recu pour suppression : "+id);
+            return "redirect:/avisedit";
+        }catch (Exception e){
+            if (StringUtils.hasText(dash)){
+                return "redirect:/dashdouane";
+            }
+            return "redirect:/avisedit?error="+true;
+        }
 
     }
 

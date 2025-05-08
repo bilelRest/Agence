@@ -16,31 +16,49 @@ import java.util.List;
 public class Dashboard {
     @Autowired
     private douaneRepo douaneRepo;
-    @GetMapping(value = "/dashdouane")
-    public String dashboard(Model model, @RequestParam(value = "etat",required = false)String etat1){
-        System.out.println(etat1);
-        List<Douane> douaneList=new ArrayList<>();
-        boolean not=true;
+    @GetMapping("/dashdouane")
+    public String dashboard(Model model,
+                            @RequestParam(value = "etat", required = false) String etat1,
+                            @RequestParam(value = "key", required = false) String key) {
 
-        if (StringUtils.hasText(etat1)){
+        List<Douane> douaneList = new ArrayList<>();
+        boolean not = true;
+        Boolean etat = null;
 
-            if(etat1.equals("true")){
-                not=false;
-                model.addAttribute("etat",true);
-                douaneList=douaneRepo.findByDeliveredTrue();
-            }else if(etat1.equals("false")) {
-                model.addAttribute("etat",false);
-                not=false;
+        if (StringUtils.hasText(etat1)) {
+            if (etat1.equals("true")) {
+                etat = true;
+                not = false;
+            } else if (etat1.equals("false")) {
+                etat = false;
+                not = false;
+            }
+        }
 
+        if (StringUtils.hasText(key)) {
+            key = "%" + key.trim().toLowerCase() + "%";
+            if (etat == null) {
+                douaneList = douaneRepo.searchMultiFields(key);
+            } else if (etat) {
+                douaneList = douaneRepo.searchMultiFieldsByDelivered(key, true);
+            } else {
+                douaneList = douaneRepo.searchMultiFieldsByDelivered(key, false);
+            }
+        } else {
+            if (etat == null) {
+                douaneList = douaneRepo.findAll();
+            } else if (etat) {
+                douaneList = douaneRepo.findByDeliveredTrue();
+            } else {
                 douaneList = douaneRepo.findByDeliveredFalse();
             }
-        }else {
-            douaneList=douaneRepo.findAll();
         }
-        model.addAttribute("not",not);
 
-
-        model.addAttribute("list",douaneList);
+        model.addAttribute("list", douaneList);
+        model.addAttribute("etat", etat);
+        model.addAttribute("key", key != null ? key.replace("%", "") : "");
+        model.addAttribute("not", not);
         return "dashdouane";
     }
+
 }

@@ -87,57 +87,61 @@
             </div>
             <div class="card-body">
                 <form id="formEdit" th:action="@{/addColis}" method="post">
+                    <input type="hidden" name="id" th:value="${douane.idDouane}">
                     <!-- Tous les champs sur une seule ligne -->
                     <div class="row g-2 align-items-end mb-3">
+
                         <!-- Numéro -->
                         <div class="col-auto">
                             <label for="numColis" class="form-label">Numéro</label>
-                            <input type="text" style="width: 100px" class="form-control" id="numColis" name="numColis" required>
+                            <input type="text" style="width: 200px" class="form-control" th:value="${douane.numColis}" id="numColis" name="numColis" required>
                         </div>
 
                         <!-- Bloc -->
                         <div class="col-auto">
                             <label for="bloc" class="form-label">Bloc</label>
-                            <input type="text" style="width: 80px" class="form-control" id="bloc" name="bloc" required>
+                            <input th:value="${douane.bloc}"  type="text" style="width: 80px" class="form-control" id="bloc" name="bloc" required>
                         </div>
 
                         <!-- Nombre -->
                         <div class="col-auto">
                             <label for="nbColis" class="form-label">Nombre</label>
-                            <input type="number" style="width: 60px" class="form-control" id="nbColis" name="nbColis" value="0" required>
+                            <input th:value="${douane.nbColis}" type="number" style="width: 60px" class="form-control" id="nbColis" name="nbColis" value="0" required>
                         </div>
 
                         <!-- Poids -->
                         <div class="col-auto">
                             <label for="poidColis" class="form-label">Poids (kg)</label>
-                            <input type="text" style="width: 80px" class="form-control" id="poidColis" name="poidColis" value="0.0" required>
+                            <input th:value="${douane.poid}" type="text" style="width: 80px" class="form-control" id="poidColis" name="poidColis" value="0.0" required>
                         </div>
 
                         <!-- Destinataire -->
                         <div class="col-auto">
                             <label for="nomDest" class="form-label">Destinataire</label>
-                            <input type="text" style="width: 300px" class="form-control" id="nomDest" name="nomDest" required>
+                            <input th:value="${douane.nom}" type="text" style="width: 300px" class="form-control" id="nomDest" name="nomDest" required>
                         </div>
 
                         <!-- Origine -->
                         <div class="col-auto">
                             <label for="origin" class="form-label">Origine</label>
-                            <input type="text" style="width: 150px" class="form-control" id="origin" name="origin" required>
+                            <input th:value="${douane.origin}" type="text" style="width: 100px" class="form-control" id="origin" name="origin" required>
                         </div>
 
                         <!-- Date arrivée -->
                         <div class="col-auto">
                             <label for="datear" class="form-label">Date arrivée</label>
-                            <input type="date" style="width: 150px" class="form-control" id="datear" name="datear" value="2025-05-08">
+                            <input th:value="${douane.dateArrivee}" type="date" style="width: 150px" class="form-control" id="datear" name="datear" value="2025-05-08">
                         </div>
 
                         <!-- Checkbox et bouton Ajouter -->
                         <div class="col-auto d-flex align-items-end">
                             <div class="form-check me-3">
-                                <input class="form-check-input" type="checkbox" id="observation" name="observation">
+                                <input th:checked="${douane.observation=='Sans facture'}" class="form-check-input" type="checkbox" id="observation" name="observation">
                                 <label class="form-check-label" for="observation">Sans facture</label>
                             </div>
-                            <button type="submit" class="btn btn-success">Ajouter</button>
+                            <button th:if="${edit==false}" type="submit" class="btn btn-success">Ajouter</button>
+                            <button th:if="${edit==true}" type="submit" class="btn btn-primary">Modifier</button>
+
                         </div>
                     </div>
 
@@ -156,6 +160,9 @@
                             </div>
                             <div class="bg-success text-center text-light py-2" th:if="${success}">
                                 Ajouté avec succès
+                            </div>
+                            <div class="bg-danger text-center text-light py-2" th:if="${echec}">
+                                Echec de suppression contacter l'administrateur
                             </div>
                         </div>
                     </div>
@@ -196,19 +203,27 @@
                         <td th:text="${col.poid}" class="align-middle "></td>
                         <td th:text="${col.origin}" class="align-middle"></td>
                         <td th:text="${col.observation}" class="align-middle"></td>
-                        <td class="align-middle action-buttons action-column">
-                            <a target="_blank" class="btn btn-success btn-print"
-                               th:href="@{/print-list(id=${col.idDouane})}"
-                               onclick="setTimeout(() => window.location.reload(), 1000);"
-                               title="Imprimer ce colis">
-                                <i class="bi bi-printer-fill"></i>
-                            </a>
+                        <td style="display:flex">
                             <a th:href="@{/avisedit(id=${col.idDouane})}" class="btn btn-primary btn-edit" title="Modifier ce colis">
                                 <i class="bi bi-pen-fill"></i>
                             </a>
-                            <button class="btn btn-danger btn-delete" title="Supprimer ce colis">
-                                <i class="bi bi-trash-fill"></i>
-                            </button>
+                            <a style="margin-left:30%"
+                               target="_blank"
+                               class="btn btn-success btn-print"
+                               th:href="@{/print-list(id=${col.idDouane})}"
+                               onclick="if (confirm('Êtes-vous sûr de vouloir imprimer ce colis ?')) { setTimeout(() => window.location.reload(), 1000); } else { return false; }"
+                               title="Imprimer ce colis">
+                                <i class="bi bi-printer-fill"></i>
+                            </a>
+
+
+                            <form th:action="@{/delete}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce colis ?');">
+                                <input type="hidden" name="id" th:value="${col.idDouane}">
+                                <button style="margin-left:60%" type="submit" class="btn btn-danger" title="Supprimer ce colis">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+
                         </td>
                     </tr>
                     <tr th:if="${colisList.empty}">
