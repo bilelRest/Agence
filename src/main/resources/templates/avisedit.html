@@ -169,7 +169,7 @@
             <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">Liste des colis enregistrés</h5>
                 <a id="printBtn" th:class="${colisList.isEmpty()?'btn btn-secondary disabled':'btn btn-secondary'}"
-                   th:href="@{/print-list}" target="_blank" title="Imprimer la liste">
+                   th:href="@{/print-list}" target="_blank" onclick="setTimeout(() => window.location.reload(), 1000);" title="Imprimer la liste">
                     <i class="bi bi-printer-fill"></i> Imprimer
                 </a>
             </div>

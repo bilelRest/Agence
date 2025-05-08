@@ -42,13 +42,38 @@ public class DouaneController {
     public String frais(Model model,
                         @RequestParam(value = "colis", required = false) String colis,
                         @RequestParam(value = "droit", required = false) String droit,
-                        @RequestParam(value = "sequence", required = false) String sequence) {
+                        @RequestParam(value = "sequence", required = false) String sequence,
+                        @RequestParam(value = "echec",required = false)String notValidated) {
+        System.out.println("Sequence recu = "+sequence);
         Douane douane = new Douane();
         boolean exist = false;
         boolean empty = false;
         boolean validated = false;
         long daysBetween = 0;
+        model.addAttribute("notValidated", false);
+        if (StringUtils.hasText(notValidated)) {
+            model.addAttribute("notValidated", Boolean.parseBoolean(notValidated));
+        }
+
+        if (StringUtils.hasText(sequence)){
+            if (sequence.equals("0")){
+
+                System.out.println("Sequence = 0");
+
+                return "redirect:/dounecalc?colis="+colis+"&echec=true";
+            }
+            Douane douane1=douaneRepo.findByNumColis(colis);
+            if (douane1!=null){
+                if (douane1.getSequence()==Long.parseLong(sequence));
+                {
+
+
+                    return "redirect:/dounecalc?colis="+colis+"&echec=true";
+                }
+            }
+        }
         if (StringUtils.hasText(colis) && StringUtils.hasText(droit) && StringUtils.hasText(sequence)) {
+
             validated = true;
         }
 
@@ -102,6 +127,7 @@ public class DouaneController {
 
 
                 model.addAttribute("validated", validated);
+                model.addAttribute("exist",exist);
 
                 model.addAttribute("daysBetween", daysBetween);
                 model.addAttribute("douane", douane);
