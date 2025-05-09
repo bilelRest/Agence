@@ -14,6 +14,7 @@ import tn.rapid_post.agence.repo.douaneRepo;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class DouaneController {
@@ -30,8 +31,10 @@ public class DouaneController {
 
         List<Douane> colislise = new ArrayList<>();
         if (date1 != null && date2 != null) {
-            colislise = douaneRepo.findBetweenDates(date1, date2);
-        }
+            colislise = douaneRepo.findBetweenDates(date1, date2)
+                    .stream()
+                    .sorted(Comparator.comparing(Douane::getSequence))
+                    .collect(Collectors.toList());        }
         model.addAttribute("date1", date1);
         model.addAttribute("date2", date2);
         model.addAttribute("colislise", colislise);
@@ -247,6 +250,8 @@ model.addAttribute("date1",LocalDate.now());
                 douaneTot += (long) douane.getDroitDouane();
             }
         }
+        model.addAttribute("date1",date1);
+        model.addAttribute("date2",date2);
         model.addAttribute("nbTot", nbTot);
         model.addAttribute("douaneTot", douaneTot);
         model.addAttribute("results", results);
@@ -306,6 +311,16 @@ System.out.println("admin recu "+admin);
             return "redirect:/avisedit?error="+true;
         }
 
+    }
+    @GetMapping("printquinzaine")
+    public String printquinzaine(Model model,
+                                 @RequestParam(value = "date1",required = false)LocalDate date1,
+                                 @RequestParam(value = "date2",required = false)LocalDate date2){
+        model.addAttribute("date1",date1);
+        model.addAttribute("date2",date2);
+        List<Douane> douaneList=douaneRepo.findBetweenDates(date1,date2);
+        model.addAttribute("list",douaneList);
+        return "printquinzaine";
     }
 
 }

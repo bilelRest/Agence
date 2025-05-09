@@ -23,11 +23,11 @@
                 <form th:action="@{quinzaine}" method="get" class="row g-3 mb-4 p-3 bg-light rounded">
                     <div class="col-md-4">
                         <label for="date1" class="form-label">Date de début</label>
-                        <input type="date" id="date1" name="date1" class="form-control">
+                        <input th:value="${date1}" type="date" id="date1" name="date1" class="form-control">
                     </div>
                     <div class="col-md-4">
                         <label for="date2" class="form-label">Date de fin</label>
-                        <input type="date" name="date2" id="date2" class="form-control">
+                        <input th:value="${date2}" type="date" name="date2" id="date2" class="form-control">
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <button type="submit" class="btn btn-success">
@@ -79,7 +79,7 @@
             </div>
 
             <div class="card-footer text-muted">
-                <button th:class="${results.size()>1?'btn btn-success':'d-none'}" >Imprimer </button>
+                <a th:href="@{printquinzaine(date1=${date1},date2=${date2})}"  th:class="${results.size()>1?'btn btn-success':'d-none'}" >Imprimer </a>
             </div>
         </div>
     </div>
