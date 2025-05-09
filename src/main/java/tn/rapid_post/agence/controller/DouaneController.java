@@ -33,8 +33,14 @@ public class DouaneController {
         if (date1 != null && date2 != null) {
             colislise = douaneRepo.findBetweenDates(date1, date2)
                     .stream()
-                    .sorted(Comparator.comparing(Douane::getSequence))
-                    .collect(Collectors.toList());        }
+                    .map(d -> {
+                        String numStr = d.getSequence().replaceAll("\\D+", "");
+                        int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
+                        return new AbstractMap.SimpleEntry<>(d, sequenceNum);
+                    })
+                    .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
+                    .map(AbstractMap.SimpleEntry::getKey)
+                    .collect(Collectors.toList());      }
         model.addAttribute("date1", date1);
         model.addAttribute("date2", date2);
         model.addAttribute("colislise", colislise);
@@ -273,7 +279,13 @@ System.out.println("admin recu "+admin);
         if (date1 != null && date2 != null) {
             colislise = douaneRepo.findBetweenDates(date1, date2)
                     .stream()
-                    .sorted(Comparator.comparing(Douane::getSequence))
+                    .map(d -> {
+                        String numStr = d.getSequence().replaceAll("\\D+", "");
+                        int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
+                        return new AbstractMap.SimpleEntry<>(d, sequenceNum);
+                    })
+                    .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
+                    .map(AbstractMap.SimpleEntry::getKey)
                     .collect(Collectors.toList());
         }
         model.addAttribute("date1", date1);

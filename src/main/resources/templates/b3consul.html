@@ -67,8 +67,7 @@
                                 </thead>
                                 <tbody>
                                 <tr th:each="col:${results}">
-                                    <td th:text="${col.destination=='Agence'?col.retourId:''}"></td>
-                                    <td th:text="${col.numB3}"></td>
+                                    <td th:text="${( (col.destination == 'Agence' or (col.retourId != null and col.retourId.contains('RO')))) ? col.retourId : ''}"></td>                                    <td th:text="${col.numB3}"></td>
                                     <td th:text="${col.nom}"></td>
                                     <td th:text="${col.numTel}"></td>
                                     <td th:text="${col.destination}"></td>
