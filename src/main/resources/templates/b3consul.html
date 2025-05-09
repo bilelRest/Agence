@@ -58,7 +58,7 @@
                             <table class="table table-striped table-hover table-bordered">
                                 <thead class="table-dark">
                                 <tr>
-                                    <th scope="col">Numéro interne</th>
+                                    <th  scope="col">Numéro interne</th>
                                     <th scope="col">Numéro suivie</th>
                                     <th scope="col">Nom et prénom</th>
                                     <th scope="col">Numéro de Tel°</th>
@@ -67,7 +67,7 @@
                                 </thead>
                                 <tbody>
                                 <tr th:each="col:${results}">
-                                    <td th:text="${col.retourId}"></td>
+                                    <td th:text="${col.destination=='Agence'?col.retourId:''}"></td>
                                     <td th:text="${col.numB3}"></td>
                                     <td th:text="${col.nom}"></td>
                                     <td th:text="${col.numTel}"></td>

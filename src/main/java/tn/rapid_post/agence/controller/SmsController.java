@@ -221,6 +221,7 @@ if (b3!=null){
                 for (B3 b3 : foundB3List) {
                     b3.setRetourId(String.valueOf(b3.getIdB3()));
                     b3List.add(b3);
+
                 }
             }
         }
