@@ -28,34 +28,48 @@ public class SmsController {
     @Autowired
     private b3Repo b3Rep;
     @GetMapping("/sms")
-    public String sms(Model model,@RequestParam(value = "exist",required = false) boolean exist,
-                      @RequestParam(value = "status",required = false)String status,@RequestParam(value = "id",required = false)String id){
+    public String sms(Model model,
+                      @RequestParam(value = "exist", required = false, defaultValue = "false") boolean exist,
+                      @RequestParam(value = "status", required = false) String status,
+                      @RequestParam(value = "id", required = false) String id) {
 
-       if (StringUtils.hasText(id)){
+        B3 b31=new B3();
+        model.addAttribute("b3mod",b31);
 
-               Optional<B3> b3= b3Rep.findById(Long.parseLong(id));
-//               if (b3.isPresent()) {
-//                   return ""
-//
-//               }
-       }
+        if (StringUtils.hasText(id)&&!StringUtils.hasText(status)) {
+            b31 = b3Rep.findByIdB3(Long.parseLong(id));
+            if (b31 != null) {
+                System.out.println("B3 trouvé pour modif " + b31.getIdB3());
+            } else {
+                System.out.println("Else null");
+                b31 = new B3(); // fallback si l'ID est incorrect
+            }
+        } else {
+            System.out.println("Else id vide");
+            b31 = new B3(); // cas d'ajout
+        }
+        System.out.println("B3 trouvé pour modif apres elses " + b31.getIdB3());
+
+        model.addAttribute("b3mod", b31);
 
         model.addAttribute("b3List", b3Rep.findByNotifiedFalse().stream()
-                //.sorted(Comparator.comparingLong(B3::getIdB3)) // ordre croissant
-                .sorted(Comparator.comparingLong(B3::getIdB3).reversed()) // ordre décroissant
+                .sorted(Comparator.comparingLong(B3::getIdB3).reversed())
                 .collect(Collectors.toList()));
-        model.addAttribute("exist",exist);
-        String name="Bilel";
-        model.addAttribute("name",name);
+
+        model.addAttribute("exist", exist);
+        model.addAttribute("status", status);
+        model.addAttribute("id", id);
+
         return "sms";
     }
+
     @PostMapping("/sms")
     public String sms(@RequestParam String tel,
                       @RequestParam String ref,
                       @RequestParam String post,
                       @RequestParam(value = "nom",defaultValue = "")String nom,
                       @RequestParam(value = "resend",required = false)boolean resend
-                     ) throws UnsupportedEncodingException {
+                    ,@RequestParam(value = "id",required = false)String id ) throws UnsupportedEncodingException {
 
 if (resend){
     B3 b3=b3Rep.findByNumB3(ref);
@@ -70,6 +84,17 @@ if (resend){
 
             }
     }
+}
+if (StringUtils.hasText(id)){
+B3 b3=b3Rep.findByIdB3(Long.parseLong(id));
+if (b3!=null){
+    b3.setNom(nom);
+    b3.setDestination(post);
+    b3.setNumTel(Integer.parseInt(tel));
+    b3.setNumB3(ref);
+    b3Rep.save(b3);
+    return "redirect:/sms";
+}
 }
 
         if(b3Rep.existsByNumB3(ref)){
