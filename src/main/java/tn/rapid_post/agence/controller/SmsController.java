@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tn.rapid_post.agence.entity.B3;
 import tn.rapid_post.agence.entity.RetourB3;
+import tn.rapid_post.agence.repo.retourB3Rep;
 import tn.rapid_post.agence.sec.entity.AppUser;
 import tn.rapid_post.agence.service.ApiService;
 import tn.rapid_post.agence.repo.b3Repo;
@@ -27,6 +28,8 @@ public class SmsController {
     private ApiService smsService;
     @Autowired
     private b3Repo b3Rep;
+    @Autowired
+    private retourB3Rep rep;
     @GetMapping("/sms")
     public String sms(Model model,
                       @RequestParam(value = "exist", required = false, defaultValue = "false") boolean exist,
@@ -53,7 +56,7 @@ public class SmsController {
         model.addAttribute("b3mod", b31);
 
         model.addAttribute("b3List", b3Rep.findByNotifiedFalse().stream()
-                .sorted(Comparator.comparingLong(B3::getIdB3).reversed())
+                .sorted(Comparator.comparing(B3::getIdB3).reversed())
                 .collect(Collectors.toList()));
 
         model.addAttribute("exist", exist);
@@ -103,7 +106,7 @@ if (b3!=null){
         }if (post.isEmpty()){
             post="Agence";
         }
-        B3 b3=new B3(ref,post,false,Integer.parseInt(tel),nom);
+        B3 b3=new B3(ref,post,"",false,Integer.parseInt(tel),nom);
         b3Rep.save(b3);
 
 
@@ -168,31 +171,62 @@ if (b3!=null){
                            @RequestParam(value = "numb3", required = false) String numb3,
                            @RequestParam(value = "name", required = false) String name) {
 
-        List<B3> results = new ArrayList<>();
+        List<B3> b3List = new ArrayList<>();
 
-        try {
-            if (StringUtils.hasText(numb3)) {
-                // Recherche par numéro B3
-
-                B3 retourB3 = b3Rep.findByNumB3(numb3);
-                if (retourB3!=null) {
-                    results.add(( retourB3));
+        if (StringUtils.hasText(numb3)) {
+            Optional<RetourB3> optionalRetour = rep.findBynumB3(numb3);
+            if (optionalRetour.isPresent()) {
+                RetourB3 retour = optionalRetour.get();
+                B3 b3 = new B3();
+                b3.setRetourId(retour.getId());
+                b3.setNom(retour.getNomPrenB3Ro());
+                b3.setNumB3(retour.getNumB3());
+                try {
+                    b3.setNumTel(retour.getB3().getNumTel());
+                } catch (Exception e) {
+                    b3.setNumTel(0);
+                }
+                b3List.add(b3);
+            } else {
+                B3 b3 = b3Rep.findByNumB3(numb3);
+                if (b3 != null) {
+                    b3.setRetourId(String.valueOf(b3.getIdB3()));
+                    b3List.add(b3);
                 }
             }
-            if (StringUtils.hasText(name)) {
-                // Recherche par nom (insensible à la casse)
-                results = b3Rep.findByNumB3RoOrNomPrenB3Ro(Long.parseLong(name),name);
-            }
-
-        } catch (NumberFormatException e) {
-            model.addAttribute("error", "Format de numéro B3 invalide");
         }
 
-        model.addAttribute("results", results);
+        if (StringUtils.hasText(name)) {
+            List<RetourB3> retourList = rep.findByNumB3OrNomPrenB3Ro(name);
+            for (RetourB3 retour : retourList) {
+                B3 b3 = new B3();
+                b3.setRetourId(retour.getId());
+                b3.setNom(retour.getNomPrenB3Ro());
+                b3.setNumB3(retour.getNumB3());
+                try {
+                    b3.setNumTel(retour.getB3().getNumTel());
+                } catch (Exception e) {
+                    b3.setNumTel(0);
+                }
+                b3List.add(b3);
+            }
+
+            // Si aucun retour trouvé, chercher directement dans la table B3
+            if (retourList.isEmpty()) {
+                List<B3> foundB3List = b3Rep.findByNumB3RoOrNomPrenB3Ro(name);
+                for (B3 b3 : foundB3List) {
+                    b3.setRetourId(String.valueOf(b3.getIdB3()));
+                    b3List.add(b3);
+                }
+            }
+        }
+
+        model.addAttribute("results", b3List);
         return "b3consul";
     }
 
-//    @GetMapping("/send_sms")
+
+    //    @GetMapping("/send_sms")
 //    public String sendSms(@RequestParam String numero,@RequestParam String message,@RequestParam String fact) {
 //
 //        try {
@@ -202,6 +236,12 @@ if (b3!=null){
 //            return "Erreur lors de l'envoi du SMS.";
 //        }
  //   }
+    class FindB3{
+        String id;
+        String nom;
+        String num;
+        String tel;
+}
 }
 
 

@@ -11,17 +11,20 @@ public class B3 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long idB3;
+    private String retourId;
     private String numB3;
     private String nom="";
     private String destination;
     private boolean notified;
     private int numTel;
     private final LocalDateTime dateNotif= LocalDateTime.now();
+
     @OneToOne(fetch = FetchType.LAZY)
     private AppUser appUser;
 
-    public B3(long idB3, String numB3, String destination, boolean notified, int numTel,String nom, AppUser appUser) {
+    public B3(long idB3, String retourId, String numB3, String destination, boolean notified, int numTel, String nom, AppUser appUser) {
         this.idB3 = idB3;
+        this.retourId = retourId;
         this.numB3 = numB3;
         this.destination = destination;
         this.notified = notified;
@@ -30,13 +33,18 @@ public class B3 {
         this.appUser = appUser;
     }
 
-    public B3(String ref, String post, boolean b, int i, String nom) {
+    public B3(String retourId, String ref, String post, boolean b, int i, String nom) {
+        this.retourId = retourId;
 
         this.numB3 = ref;
         this.destination = post;
         this.notified=b;
         this.numTel = i;
         this.nom=nom;
+
+    }
+
+    public B3() {
 
     }
 
@@ -56,10 +64,20 @@ public class B3 {
         this.appUser = appUser;
     }
 
-    public B3() {
+    public B3(String retourId) {
+        this.retourId = retourId;
     }
 
-    public B3( String numB3, String destination, boolean notified, int numTel) {
+    public String getRetourId() {
+        return retourId;
+    }
+
+    public void setRetourId(String retourId) {
+        this.retourId = retourId;
+    }
+
+    public B3(String retourId, String numB3, String destination, boolean notified, int numTel) {
+        this.retourId = retourId;
         this.idB3 = idB3;
         this.numB3 = numB3;
         this.destination = destination;
