@@ -170,16 +170,40 @@ model.addAttribute("date1",LocalDate.now());
                            @RequestParam(value = "id", required = false) String id,
                            @RequestParam(value = "datear") LocalDate datear) {
 
+
         Douane colis = new Douane();
-        if (id != null && !id.isEmpty()) {
+        if (StringUtils.hasText(id)) {
             Optional<Douane> douane = douaneRepo.findById(Long.parseLong(id));
             if (douane.isPresent()) {
                 colis = (Douane) douane.get();
+                colis.setDateArrivee(datear);
 
-            }}
+                colis.setNbColis(nbColis);
+                colis.setBloc(bloc);
+                colis.setOrigin(origin);
+                colis.setNumColis(numColis);
+                colis.setPoid(poidColis);
+                colis.setNom(nomDest);
+                colis.setObservation(observation ? "Sans facture" : "");
+                colis.setDroitDouane(0);
+                colis.setFraisMagasin(0);
+                colis.setFraisDedouane(4);
+                colis.setFraisReemballage(2);
+                colis.setTotPayer(0);
+                colis.setPrinted(false);
+                colis.setDelivered(false);
+
+                colis.setDateSortie(LocalDate.now());
+                colis.setValidated(true);
+                douaneRepo.save(colis);
+                return "redirect:/avisedit";
+
+            }
+        }
+        colis = new Douane();
 
             if (douaneRepo.findByNumColis(numColis) != null ) {
-                return "redirect:/avisedit?exist=" + true+"&colis="+colis;
+                return "redirect:/avisedit?exist=" + true+"&colis="+colis.getNumColis();
 
             }
 

@@ -31,10 +31,14 @@ public class SmsController {
     public String sms(Model model,@RequestParam(value = "exist",required = false) boolean exist,
                       @RequestParam(value = "status",required = false)String status,@RequestParam(value = "id",required = false)String id){
 
-        model.addAttribute("id",id==null?"":id);
-        if (status!=null&& !status.equals("")){
-            model.addAttribute("status", status.equals("true"));
-        }
+       if (StringUtils.hasText(id)){
+
+               Optional<B3> b3= b3Rep.findById(Long.parseLong(id));
+//               if (b3.isPresent()) {
+//                   return ""
+//
+//               }
+       }
 
         model.addAttribute("b3List", b3Rep.findByNotifiedFalse().stream()
                 //.sorted(Comparator.comparingLong(B3::getIdB3)) // ordre croissant
@@ -52,6 +56,7 @@ public class SmsController {
                       @RequestParam(value = "nom",defaultValue = "")String nom,
                       @RequestParam(value = "resend",required = false)boolean resend
                      ) throws UnsupportedEncodingException {
+
 if (resend){
     B3 b3=b3Rep.findByNumB3(ref);
     if(b3!=null){;
