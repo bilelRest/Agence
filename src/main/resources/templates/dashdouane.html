@@ -236,8 +236,10 @@
                                     <a target="_blank"
                                        class="btn btn-action btn-print"
                                        th:href="@{/print-list(id=${col.idDouane})}"
+
                                        onclick="if (confirm('Êtes-vous sûr de vouloir imprimer ce colis ?')) { setTimeout(() => window.location.reload(), 1000); } else { return false; }"
                                        title="Imprimer">
+
                                         <i class="bi bi-printer"></i>
                                     </a>
                                     <form th:action="@{/delete}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce colis ?');" class="d-inline">

@@ -1,5 +1,6 @@
 package tn.rapid_post.agence.controller;
 
+import net.sf.jasperreports.engine.fill.EvaluationBoundAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -127,6 +128,8 @@ public class DouaneController {
                            @RequestParam(value = "success", required = false) boolean success,
                            @RequestParam(value = "id", required = false) String id,
                            @RequestParam(value = "error",required = false)String error) {
+
+model.addAttribute("date1",LocalDate.now());
         boolean echec=false;
         if (StringUtils.hasText(error)){
             echec=true;
@@ -173,13 +176,13 @@ public class DouaneController {
             if (douane.isPresent()) {
                 colis = (Douane) douane.get();
 
-            }
-        } else {
-            if (douaneRepo.findByNumColis(numColis) != null || douaneRepo.findByBloc(bloc) != null) {
+            }}
+
+            if (douaneRepo.findByNumColis(numColis) != null ) {
                 return "redirect:/avisedit?exist=" + true+"&colis="+colis;
 
             }
-        }
+
         System.out.println("Bloc recu : " + bloc);
         System.out.println("Date arrivee" + datear);
         colis.setDateArrivee(datear);
@@ -228,8 +231,11 @@ public class DouaneController {
 
     @GetMapping("etatperiode")
     public String etatperiode(Model model, @RequestParam(value = "date1", required = false) LocalDate date1,
-                              @RequestParam(value = "date2", required = false) LocalDate date2) {
-
+                              @RequestParam(value = "date2", required = false) LocalDate date2,
+                              @RequestParam(value = "admin",required = false)String admin) {
+if (StringUtils.hasText(admin)){
+System.out.println("admin recu "+admin);
+}
         if (date1 == null && date2 == null) {
             date1 = LocalDate.now();
             date2 = LocalDate.now();
