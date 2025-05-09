@@ -103,6 +103,7 @@
                             <th>Contact</th>
                             <th>Date</th>
                             <th>Déstinataire</th>
+                            <th>Déstination</th>
                             <th>Statut</th>
                             <th>Action</th>
                         </tr>
@@ -114,6 +115,7 @@
                             <td th:text="${b3.numTel}"></td>
                             <td th:text="${#temporals.format(b3.dateNotif, 'dd/MM/yyyy HH:mm')}"></td>
                             <td th:text="${b3.nom}"></td>
+                            <td th:text="${b3.destination}"></td>
                             <td>
                                 <span th:class="${b3.notified} ? 'badge bg-success' : 'badge bg-danger'"
                                       th:text="${b3.notified} ? 'Envoyé' : 'Échec'"></span>
