@@ -169,7 +169,7 @@ if (b3!=null){
     @GetMapping("/findb3")
     public String retourb3(Model model,
                            @RequestParam(value = "numb3", required = false) String numb3,
-                           @RequestParam(value = "name", required = false) String name) {
+                           @RequestParam(value = "tel", required = false) String tel) {
 
         List<B3> b3List = new ArrayList<>();
 
@@ -196,8 +196,8 @@ if (b3!=null){
             }
         }
 
-        if (StringUtils.hasText(name)) {
-            List<RetourB3> retourList = rep.findByNumB3OrNomPrenB3Ro(name);
+        if (StringUtils.hasText(tel)) {
+            List<RetourB3> retourList = rep.findByNumTel(Integer.parseInt(tel));
             for (RetourB3 retour : retourList) {
                 B3 b3 = new B3();
                 b3.setRetourId(retour.getId());
@@ -213,7 +213,7 @@ if (b3!=null){
 
             // Si aucun retour trouvé, chercher directement dans la table B3
             if (retourList.isEmpty()) {
-                List<B3> foundB3List = b3Rep.findByNumB3RoOrNomPrenB3Ro(name);
+                List<B3> foundB3List = b3Rep.findByNumTel(Integer.parseInt(tel));
                 for (B3 b3 : foundB3List) {
                     b3.setRetourId(String.valueOf(b3.getIdB3()));
                     b3List.add(b3);

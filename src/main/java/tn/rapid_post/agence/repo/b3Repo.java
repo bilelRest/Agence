@@ -15,4 +15,6 @@ public interface b3Repo extends JpaRepository<B3,Long> {
     B3 findByIdB3(long b);
     @Query("SELECT b FROM B3 b WHERE b.nom LIKE %:name%")
     List<B3> findByNumB3RoOrNomPrenB3Ro( @Param("name") String name);
+
+    List<B3> findByNumTel(int i);
 }

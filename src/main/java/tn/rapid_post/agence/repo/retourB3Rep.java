@@ -15,6 +15,6 @@ public interface retourB3Rep extends JpaRepository<RetourB3,Long> {
     Optional<RetourB3> findBynumB3(String numb3);
     List<RetourB3> findByNomPrenB3RoContainingIgnoreCase(String nomPrenB3Ro);
 
-
-
+@Query("SELECT b from RetourB3 b WHERE b.b3.numTel = :tel")
+    List<RetourB3> findByNumTel(@Param("tel") int tel);
 }
