@@ -271,7 +271,10 @@ System.out.println("admin recu "+admin);
         }
         List<Douane> colislise = new ArrayList<>();
         if (date1 != null && date2 != null) {
-            colislise = douaneRepo.findBetweenDates(date1, date2);
+            colislise = douaneRepo.findBetweenDates(date1, date2)
+                    .stream()
+                    .sorted(Comparator.comparing(Douane::getSequence))
+                    .collect(Collectors.toList());
         }
         model.addAttribute("date1", date1);
         model.addAttribute("date2", date2);
