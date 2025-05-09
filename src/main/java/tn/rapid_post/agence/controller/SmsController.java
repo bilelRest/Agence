@@ -106,7 +106,11 @@ if (b3!=null){
         }if (post.isEmpty()){
             post="Agence";
         }
-        B3 b3=new B3(ref,post,"",false,Integer.parseInt(tel),nom);
+        B3 b3=new B3();
+        b3.setNom(nom);
+        b3.setDestination(post);
+        b3.setNumTel(Integer.parseInt(tel));
+        b3.setNumB3(ref);
         b3Rep.save(b3);
 
 
