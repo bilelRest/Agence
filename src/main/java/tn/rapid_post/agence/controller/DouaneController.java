@@ -44,11 +44,8 @@ public class DouaneController {
     @GetMapping("etatdouane")
     public String etatdouane(Model model) {
 
-        boolean autorized = false;
-        if (findLogged().getRoles().contains("ADMIN") || findLogged().getRoles().contains("AGENTB")){
-            autorized =true;
-        }
-        model.addAttribute("autorized",autorized);
+
+
          LocalDate   date1 = LocalDate.now();
           LocalDate  date2 = LocalDate.now();
           model.addAttribute("date1",date1);
@@ -204,6 +201,7 @@ model.addAttribute("date1",LocalDate.now());
                            @RequestParam(value = "datear") LocalDate datear) {
 
 
+
         Douane colis = new Douane();
         if (StringUtils.hasText(id)) {
             Optional<Douane> douane = douaneRepo.findById(Long.parseLong(id));
@@ -270,6 +268,11 @@ model.addAttribute("date1",LocalDate.now());
     public String quinzaine(Model model,
                             @RequestParam(value = "date1", required = false) LocalDate date1,
                             @RequestParam(value = "date2", required = false) LocalDate date2) {
+        boolean autorized = false;
+        if (findLogged().getRoles().contains("ADMIN")){
+            autorized =true;
+        }
+        model.addAttribute("isAdmin",autorized);
         List<Douane> results = new ArrayList<>();
         long nbTot = 0;
         long douaneTot = 0;
@@ -292,6 +295,7 @@ model.addAttribute("date1",LocalDate.now());
     public String etatperiode(Model model, @RequestParam(value = "date1", required = false) LocalDate date1,
                               @RequestParam(value = "date2", required = false) LocalDate date2,
                               @RequestParam(value = "admin",required = false)String admin) {
+
 if (StringUtils.hasText(admin)){
 System.out.println("admin recu "+admin);
 }
@@ -336,6 +340,10 @@ System.out.println("admin recu "+admin);
     @PostMapping("delete")
     public String delete(@RequestParam(value = "id",required = true)long id,
                          @RequestParam(value = "dash",required = false)String dash){
+
+        if (findLogged().getRoles().contains("ADMIN") ){
+
+
         try {
             douaneRepo.deleteById(id);
             if (StringUtils.hasText(dash)){
@@ -350,11 +358,16 @@ System.out.println("admin recu "+admin);
             return "redirect:/avisedit?error="+true;
         }
 
-    }
+    }return "/";}
     @GetMapping("printquinzaine")
     public String printquinzaine(Model model,
                                  @RequestParam(value = "date1",required = false)LocalDate date1,
                                  @RequestParam(value = "date2",required = false)LocalDate date2){
+        boolean autorized = false;
+        if (findLogged().getRoles().contains("ADMIN") ){
+            autorized =true;
+        }
+        model.addAttribute("autorized",autorized);
         model.addAttribute("date1",date1);
         model.addAttribute("date2",date2);
         List<Douane> douaneList=douaneRepo.findBetweenDates(date1,date2);
