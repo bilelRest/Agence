@@ -142,7 +142,7 @@
     </div>
     <div class="offcanvas-body p-0">
         <ul class="nav flex-column p-3">
-            <li class="nav-item">
+            <li th:if="${isAdmin}" class="nav-item">
                 <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu3()">
                     <i class="bi bi-speedometer text-warning me-3 fs-5"></i>
                     Dashboard
@@ -152,7 +152,7 @@
             </li>
 
             <div id="dropMenu3" class="sub-menu ms-4 mb-2" style="display:none;">
-                <ul class="nav flex-column">
+                <ul  class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link text-light py-2" href="dashdouane">
                             <i class="bi bi-search text-orange me-2"></i>
@@ -191,7 +191,7 @@
                             Consulter
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li th:if="${autorized}" class="nav-item">
                         <a class="nav-link text-light py-2" href="/sms">
                             <i class="bi bi-chat-text text-orange me-2"></i>
                             Notifier
@@ -257,7 +257,7 @@
                             Consulter
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li th:if="${autorized}" class="nav-item">
                         <a class="nav-link text-light py-2" href="/retourb3rcp">
                             <i class="bi bi-chat-text text-orange me-2"></i>
                             Réception

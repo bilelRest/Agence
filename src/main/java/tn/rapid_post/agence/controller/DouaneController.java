@@ -2,6 +2,9 @@ package tn.rapid_post.agence.controller;
 
 import net.sf.jasperreports.engine.fill.EvaluationBoundAction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -10,6 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import tn.rapid_post.agence.entity.Douane;
 import tn.rapid_post.agence.repo.douaneRepo;
+import tn.rapid_post.agence.sec.entity.AppUser;
+import tn.rapid_post.agence.sec.repo.UserRepository;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -20,11 +25,30 @@ import java.util.stream.Collectors;
 public class DouaneController {
     @Autowired
     private douaneRepo douaneRepo;
+    @Autowired
+    private UserRepository appUserRepo;
+    public AppUser findLogged() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+
+
+            String utilisateur = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+
+            Optional<AppUser> appUser1 = appUserRepo.findByUsername(utilisateur);
+            return appUser1.orElse(null);
+
+        } else return null;
+    }
 
     @GetMapping("etatdouane")
     public String etatdouane(Model model) {
 
-
+        boolean autorized = false;
+        if (findLogged().getRoles().contains("ADMIN") || findLogged().getRoles().contains("AGENTB")){
+            autorized =true;
+        }
+        model.addAttribute("autorized",autorized);
          LocalDate   date1 = LocalDate.now();
           LocalDate  date2 = LocalDate.now();
           model.addAttribute("date1",date1);

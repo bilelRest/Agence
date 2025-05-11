@@ -3,6 +3,9 @@
 package tn.rapid_post.agence.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -12,6 +15,7 @@ import tn.rapid_post.agence.entity.B3;
 import tn.rapid_post.agence.entity.RetourB3;
 import tn.rapid_post.agence.repo.retourB3Rep;
 import tn.rapid_post.agence.sec.entity.AppUser;
+import tn.rapid_post.agence.sec.repo.UserRepository;
 import tn.rapid_post.agence.service.ApiService;
 import tn.rapid_post.agence.repo.b3Repo;
 
@@ -30,12 +34,32 @@ public class SmsController {
     private b3Repo b3Rep;
     @Autowired
     private retourB3Rep rep;
+    @Autowired
+    private UserRepository appUserRepo;
+
+    public AppUser findLogged() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+
+
+            String utilisateur = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+
+            Optional<AppUser> appUser1 = appUserRepo.findByUsername(utilisateur);
+            return appUser1.orElse(null);
+
+        } else return null;
+    }
     @GetMapping("/sms")
     public String sms(Model model,
                       @RequestParam(value = "exist", required = false, defaultValue = "false") boolean exist,
                       @RequestParam(value = "status", required = false) String status,
                       @RequestParam(value = "id", required = false) String id) {
-
+        boolean autorized = false;
+        if (findLogged().getRoles().contains("ADMIN") || findLogged().getRoles().contains("AGENTD")){
+            autorized =true;
+        }
+        model.addAttribute("autorized",autorized);
         B3 b31=new B3();
         model.addAttribute("b3mod",b31);
 
@@ -73,6 +97,12 @@ public class SmsController {
                       @RequestParam(value = "nom",defaultValue = "")String nom,
                       @RequestParam(value = "resend",required = false)boolean resend
                     ,@RequestParam(value = "id",required = false)String id ) throws UnsupportedEncodingException {
+
+
+        if (findLogged().getRoles().contains("ADMIN") || findLogged().getRoles().contains("AGENTD")){
+
+
+
 
 if (resend){
     B3 b3=b3Rep.findByNumB3(ref);
@@ -120,7 +150,8 @@ if (b3!=null){
          else {
 
             return "redirect:/sms?status="+false+"&id="+b3.getIdB3();
-        }
+        }}
+        return "/";
     }
     @GetMapping("/b3consul")
     public String consulterB3(Model model,

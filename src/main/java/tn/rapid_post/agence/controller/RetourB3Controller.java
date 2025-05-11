@@ -1,6 +1,9 @@
 package tn.rapid_post.agence.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -10,6 +13,8 @@ import tn.rapid_post.agence.entity.B3;
 import tn.rapid_post.agence.entity.RetourB3;
 import tn.rapid_post.agence.repo.b3Repo;
 import tn.rapid_post.agence.repo.retourB3Rep;
+import tn.rapid_post.agence.sec.entity.AppUser;
+import tn.rapid_post.agence.sec.repo.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +26,30 @@ public class RetourB3Controller {
     private retourB3Rep b3Rep;
     @Autowired
     private b3Repo repo;
+    @Autowired
+    private UserRepository appUserRepo;
+    public AppUser findLogged() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+
+
+            String utilisateur = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+
+            Optional<AppUser> appUser1 = appUserRepo.findByUsername(utilisateur);
+            return appUser1.orElse(null);
+
+        } else return null;
+    }
     @GetMapping("/retourb3rcp")
     public String retourb3rcp(Model model,
                               @RequestParam(value = "numb3", required = false) String numb3,
                               @RequestParam(value = "name",required = false)String name) {
+        boolean autorized = false;
+        if (findLogged().getRoles().contains("ADMIN") || findLogged().getRoles().contains("AGENTD")){
+            autorized =true;
+        }
+        model.addAttribute("autorized",autorized);
         String id="";
         List<RetourB3> results=new ArrayList<>();
 

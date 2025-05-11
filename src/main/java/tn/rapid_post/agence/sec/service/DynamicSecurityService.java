@@ -18,7 +18,7 @@ public class DynamicSecurityService {
             AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry auth) {
 
         // Chemins publics
-        auth.requestMatchers("/", "/login", "/error", "/css/**", "/js/**", "/webjars/**").permitAll();
+        auth.requestMatchers( "/login", "/error", "/css/**", "/js/**", "/webjars/**").permitAll();
 
         // Configurer les permissions
         roleRepository.findAllWithPermissions().forEach(role -> {

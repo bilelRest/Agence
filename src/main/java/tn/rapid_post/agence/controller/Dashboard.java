@@ -1,6 +1,9 @@
 package tn.rapid_post.agence.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -8,19 +11,41 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import tn.rapid_post.agence.entity.Douane;
 import tn.rapid_post.agence.repo.douaneRepo;
+import tn.rapid_post.agence.sec.entity.AppUser;
+import tn.rapid_post.agence.sec.repo.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class Dashboard {
     @Autowired
     private douaneRepo douaneRepo;
+    @Autowired
+    private UserRepository appUserRepo;
+    public AppUser findLogged() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+
+
+            String utilisateur = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+
+            Optional<AppUser> appUser1 = appUserRepo.findByUsername(utilisateur);
+                return appUser1.orElse(null);
+
+        } else return null;
+    }
     @GetMapping("/dashdouane")
     public String dashboard(Model model,
                             @RequestParam(value = "etat", required = false) String etat1,
                             @RequestParam(value = "key", required = false) String key) {
-
+        boolean isAdmin = false;
+        if (findLogged().getRoles().contains("ADMIN")){
+            isAdmin =true;
+        }
+model.addAttribute("isAdmin",isAdmin);
         List<Douane> douaneList = new ArrayList<>();
         boolean not = true;
         Boolean etat = null;

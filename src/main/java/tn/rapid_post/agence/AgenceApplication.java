@@ -40,9 +40,9 @@ private PermissionRepository permissionRepository;
 	@Bean
 		CommandLineRunner start(){
 			return args->{
-//appUserInterface.AddUser(new AppUser("agentb","123456"));
-////appUserInterface.AddNewRole(new AppRole("AGENT"));
-//appUserInterface.AddRoleToUser("agentb","AGENTB");
+//appUserInterface.AddUser(new AppUser("hechmi","hechmi"));
+//appUserInterface.AddNewRole(new AppRole("ADMIN"));
+//appUserInterface.AddRoleToUser("hechmi","ADMIN");
 //for (AppRole appUser:appUserInterface.LoadUserByUserName("bilel").getRoles()){
 //	System.out.println(appUser.getName());
 //}
