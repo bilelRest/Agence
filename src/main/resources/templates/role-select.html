@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{template}">
+<head>
+    <meta charset="UTF-8">
+    <title>Sélectionner un rôle</title>
+</head>
+<body>
+<div layout:fragment="content1">
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h3>Sélectionner un rôle à gérer</h3>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/role}" method="get">
+                    <div class="mb-3">
+                        <label for="roleName" class="form-label">Nom du rôle :</label>
+                        <select class="form-select" name="roleName" id="roleName" required>
+                            <option th:each="r : ${roles}" th:value="${r.name}" th:text="${r.name}">Rôle</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Gérer les permissions</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

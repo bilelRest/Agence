@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{template}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/webjars/bootstrap-icons/1.10.5/font/bootstrap-icons.css">
+    <script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <title>Permission</title>
+</head>
+<body>
+<div layout:fragment="content1">
+    <form class="form" th:action="@{/permission}" method="get">
+        <input type="text" name="nom" placeholder="Nom" class="form-control">
+        <input type="text" name="path" placeholder="Path" class="form-control">
+        <input type="submit" value="Ajouter">
+        <div th:if="${success}">
+            <h1 class="text-success">Ajouter avec success</h1>
+        </div>
+        <div th:if="${exist}">
+            <h1 class="text-danger">Permission existante</h1>
+        </div>
+    </form>
+</div>
+</body>
+</html>
