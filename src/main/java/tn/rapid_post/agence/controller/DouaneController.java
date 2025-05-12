@@ -300,7 +300,7 @@ model.addAttribute("date1",LocalDate.now());
         model.addAttribute("isAdmin", isAdmin);
         List<Douane> results = new ArrayList<>();
         long nbTot = 0;
-        long douaneTot = 0;
+        double douaneTot = 0;
         if (date1 != null && date2 != null) {
             results = douaneRepo.findBetweenDates(date1, date2)
                     .stream()
@@ -314,7 +314,8 @@ model.addAttribute("date1",LocalDate.now());
                     .collect(Collectors.toList());
             for (Douane douane : results) {
                 nbTot += douane.getNbColis();
-                douaneTot += (long) douane.getDroitDouane();
+                douaneTot += douane.getDroitDouane();
+                System.out.println(douaneTot);
             }
         }
 

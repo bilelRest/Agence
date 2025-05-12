@@ -55,7 +55,12 @@ public class SmsController {
     public String sms(Model model,
                       @RequestParam(value = "exist", required = false, defaultValue = "false") boolean exist,
                       @RequestParam(value = "status", required = false) String status,
-                      @RequestParam(value = "id", required = false) String id) {
+                      @RequestParam(value = "id", required = false) String id,
+                      @RequestParam(value = "echec",required = false)boolean echec,
+                      @RequestParam(value = "ipad",required = false)String ipad) {
+        System.out.println("Ip recu"+ipad);
+        model.addAttribute("ipad",ipad);
+        model.addAttribute("echec",echec);
         boolean isAdmin = false;
         for (AppRole appRole : findLogged().getRoles()) {
             if ("ADMIN".equals(appRole.getName())) {
@@ -94,16 +99,16 @@ public class SmsController {
         return "sms";
     }
 
-    @PostMapping("/sms")
+    @PostMapping("sms")
     public String sms(@RequestParam String tel,
                       @RequestParam String ref,
                       @RequestParam String post,
                       @RequestParam(value = "nom",defaultValue = "")String nom,
                       @RequestParam(value = "resend",required = false)boolean resend
-                    ,@RequestParam(value = "id",required = false)String id ) throws UnsupportedEncodingException {
+                    ,@RequestParam(value = "id",required = false)String id,
+                      @RequestParam(value = "ipad")String ipad) throws UnsupportedEncodingException {
 
 
-        if (findLogged().getRoles().contains("ADMIN") || findLogged().getRoles().contains("AGENTD")){
 
 
 
@@ -112,12 +117,12 @@ if (resend){
     B3 b3=b3Rep.findByNumB3(ref);
     if(b3!=null){;
 
-            if(smsService.getApiData(b3))
+            if(smsService.getApiData(b3,ipad))
         {
-            return "redirect:/sms?status="+true+"&id="+b3.getIdB3();
+            return "redirect:/sms?status="+true+"&id="+b3.getIdB3()+"&ipad="+ipad;
         }else {
 
-                return "redirect:/sms?status="+false+"&id="+b3.getIdB3();
+                return "redirect:/sms?status="+false+"&id="+b3.getIdB3()+"&ipad="+ipad;
 
             }
     }
@@ -130,13 +135,13 @@ if (b3!=null){
     b3.setNumTel(Integer.parseInt(tel));
     b3.setNumB3(ref);
     b3Rep.save(b3);
-    return "redirect:/sms";
+    return "redirect:/sms?ipad="+ipad;
 }
 }
 
         if(b3Rep.existsByNumB3(ref)){
             System.out.println("Entré dans if b3 existant");
-            return "redirect:/sms?exist="+true;
+            return "redirect:/sms?exist="+true+"&ipad="+ipad;
         }if (post.isEmpty()){
             post="Agence";
         }
@@ -148,14 +153,14 @@ if (b3!=null){
         b3Rep.save(b3);
 
 
-            if(smsService.getApiData(b3)) {
-                return "redirect:/sms?status="+true+"&id="+b3.getIdB3();
+            if(smsService.getApiData(b3,ipad)) {
+                return "redirect:/sms?status="+true+"&id="+b3.getIdB3()+"&ipad="+ipad;
             }
          else {
 
-            return "redirect:/sms?status="+false+"&id="+b3.getIdB3();
-        }}
-        return "/";
+            return "redirect:/sms?status="+false+"&id="+b3.getIdB3()+"&ipad="+ipad;
+        }
+
     }
     @GetMapping("/b3consul")
     public String consulterB3(Model model,
@@ -287,6 +292,23 @@ public String home(Model model) {
 
         model.addAttribute("results", b3List);
         return "b3consul";
+    }
+    @PostMapping("deletesms")
+    public String deletesms(@RequestParam(value = "id")String id){
+        if(StringUtils.hasText(id)){
+        try {
+          Optional<B3> b3=  b3Rep.findById(Long.parseLong(id));
+          if (b3.isPresent()){
+              b3.get().setNotified(true);
+              b3Rep.save(b3.get());
+              return "redirect:/sms";
+          }
+        }catch (Exception e){
+            return "redirect:/sms?echec="+true;
+        }
+        }
+
+        return "redirect:/sms";
     }
 
 

@@ -28,6 +28,8 @@ public class Douane {
     private String origin;
     private String bloc;
     private String sequence;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean rePrint;
     @OneToOne(fetch = FetchType.LAZY)
     private AppUser appUser;
 
@@ -41,7 +43,7 @@ public class Douane {
         this.sequence = sequence;
     }
 
-    public Douane(String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, AppUser appUser, boolean validated,String sequence) {
+    public Douane(String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, AppUser appUser, boolean validated, String sequence, boolean rePrint) {
         this.nom = nom;
         this.numColis = numColis;
         this.dateSortie = dateSortie;
@@ -61,6 +63,19 @@ public class Douane {
         this.appUser = appUser;
         this.validated = validated;
         this.sequence=sequence;
+
+        this.rePrint = rePrint;
+    }
+
+    public boolean isRePrint() {
+        return rePrint;
+    }
+
+    public void setRePrint(boolean rePrint) {
+        this.rePrint = rePrint;
+    }
+    public Douane(){
+
     }
 
     public AppUser getAppUser() {
@@ -95,8 +110,9 @@ public class Douane {
         this.bloc = bloc;
     }
 
-    public Douane(boolean printed) {
+    public Douane(boolean printed, boolean rePrint) {
         this.printed = printed;
+        this.rePrint = rePrint;
     }
 
     public boolean isPrinted() {
@@ -115,7 +131,7 @@ public class Douane {
         this.delivered = delivered;
     }
 
-    public Douane(long idDouane, String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc,boolean validated) {
+    public Douane(long idDouane, String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, boolean rePrint, boolean validated) {
         this.idDouane = idDouane;
         this.nom = nom;
         this.numColis = numColis;
@@ -133,6 +149,7 @@ public class Douane {
         this.delivered = delivered;
         this.origin = origin;
         this.bloc = bloc;
+        this.rePrint = rePrint;
         this.validated=validated;
     }
 
@@ -240,6 +257,7 @@ public class Douane {
         this.observation = observation;
     }
 
-    public Douane() {
+    public Douane(boolean rePrint) {
+        this.rePrint = rePrint;
     }
 }

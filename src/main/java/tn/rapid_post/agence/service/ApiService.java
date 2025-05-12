@@ -21,8 +21,8 @@ public class ApiService {
         this.restTemplate = restTemplate;
     }
 
-    public boolean getApiData(B3 b3) {
-        String apiUrl = "http://192.168.43.1:8080/send_sms";
+    public boolean getApiData(B3 b3,String ipRecu) {
+        String apiUrl = "http://"+ipRecu+":8080/send_sms";
         String messageAr = "";
         // Message en arabe fixe
         if (b3!=null) {

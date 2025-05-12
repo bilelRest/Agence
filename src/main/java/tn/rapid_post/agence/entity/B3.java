@@ -17,6 +17,7 @@ public class B3 {
     private String destination;
     private boolean notified;
     private int numTel;
+
     private final LocalDateTime dateNotif= LocalDateTime.now();
 
     @OneToOne(fetch = FetchType.LAZY)
