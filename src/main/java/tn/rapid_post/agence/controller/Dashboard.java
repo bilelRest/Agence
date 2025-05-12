@@ -15,6 +15,7 @@ import tn.rapid_post.agence.sec.entity.AppRole;
 import tn.rapid_post.agence.sec.entity.AppUser;
 import tn.rapid_post.agence.sec.repo.UserRepository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +42,9 @@ public class Dashboard {
     @GetMapping("/dashdouane")
     public String dashboard(Model model,
                             @RequestParam(value = "etat", required = false) String etat1,
-                            @RequestParam(value = "key", required = false) String key) {
+                            @RequestParam(value = "key", required = false) String key,
+                            @RequestParam(value = "date1",required = false)LocalDate date1,
+                            @RequestParam(value = "date2",required = false)LocalDate date2) {
 
         boolean isAdmin = false;
         for (AppRole appRole : findLogged().getRoles()) {
@@ -65,11 +68,15 @@ public class Dashboard {
                 not = false;
             }
         }
+        if (date1!=null&&date2!=null){
+            douaneList=douaneRepo.findBetweenDatesDash(date1,date2);
+        }else{
 
         if (StringUtils.hasText(key)) {
             key = "%" + key.trim().toLowerCase() + "%";
             if (etat == null) {
                 douaneList = douaneRepo.searchMultiFields(key);
+
             } else if (etat) {
                 douaneList = douaneRepo.searchMultiFieldsByDelivered(key, true);
             } else {
@@ -83,7 +90,9 @@ public class Dashboard {
             } else {
                 douaneList = douaneRepo.findByDeliveredFalse();
             }
-        }
+        }}
+        model.addAttribute("date1",date1);
+        model.addAttribute("date2",date2);
 
         model.addAttribute("list", douaneList);
         model.addAttribute("etat", etat);

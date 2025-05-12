@@ -3,6 +3,7 @@ package tn.rapid_post.agence.repo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import tn.rapid_post.agence.entity.Douane;
 
 import java.time.LocalDate;
@@ -12,6 +13,8 @@ import java.util.Optional;
 public interface douaneRepo extends JpaRepository<Douane,Long> {
     @Query("SELECT d FROM Douane d WHERE d.delivered = true AND d.dateSortie BETWEEN ?1 AND ?2")
     List<Douane> findBetweenDates(LocalDate startDate, LocalDate endDate);
+    @Query("SELECT d FROM Douane d WHERE d.dateArrivee BETWEEN ?1 AND ?2")
+    List<Douane> findBetweenDatesDash(@Param("date1") LocalDate startDate,@Param("date2") LocalDate endDate);
 
     List<Douane> findByPrintedFalse();
 

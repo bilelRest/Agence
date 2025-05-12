@@ -57,10 +57,12 @@
 </head>
 <body>
 <div class="header">
-    <div class="title">ETAT DES MOUVEMENTS DES COLIS SOUS DOUANE</div>
+    <div style="text-align:left" class="title">Agence Rapid Poste Sfax ElBousten</div>
+<br>
+    <div class="title">Etat des mouvements des colis sous douane</div>
     <div class="period">
         Période du
-        <span th:text="${date1 != null} ? ${#temporals.format(date1, 'dd/MM/yyyy')} : '--/--/----'"></span>
+        <span class="text-bold" th:text="${date1 != null} ? ${#temporals.format(date1, 'dd/MM/yyyy')} : '--/--/----'"></span>
         au
         <span th:text="${date2 != null} ? ${#temporals.format(date2, 'dd/MM/yyyy')} : '--/--/----'"></span>
     </div>
@@ -90,12 +92,12 @@
     </tr>
     </tbody>
 </table>
+<br><br><br>
 
-<div class="footer">
-    <div>Imprimé le <span th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy')}"></span></div>
-    <div style="margin-top: 30px;">Signature : _________________________</div>
+<div style="border:solid 2px; width:50; height:100; display: flex; flex-direction: column; justify-content: space-between; padding: 10px;;margin-left:60%">
+    <div style="text-align: center;">Imprimé le <span th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy')}"></span></div>
+    <div style="text-align: center;margin-top:10%">Signature : _________________________</div>
 </div>
-
 <script th:inline="javascript">
     /*<![CDATA[*/
     window.onload = function() {

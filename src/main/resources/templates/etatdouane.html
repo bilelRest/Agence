@@ -100,6 +100,8 @@
                     </head>
                     <body>
                         <div class="header">
+                        <div style="text-align:left" class="title">Agence Rapid Poste Sfax ElBousten</div>
+            <br><br>
                             <div class="title">${isSameDay ? 'ETAT DU REGLEMENT DES COLIS SOUS DOUANE' : 'ETAT PERIODIQUE DU REGLEMENT DES COLIS SOUS DOUANE'}</div>
                             <div class="period">
                                 ${isSameDay ?
@@ -112,8 +114,8 @@
                             <thead>
                                 <tr>
                                     <th>N° Séquence</th>
+                                    <th>Numéro du colis</th>
                                     <th>Client</th>
-                                    <th>Date de livraison</th>
                                     <th>Nbre de colis</th>
                                     <th>Droit Douane</th>
                                     <th>Frais Dédouane</th>
@@ -160,10 +162,10 @@
                             </tbody>
                         </table>
 
-                        <div class="footer">
+                        <div style="border:solid 2px; width:200; height:100; display: flex; flex-direction: column; justify-content: space-between; padding: 10px;;margin-left:60%">
                             <div>Imprimé le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</div>
-                            <div style="margin-top: 20px;">Signature _________________________</div>
-                        </div>
+    <div style="text-align: center;margin-top:10%">Signature : _________________________</div>
+</div>
                     </body>
                 </html>
             `);
@@ -190,15 +192,11 @@
     </div>
 
     <div class="card">
-
-<div class="card-header">
-    <h1> </h1><h1 th:text="'Journée du :' +${date1}"></h1>
-</div>
-                        <input type="hidden" id="date1" name="date1" class="form-control" th:value="${date1}">
-
-                        <input type="hidden"  id="date2" name="date2" class="form-control" th:value="${date2}">
-
-
+        <div class="card-header">
+            <h1> </h1><h1 th:text="'Journée du :' +${date1}"></h1>
+        </div>
+        <input type="hidden" id="date1" name="date1" class="form-control" th:value="${date1}">
+        <input type="hidden"  id="date2" name="date2" class="form-control" th:value="${date2}">
 
         <div class="card-body">
             <div class="table-responsive">
@@ -206,8 +204,8 @@
                     <thead class="table-dark">
                     <tr>
                         <th>N° Séquence</th>
-                        <th>Client</th>
                         <th>Numéro du colis</th>
+                        <th>Client</th>
                         <th>Nbre de colis</th>
                         <th>Droit Douane</th>
                         <th>Frais Dédouane</th>
@@ -219,8 +217,8 @@
                     <tbody>
                     <tr th:each="colis : ${colislise}">
                         <td th:text="${colis.sequence}" class="text-truncate"></td>
-                        <td th:text="${colis.nom}"></td>
                         <td th:text="${colis.numColis}"></td>
+                        <td th:text="${colis.nom}"></td>
                         <td th:text="${colis.nbColis}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.droitDouane, 1, 3)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.fraisDedouane, 1, 3)}" class="text-end"></td>
@@ -233,7 +231,6 @@
                 <button onclick="printTable()" class="btn btn-outline-secondary mt-3">
                     <i class="bi bi-printer"></i> Imprimer le rapport
                 </button>
-
             </div>
         </div>
     </div>

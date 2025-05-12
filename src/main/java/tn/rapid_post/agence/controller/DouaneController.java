@@ -302,12 +302,22 @@ model.addAttribute("date1",LocalDate.now());
         long nbTot = 0;
         long douaneTot = 0;
         if (date1 != null && date2 != null) {
-            results = douaneRepo.findBetweenDates(date1, date2);
+            results = douaneRepo.findBetweenDates(date1, date2)
+                    .stream()
+                    .map(d -> {
+                        String numStr = d.getSequence().replaceAll("\\D+", "");
+                        int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
+                        return new AbstractMap.SimpleEntry<>(d, sequenceNum);
+                    })
+                    .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
+                    .map(AbstractMap.SimpleEntry::getKey)
+                    .collect(Collectors.toList());
             for (Douane douane : results) {
                 nbTot += douane.getNbColis();
                 douaneTot += (long) douane.getDroitDouane();
             }
         }
+
         model.addAttribute("date1",date1);
         model.addAttribute("date2",date2);
         model.addAttribute("nbTot", nbTot);
@@ -418,8 +428,19 @@ System.out.println("admin recu "+admin);
         model.addAttribute("autorized",autorized);
         model.addAttribute("date1",date1);
         model.addAttribute("date2",date2);
-        List<Douane> douaneList=douaneRepo.findBetweenDates(date1,date2);
-        model.addAttribute("list",douaneList);
+        List<Douane> results=douaneRepo.findBetweenDates(date1,date2);
+        results = douaneRepo.findBetweenDates(date1, date2)
+                .stream()
+                .map(d -> {
+                    String numStr = d.getSequence().replaceAll("\\D+", "");
+                    int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
+                    return new AbstractMap.SimpleEntry<>(d, sequenceNum);
+                })
+                .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
+                .map(AbstractMap.SimpleEntry::getKey)
+                .collect(Collectors.toList());
+
+        model.addAttribute("list",results);
         return "printquinzaine";
     }
 
