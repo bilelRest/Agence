@@ -127,6 +127,11 @@
         <div class="logo-container ms-2">
             <img src="/poste.png" class="img-fluid" alt="Logo Poste" style="width:45px; height:45px;" />
         </div>
+        <form th:action="@{/logout}" method="post" class="d-inline">
+            <button style="margin-left:30%;margin-right=20%" type="submit" class="btn btn-outline-info">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </form>
     </div>
     <div class="header-divider"></div>
 </nav>
