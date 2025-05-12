@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tn.rapid_post.agence.entity.B3;
 import tn.rapid_post.agence.entity.RetourB3;
 import tn.rapid_post.agence.repo.retourB3Rep;
+import tn.rapid_post.agence.sec.entity.AppRole;
 import tn.rapid_post.agence.sec.entity.AppUser;
 import tn.rapid_post.agence.sec.repo.UserRepository;
 import tn.rapid_post.agence.service.ApiService;
@@ -55,11 +56,14 @@ public class SmsController {
                       @RequestParam(value = "exist", required = false, defaultValue = "false") boolean exist,
                       @RequestParam(value = "status", required = false) String status,
                       @RequestParam(value = "id", required = false) String id) {
-        boolean autorized = false;
-        if (findLogged().getRoles().contains("ADMIN") || findLogged().getRoles().contains("AGENTD")){
-            autorized =true;
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
         }
-        model.addAttribute("autorized",autorized);
+        model.addAttribute("isAdmin", isAdmin);
         B3 b31=new B3();
         model.addAttribute("b3mod",b31);
 
@@ -157,7 +161,14 @@ if (b3!=null){
     public String consulterB3(Model model,
                               @RequestParam(value = "query", required = false) String query,
                               @RequestParam(value = "error", required = false) Boolean error) {
-
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin", isAdmin);
         // Ajout de l'attribut error si présent
         if (error != null && error) {
             model.addAttribute("error", "Aucun B3 trouvé avec cette référence");
@@ -197,15 +208,32 @@ if (b3!=null){
 //            return "redirect:/b3consul";
 //        }
 //    }
-    @GetMapping("/")
-    public String home(Model model){
-        return "template";
+@GetMapping("/")
+public String home(Model model) {
+
+    boolean isAdmin = false;
+    for (AppRole appRole : findLogged().getRoles()) {
+        if ("ADMIN".equals(appRole.getName())) {
+            isAdmin = true;
+            break;
+        }
     }
+    model.addAttribute("isAdmin", isAdmin);
+    return "template";
+}
+
     @GetMapping("/findb3")
     public String retourb3(Model model,
                            @RequestParam(value = "numb3", required = false) String numb3,
                            @RequestParam(value = "tel", required = false) String tel) {
-
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin", isAdmin);
         List<B3> b3List = new ArrayList<>();
 
         if (StringUtils.hasText(numb3)) {

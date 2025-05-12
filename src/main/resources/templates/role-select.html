@@ -4,28 +4,88 @@
       layout:decorate="~{template}">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/webjars/bootstrap-icons/1.10.5/font/bootstrap-icons.css">
+    <script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <title>Sélectionner un rôle</title>
 </head>
 <body>
 <div layout:fragment="content1">
     <div class="container mt-5">
-        <div class="card">
-            <div class="card-header bg-info text-white">
-                <h3>Sélectionner un rôle à gérer</h3>
+        <!-- Section de sélection de rôle -->
+        <div class="card shadow mb-5">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="fas fa-user-tag me-2"></i>Sélectionner un rôle à gérer</h3>
             </div>
             <div class="card-body">
                 <form th:action="@{/role}" method="get">
                     <div class="mb-3">
-                        <label for="roleName" class="form-label">Nom du rôle :</label>
-                        <select class="form-select" name="roleName" id="roleName" required>
+                        <label for="roleName" class="form-label fw-bold">Nom du rôle :</label>
+                        <select class="form-select form-select-lg" name="roleName" id="roleName" required>
                             <option th:each="r : ${roles}" th:value="${r.name}" th:text="${r.name}">Rôle</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">Gérer les permissions</button>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-cog me-2"></i>Gérer les permissions
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section de modification des rôles utilisateur (visible seulement si selectedUser existe) -->
+        <div th:if="${exist}" class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h3 class="mb-0"><i class="fas fa-user-edit me-2"></i>Modifier les rôles de : <span th:text="${selectedUser.username}"></span></h3>
+            </div>
+            <div class="card-body">
+                <form method="post" th:action="@{/edituserrole}" class="needs-validation" novalidate>
+                    <input type="hidden" name="id" th:value="${selectedUser.id}" />
+
+                    <div class="row">
+                        <div th:each="role : ${roles}" class="col-md-4 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="roleIds"
+                                       th:value="${role.id}"
+                                       th:checked="${selectedUser.roles.contains(role)}"
+                                       id="role-${role.id}">
+                                <label class="form-check-label" th:for="'role-' + ${role.id}">
+                                    <span th:text="${role.name}" class="fw-bold"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="fas fa-save me-2"></i>Mettre à jour
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Ajout des icônes Font Awesome -->
+
+<style>
+    .card {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .card-header {
+        padding: 1.25rem 1.5rem;
+    }
+    .form-check-input {
+        transform: scale(1.2);
+        margin-right: 8px;
+    }
+    .form-check-label {
+        margin-left: 5px;
+    }
+</style>
 </body>
 </html>

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import tn.rapid_post.agence.entity.Douane;
 import tn.rapid_post.agence.repo.douaneRepo;
+import tn.rapid_post.agence.sec.entity.AppRole;
 import tn.rapid_post.agence.sec.entity.AppUser;
 import tn.rapid_post.agence.sec.repo.UserRepository;
 
@@ -41,11 +42,16 @@ public class Dashboard {
     public String dashboard(Model model,
                             @RequestParam(value = "etat", required = false) String etat1,
                             @RequestParam(value = "key", required = false) String key) {
+
         boolean isAdmin = false;
-        if (findLogged().getRoles().contains("ADMIN")){
-            isAdmin =true;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
         }
-model.addAttribute("isAdmin",isAdmin);
+        model.addAttribute("isAdmin", isAdmin);
+
         List<Douane> douaneList = new ArrayList<>();
         boolean not = true;
         Boolean etat = null;

@@ -143,6 +143,37 @@
     <div class="offcanvas-body p-0">
         <ul class="nav flex-column p-3">
             <li th:if="${isAdmin}" class="nav-item">
+                <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu5()">
+                    <i class="bi bi-speedometer text-warning me-3 fs-5"></i>
+                    Adminstration
+                    <i class="bi bi-chevron-down float-end mt-1"></i>
+
+                </a>
+            </li>
+
+            <div id="dropMenu5" class="sub-menu ms-4 mb-2" style="display:none;">
+                <ul  class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="utilisateur">
+                            <i class="bi bi-search text-orange me-2"></i>
+                            Utilisateurs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="roles">
+                            <i class="bi bi-currency-euro text-orange me-2"></i>
+                            Role
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger py-2" href="permission">
+                            <h6 class="text-danger">  <i class="bi bi-file text-danger me-2"></i>
+                             Permission(!!)</h6>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <li th:if="${isAdmin}" class="nav-item">
                 <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu3()">
                     <i class="bi bi-speedometer text-warning me-3 fs-5"></i>
                     Dashboard
@@ -285,6 +316,17 @@
 <script>
     function toggleMenu() {
         const menu = document.getElementById('dropMenu');
+        const isHidden = menu.style.display === "none" || menu.style.display === "";
+        menu.style.display = isHidden ? "block" : "none";
+
+        // Change l'icône
+        const icon = document.querySelector('#offcanvasMenu .bi-chevron-down');
+        if (icon) {
+            icon.className = isHidden ? 'bi bi-chevron-up float-end mt-1' : 'bi bi-chevron-down float-end mt-1';
+        }
+    }
+    function toggleMenu5() {
+        const menu = document.getElementById('dropMenu5');
         const isHidden = menu.style.display === "none" || menu.style.display === "";
         menu.style.display = isHidden ? "block" : "none";
 

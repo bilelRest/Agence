@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import tn.rapid_post.agence.entity.Douane;
 import tn.rapid_post.agence.repo.douaneRepo;
+import tn.rapid_post.agence.sec.entity.AppRole;
 import tn.rapid_post.agence.sec.entity.AppUser;
 import tn.rapid_post.agence.sec.repo.UserRepository;
 
@@ -44,7 +45,14 @@ public class DouaneController {
     @GetMapping("etatdouane")
     public String etatdouane(Model model) {
 
-
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin", isAdmin);
 
          LocalDate   date1 = LocalDate.now();
           LocalDate  date2 = LocalDate.now();
@@ -76,7 +84,14 @@ public class DouaneController {
                         @RequestParam(value = "sequence", required = false) String sequence,
                         @RequestParam(value = "echec", required = false) String notValidated) {
 
-
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin", isAdmin);
 
 
         System.out.println("Sequence reçue = " + sequence);
@@ -158,7 +173,14 @@ public class DouaneController {
                            @RequestParam(value = "success", required = false) boolean success,
                            @RequestParam(value = "id", required = false) String id,
                            @RequestParam(value = "error",required = false)String error) {
-
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin", isAdmin);
 model.addAttribute("date1",LocalDate.now());
         boolean echec=false;
         if (StringUtils.hasText(error)){
@@ -268,11 +290,14 @@ model.addAttribute("date1",LocalDate.now());
     public String quinzaine(Model model,
                             @RequestParam(value = "date1", required = false) LocalDate date1,
                             @RequestParam(value = "date2", required = false) LocalDate date2) {
-        boolean autorized = false;
-        if (findLogged().getRoles().contains("ADMIN")){
-            autorized =true;
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
         }
-        model.addAttribute("isAdmin",autorized);
+        model.addAttribute("isAdmin", isAdmin);
         List<Douane> results = new ArrayList<>();
         long nbTot = 0;
         long douaneTot = 0;
@@ -295,7 +320,14 @@ model.addAttribute("date1",LocalDate.now());
     public String etatperiode(Model model, @RequestParam(value = "date1", required = false) LocalDate date1,
                               @RequestParam(value = "date2", required = false) LocalDate date2,
                               @RequestParam(value = "admin",required = false)String admin) {
-
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin", isAdmin);
 if (StringUtils.hasText(admin)){
 System.out.println("admin recu "+admin);
 }
@@ -324,6 +356,14 @@ System.out.println("admin recu "+admin);
     }
     @GetMapping("avisconsul")
     public String avisconsul(Model model,@RequestParam(value = "colis",required = false)String colis){
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin", isAdmin);
         Douane douane=new Douane();
         if(StringUtils.hasText(colis)){
             douane=douaneRepo.findByNumColis(colis);
@@ -363,6 +403,14 @@ System.out.println("admin recu "+admin);
     public String printquinzaine(Model model,
                                  @RequestParam(value = "date1",required = false)LocalDate date1,
                                  @RequestParam(value = "date2",required = false)LocalDate date2){
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin", isAdmin);
         boolean autorized = false;
         if (findLogged().getRoles().contains("ADMIN") ){
             autorized =true;
