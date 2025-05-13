@@ -49,17 +49,17 @@ public class LoginController {
                 List<AppRole> roles = appUser.getRoles();
 
                 if (roles.isEmpty()) {
-                    System.out.println("Aucun rôle associé à cet utilisateur.");
+
                 } else {
-                    System.out.println("Nombre de rôles : " + roles.size());
+
                     for (AppRole role : roles) {
-                        System.out.println("Rôle : " + role.getName());
+
                         List<Permission> permissions = role.getPermissionList();
                         if (permissions.isEmpty()) {
-                            System.out.println("  Aucune permission pour ce rôle.");
+
                         } else {
                             for (Permission permission : permissions) {
-                                System.out.println("  Permission : " + permission.getPath());
+
                             }
                         }
                     }

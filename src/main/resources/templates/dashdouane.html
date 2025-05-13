@@ -1,8 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="template">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="template">
 <head>
     <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
     <link rel="stylesheet" href="/webjars/bootstrap-icons/1.10.5/font/bootstrap-icons.css">
@@ -158,6 +155,15 @@
             min-width: 250px;
         }
 
+        .pagination .page-item.active .page-link {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .pagination .page-link {
+            color: var(--primary-color);
+        }
+
         @media (max-width: 768px) {
             .table-responsive {
                 border-radius: 0;
@@ -183,16 +189,24 @@
 <div layout:fragment="content1">
     <div class="container-fluid py-4">
         <div class="card shadow-sm mb-4">
-            <!-- En-tête avec titre et formulaire de recherche -->
             <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center">
                 <h3 class="mb-3 mb-md-0"><i class="bi bi-box-seam me-2"></i>Liste des colis sous douane</h3>
                 <form th:action="@{/dashdouane}" method="get" class="search-form d-flex gap-2">
-                    <input type="date" th:value="${date1}" name="date1" id="date1">
-                    <input type="date"  th:value="${date2}" name="date2" id="date2">
-                    <button type="submit" class="btn btn-primary" title="Filtrer"><i class="bi bi-filter"></i></button>
+                    <input type="date" th:value="${date1}" name="date1" id="date1" class="form-control form-control-sm">
+                    <input type="date" th:value="${date2}" name="date2" id="date2" class="form-control form-control-sm">
+                    <input type="hidden" name="page" th:value="${currentPage}">
+                    <input type="hidden" name="size" th:value="${pageSize}">
+                    <input type="hidden" name="key" th:value="${key}">
+                    <input type="hidden" name="etat" th:value="${etat}">
+                    <button type="submit" class="btn btn-sm btn-primary" title="Filtrer"><i class="bi bi-filter"></i></button>
                 </form>
                 <form th:action="@{/dashdouane}" method="get" class="search-form d-flex gap-2">
                     <input type="text" name="key" class="form-control form-control-sm" placeholder="Rechercher un colis..." th:value="${key}">
+                    <input type="hidden" name="page" value="0">
+                    <input type="hidden" name="size" th:value="${pageSize}">
+                    <input type="hidden" name="date1" th:value="${date1}">
+                    <input type="hidden" name="date2" th:value="${date2}">
+                    <input type="hidden" name="etat" th:value="${etat}">
                     <button type="submit" class="btn btn-sm btn-primary">
                         <i class="bi bi-search"></i>
                     </button>
@@ -214,9 +228,9 @@
                                     <span class="me-2">Status</span>
                                     <select id="etatSelect" class="filter-select" onchange="location = this.value;">
                                         <option disabled selected th:text="${etat == null ? 'Tous' : etat ? 'Livré' : 'En attente'}">Filtrer</option>
-                                        <option th:value="'/dashdouane?key=' + ${key}" th:selected="${etat == null}">Tous</option>
-                                        <option th:value="'/dashdouane?etat=true&key=' + ${key}" th:selected="${etat == true}">Livré</option>
-                                        <option th:value="'/dashdouane?etat=false&key=' + ${key}" th:selected="${etat == false}">En attente</option>
+                                        <option th:value="@{/dashdouane(page=0, size=${pageSize}, key=${key}, date1=${date1}, date2=${date2})}" th:selected="${etat == null}">Tous</option>
+                                        <option th:value="@{/dashdouane(page=0, size=${pageSize}, key=${key}, etat=true, date1=${date1}, date2=${date2})}" th:selected="${etat == true}">Livré</option>
+                                        <option th:value="@{/dashdouane(page=0, size=${pageSize}, key=${key}, etat=false, date1=${date1}, date2=${date2})}" th:selected="${etat == false}">En attente</option>
                                     </select>
                                 </div>
                             </th>
@@ -226,7 +240,7 @@
                         <tbody>
                         <tr th:each="col : ${list}">
                             <td th:text="${col.sequence}"></td>
-                            <td th:text="${col.dateArrivee}"></td>
+                            <td th:text="${#temporals.format(col.dateArrivee, 'dd/MM/yyyy')}"></td>
                             <td th:text="${col.numColis}"></td>
                             <td th:text="${col.nom}"></td>
                             <td th:text="${col.bloc}"></td>
@@ -243,10 +257,8 @@
                                     <a target="_blank"
                                        class="btn btn-action btn-print"
                                        th:href="@{/print-list(id=${col.idDouane})}"
-
                                        onclick="if (confirm('Êtes-vous sûr de vouloir imprimer ce colis ?')) { setTimeout(() => window.location.reload(), 1000); } else { return false; }"
                                        title="Imprimer">
-
                                         <i class="bi bi-printer"></i>
                                     </a>
                                     <form th:action="@{/delete}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce colis ?');" class="d-inline">
@@ -260,7 +272,7 @@
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(list)}">
-                            <td colspan="6" class="empty-state">
+                            <td colspan="7" class="empty-state">
                                 <div class="empty-state-icon">
                                     <i class="bi bi-inbox"></i>
                                 </div>
@@ -274,17 +286,82 @@
             </div>
 
             <div class="card-footer d-flex flex-column flex-md-row justify-content-between align-items-center">
-                <div class="mb-2 mb-md-0">
-                    <span class="text-muted">Affichage de</span>
-                    <span class="fw-semibold" th:text="${#lists.size(list)}"></span>
-                    <span class="text-muted">colis</span>
+                <div class="d-flex align-items-center gap-3">
+                    <div>
+                        <span class="text-muted">Affichage de </span>
+                        <span class="fw-semibold" th:text="${totalItems}"></span>
+                        <span class="text-muted"> colis (Page </span>
+                        <span class="fw-semibold" th:text="${currentPage + 1}"></span>
+                        <span class="text-muted"> sur </span>
+                        <span class="fw-semibold" th:text="${totalPages}"></span>
+                        <span class="text-muted">)</span>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <span>Afficher</span>
+                        <select class="form-select form-select-sm" style="width: auto;" onchange="location = this.value;">
+                            <option th:value="@{/dashdouane(page=0, size=5, key=${key}, etat=${etat}, date1=${date1}, date2=${date2})}"
+                                    th:selected="${5 == pageSize}">5</option>
+                            <option th:value="@{/dashdouane(page=0, size=10, key=${key}, etat=${etat}, date1=${date1}, date2=${date2})}"
+                                    th:selected="${10 == pageSize}">10</option>
+                            <option th:value="@{/dashdouane(page=0, size=20, key=${key}, etat=${etat}, date1=${date1}, date2=${date2})}"
+                                    th:selected="${20 == pageSize}">20</option>
+                            <option th:value="@{/dashdouane(page=0, size=50, key=${key}, etat=${etat}, date1=${date1}, date2=${date2})}"
+                                    th:selected="${50 == pageSize}">50</option>
+                        </select>
+                        <span>éléments</span>
+                    </div>
                 </div>
+
+                <!-- Pagination simplifiée et garantie sans erreur -->
+                <nav th:if="${totalPages > 1}">
+                    <ul class="pagination pagination-sm mb-0">
+                        <!-- Première page -->
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/dashdouane(page=0, size=${pageSize}, key=${key}, etat=${etat}, date1=${date1}, date2=${date2})}">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+
+                        <!-- Page précédente -->
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/dashdouane(page=${currentPage - 1}, size=${pageSize}, key=${key}, etat=${etat}, date1=${date1}, date2=${date2})}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+
+                        <!-- Pages autour de la page courante (solution simplifiée) -->
+                        <li th:each="i : ${#numbers.sequence(1, totalPages)}"
+                            th:if="${i == 1 or i == totalPages or (i >= currentPage and i <= currentPage + 2) or (i <= currentPage and i >= currentPage - 2)}"
+                            class="page-item" th:classappend="${i - 1 == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/dashdouane(page=${i - 1}, size=${pageSize}, key=${key}, etat=${etat}, date1=${date1}, date2=${date2})}"
+                               th:text="${i}"></a>
+                        </li>
+
+                        <!-- Page suivante -->
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/dashdouane(page=${currentPage + 1}, size=${pageSize}, key=${key}, etat=${etat}, date1=${date1}, date2=${date2})}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+
+                        <!-- Dernière page -->
+                        <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/dashdouane(page=${totalPages - 1}, size=${pageSize}, key=${key}, etat=${etat}, date1=${date1}, date2=${date2})}">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
                 <div class="text-md-end">
                     <small class="text-muted">Dernière mise à jour: <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}"></span></small>
                 </div>
             </div>
         </div>
     </div>
+
+    
 </div>
 </body>
 </html>

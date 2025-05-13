@@ -1,5 +1,7 @@
 package tn.rapid_post.agence.repo;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,14 +35,37 @@ public interface douaneRepo extends JpaRepository<Douane,Long> {
             "LOWER(d.nom) LIKE :key OR " +
             "CAST(d.sequence AS string) LIKE :key OR " +
             "LOWER(d.bloc) LIKE :key")
-    List<Douane> searchMultiFields(@Param("key") String key);
+    Page<Douane> searchMultiFields(@Param("key") String key, Pageable pageable);
 
     @Query("SELECT d FROM Douane d WHERE d.delivered = :etat AND (" +
             "LOWER(d.numColis) LIKE :key OR " +
             "LOWER(d.nom) LIKE :key OR " +
             "CAST(d.sequence AS string) LIKE :key OR " +
             "LOWER(d.bloc) LIKE :key)")
-    List<Douane> searchMultiFieldsByDelivered(@Param("key") String key, @Param("etat") boolean etat);
+    Page<Douane> searchMultiFieldsByDelivered(@Param("key") String key, @Param("etat") boolean etat, Pageable pageable);
+
+    @Query("SELECT d FROM Douane d WHERE d.dateArrivee BETWEEN :date1 AND :date2")
+    Page<Douane> findBetweenDates(@Param("date1") LocalDate date1, @Param("date2") LocalDate date2, Pageable pageable);
+
+    @Query("SELECT d FROM Douane d WHERE d.dateArrivee BETWEEN :date1 AND :date2 AND d.delivered = :etat")
+    Page<Douane> findBetweenDatesByEtat(@Param("date1") LocalDate date1, @Param("date2") LocalDate date2, @Param("etat") boolean etat, Pageable pageable);
+
+    @Query("SELECT d FROM Douane d WHERE d.dateArrivee BETWEEN :date1 AND :date2 AND (" +
+            "LOWER(d.numColis) LIKE :key OR " +
+            "LOWER(d.nom) LIKE :key OR " +
+            "CAST(d.sequence AS string) LIKE :key OR " +
+            "LOWER(d.bloc) LIKE :key)")
+    Page<Douane> searchBetweenDatesWithKey(@Param("date1") LocalDate date1, @Param("date2") LocalDate date2, @Param("key") String key, Pageable pageable);
+
+    @Query("SELECT d FROM Douane d WHERE d.dateArrivee BETWEEN :date1 AND :date2 AND d.delivered = :etat AND (" +
+            "LOWER(d.numColis) LIKE :key OR " +
+            "LOWER(d.nom) LIKE :key OR " +
+            "CAST(d.sequence AS string) LIKE :key OR " +
+            "LOWER(d.bloc) LIKE :key)")
+    Page<Douane> searchBetweenDatesWithKeyAndEtat(@Param("date1") LocalDate date1, @Param("date2") LocalDate date2, @Param("key") String key, @Param("etat") boolean etat, Pageable pageable);
+
+    Page<Douane> findByDelivered(Boolean etat, Pageable pageable);
+}
 
 
 //    List<Douane> findByValidatedTrue();
@@ -49,4 +74,4 @@ public interface douaneRepo extends JpaRepository<Douane,Long> {
 //    @Query("SELECT d FROM Douane d WHERE d.delivered = false AND d.dateSortie BETWEEN ?1 AND ?2 OR d.dateSortie BETWEEN ?1 AND ?2")
 //
 //    List<Douane> findBetweenDatesAndDeliverdTrue(LocalDate date1, LocalDate date2);
-}
+
