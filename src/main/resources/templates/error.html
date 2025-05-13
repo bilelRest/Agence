@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="template">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/webjars/bootstrap-icons/1.10.5/font/bootstrap-icons.css">
+    <title>Accès refusé</title>
+    <style>
+        .error-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 120px);
+            padding: 20px;
+        }
+        .error-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            width: 100%;
+        }
+        .error-header {
+            background: #dc3545;
+            color: white;
+            padding: 1.2rem;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .error-body {
+            padding: 1.8rem;
+            background-color: white;
+            border-radius: 0 0 10px 10px;
+        }
+        .error-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+<div layout:fragment="content1">
+    <div class="error-container">
+        <div class="error-card">
+            <div class="error-header">
+                <h2 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Accès refusé</h2>
+            </div>
+            <div class="error-body text-center">
+                <div class="error-icon">
+                    <i class="bi bi-exclamation-octagon-fill"></i>
+                </div>
+                <h4 class="mb-3">Autorisation insuffisante</h4>
+                <p class="text-muted mb-4">
+                    Vous n'avez pas les droits nécessaires pour accéder à cette ressource.Veuillez contacter votre administrateur si vous pensez qu'il s'agit d'une erreur.
+                </p>
+                <a href="/" class="btn btn-dark">
+                    <i class="bi bi-house-door-fill me-2"></i>Retour à l'accueil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
