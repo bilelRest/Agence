@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import tn.rapid_post.agence.entity.Douane;
@@ -28,9 +29,21 @@ public class Printer {
 
     @GetMapping(value = "/print-sortie", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> generateDouaneReport(
-            @RequestParam(value = "colis")String colis
+            @RequestParam(value = "colis")String colis,
+            @RequestParam(value = "reprint",required = false)boolean reprint
             ) throws JRException {
+        boolean reimp=false;
+if (StringUtils.hasText(String.valueOf(reprint))){
+    Douane douane=douaneRep.findByNumColis(colis);
+    if (douane!=null){
+    List<Douane> douaneList = Collections.singletonList(douane);
+    Map<String, Object> parameters = new HashMap<>();
+    byte[] pdfBytes = reporter.reports(parameters, douaneList,reimp);
+    return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(pdfBytes);}
 
+}
          Douane douane=douaneRep.findByNumColis(colis);
 
          douane.setDateSortie(LocalDate.now());
@@ -40,7 +53,7 @@ public class Printer {
            douaneRep.save(douane);
             List<Douane> douaneList = Collections.singletonList(douane);
             Map<String, Object> parameters = new HashMap<>();
-            byte[] pdfBytes = reporter.reports(parameters, douaneList);
+            byte[] pdfBytes = reporter.reports(parameters, douaneList,false);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfBytes);
@@ -67,7 +80,7 @@ public class Printer {
         Map<String, Object> parameters = new HashMap<>();
 
 
-        byte[] pdfBytes = reporter.reports(parameters, douaneList);
+        byte[] pdfBytes = reporter.reports(parameters, douaneList,false);
         return  ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdfBytes);

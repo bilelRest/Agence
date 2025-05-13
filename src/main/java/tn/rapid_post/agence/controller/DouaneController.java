@@ -366,7 +366,8 @@ System.out.println("admin recu "+admin);
 
     }
     @GetMapping("avisconsul")
-    public String avisconsul(Model model,@RequestParam(value = "colis",required = false)String colis){
+    public String avisconsul(Model model,@RequestParam(value = "colis",required = false)String colis,
+                             @RequestParam(value = "echec",required = false)String echec){
         boolean isAdmin = false;
         for (AppRole appRole : findLogged().getRoles()) {
             if ("ADMIN".equals(appRole.getName())) {
@@ -376,15 +377,20 @@ System.out.println("admin recu "+admin);
         }
         model.addAttribute("isAdmin", isAdmin);
         Douane douane=new Douane();
+        boolean reprint=false;
         if(StringUtils.hasText(colis)){
             douane=douaneRepo.findByNumColis(colis);
             if (douane!=null){
-                model.addAttribute("douane",douane);
+            if (douane.isDelivered()){
+                reprint=true;
             }
 
-        }else {
-            model.addAttribute("douane",new Douane());
+
         }
+        }else {
+            douane=new Douane();}
+        model.addAttribute("reprint",reprint);
+model.addAttribute("douane",douane);
 
         return "avisconsul";
     }

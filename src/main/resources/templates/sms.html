@@ -27,6 +27,9 @@
         .action-buttons .btn {
             margin: 0 2px;
         }
+        .ip-config-card {
+            margin-bottom: 1.5rem;
+        }
     </style>
 </head>
 <body>
@@ -37,7 +40,32 @@
             <i class="bi bi-exclamation-triangle"></i> Numéro déjà existant
         </div>
 
-        <!-- Carte principale du formulaire -->
+        <!-- Carte de configuration IP -->
+        <div class="card shadow-sm ip-config-card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-server me-2"></i>Configuration du serveur SMS</h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/sms}" method="GET" class="row g-3 align-items-center">
+                    <div class="col-md-8">
+                        <label for="ipad" class="form-label fw-bold">Adresse IP du serveur SMS</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-ip"></i></span>
+                            <input type="text" class="form-control" id="ipad" name="ipad"
+                                   th:value="${ipad}" placeholder="Ex: 192.168.1.100:8080" required>
+                        </div>
+                        <small class="text-muted">Format: IP:Port (ex: 192.168.1.100)</small>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Mettre à jour
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Carte principale du formulaire d'envoi SMS -->
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0"><i class="bi bi-send-fill me-2"></i>Formulaire d'envoi de SMS</h5>
@@ -46,12 +74,7 @@
                 <form th:action="@{/sms}" method="POST">
                     <!-- Si modification, inclure l'ID -->
                     <input type="hidden" name="id" th:value="${b3mod.idB3}" />
-                    <div class="card">
-                        <div class="card-header">
-                            <label for="ipad" class="form-control">Mettre a jour l'adresse du serveur sms</label>
-                            <input type="text" id="ipad" name="ipad" th:text="${ipad}" th:value="${ipad}">
-                        </div>
-                    </div>
+                    <input type="hidden" name="ipad" th:value="${ipad}" />
 
                     <div class="row g-3">
                         <!-- Référence -->
@@ -99,7 +122,9 @@
                              th:classappend="${status} ? 'alert alert-success status-message' : 'alert alert-danger status-message'">
                             <i th:class="${status} ? 'bi bi-check-circle' : 'bi bi-x-circle'"></i>
                             <span th:if="${status}" th:text="'SMS envoyé avec succès numéro accordé : ' + ${id}"></span>
-                            <span th:if="${!status}" th:text="'Échec, SMS non envoyé, numéro interne : ' + ${id}"></span>
+                            <span th:if="${!status}"
+                                  th:utext="'Échec ! causes possible:<br/>1-démarrer l\'application smsserv et assurer vous de l\'adresse affichée sur l\'écran du téléphone d\'envoie<br/>2-saisir l\'adresse du serveur sms dans le champ requis et réessayer<br/>3-si le problème persiste contacter l\'administrateur<br/>SMS non envoyé, numéro interne : ' + ${id}">
+</span>
                         </div>
                         <div th:if="${echec}" class="alert alert-danger status-message">
                             <i class="bi bi-x-circle"></i>
@@ -149,13 +174,14 @@
                                     <input type="hidden" name="ref" th:value="${b3.numB3}">
                                     <input type="hidden" name="post" th:value="${b3.destination}">
                                     <input type="hidden" name="resend" value="true">
+                                    <input type="hidden" name="ipad" th:value="${ipad}">
                                     <button title="Renvoyer le SMS" type="submit" class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-send"></i>
                                     </button>
                                 </form>
 
                                 <!-- Modification -->
-                                <a th:href="@{/sms(id=${b3.idB3})}" class="btn btn-sm btn-outline-success" title="Modifier">
+                                <a th:href="@{/sms(id=${b3.idB3}, ipad=${ipad})}" class="btn btn-sm btn-outline-success" title="Modifier">
                                     <i class="bi bi-pen"></i>
                                 </a>
 

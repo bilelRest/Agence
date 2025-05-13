@@ -71,7 +71,7 @@
                         <a style="margin-left:80%"
                            target="_blank"
                            class="btn btn-success btn-print"
-                           th:href="@{/print-list(id=${douane.idDouane})}"
+                           th:href="@{/print-sortie(colis=${douane.numColis},reprint=${reprint})}"
                            onclick="if (confirm('Êtes-vous sûr de vouloir imprimer ce colis ?')) { setTimeout(() => window.location.reload(), 1000); } else { return false; }"
                            title="Imprimer ce colis">
                             <i class="bi bi-printer-fill"></i>Imprimer

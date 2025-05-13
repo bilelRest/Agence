@@ -2,6 +2,11 @@
 
 package tn.rapid_post.agence.controller;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.websocket.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,12 +57,16 @@ public class SmsController {
         } else return null;
     }
     @GetMapping("/sms")
-    public String sms(Model model,
+    public String sms(Model model, HttpSession session,
                       @RequestParam(value = "exist", required = false, defaultValue = "false") boolean exist,
                       @RequestParam(value = "status", required = false) String status,
                       @RequestParam(value = "id", required = false) String id,
                       @RequestParam(value = "echec",required = false)boolean echec,
                       @RequestParam(value = "ipad",required = false)String ipad) {
+        if(StringUtils.hasText(ipad)){
+            session.setAttribute("ipad",ipad);
+
+        }
         System.out.println("Ip recu"+ipad);
         model.addAttribute("ipad",ipad);
         model.addAttribute("echec",echec);
@@ -101,67 +110,79 @@ public class SmsController {
 
     @PostMapping("sms")
     public String sms(@RequestParam String tel,
+                      HttpSession session,
                       @RequestParam String ref,
                       @RequestParam String post,
-                      @RequestParam(value = "nom",defaultValue = "")String nom,
-                      @RequestParam(value = "resend",required = false)boolean resend
-                    ,@RequestParam(value = "id",required = false)String id,
-                      @RequestParam(value = "ipad")String ipad) throws UnsupportedEncodingException {
+                      @RequestParam(value = "nom", defaultValue = "") String nom,
+                      @RequestParam(value = "resend", required = false) boolean resend,
+                      @RequestParam(value = "id", required = false) String id,
+                      @RequestParam(value = "ipad", required = false) String ipad,
+                      HttpServletResponse response) throws UnsupportedEncodingException {
 
-
-
-
-
-
-if (resend){
-    B3 b3=b3Rep.findByNumB3(ref);
-    if(b3!=null){;
-
-            if(smsService.getApiData(b3,ipad))
-        {
-            return "redirect:/sms?status="+true+"&id="+b3.getIdB3()+"&ipad="+ipad;
-        }else {
-
-                return "redirect:/sms?status="+false+"&id="+b3.getIdB3()+"&ipad="+ipad;
-
-            }
-    }
-}
-if (StringUtils.hasText(id)){
-B3 b3=b3Rep.findByIdB3(Long.parseLong(id));
-if (b3!=null){
-    b3.setNom(nom);
-    b3.setDestination(post);
-    b3.setNumTel(Integer.parseInt(tel));
-    b3.setNumB3(ref);
-    b3Rep.save(b3);
-    return "redirect:/sms?ipad="+ipad;
-}
-}
-
-        if(b3Rep.existsByNumB3(ref)){
-            System.out.println("Entré dans if b3 existant");
-            return "redirect:/sms?exist="+true+"&ipad="+ipad;
-        }if (post.isEmpty()){
-            post="Agence";
+        // Gestion de l'adresse IP
+        if (!StringUtils.hasText(ipad)) {
+            ipad = "192.168.137.172"; // valeur par défaut si non fournie
         }
-        B3 b3=new B3();
+
+        // Création et ajout du cookie correctement
+        Cookie cookie = new Cookie("ipad", ipad);
+        cookie.setPath("/");           // pour que le cookie soit disponible dans toute l'application
+        cookie.setMaxAge(86400);        // durée de vie de 1h (en secondes)
+        response.addCookie(cookie);    // ajout à la réponse HTTP
+
+        System.out.println("IP utilisée : " + ipad);
+
+        // CAS: resend
+        if (resend) {
+            B3 b3 = b3Rep.findByNumB3(ref);
+            if (b3 != null) {
+                if (smsService.getApiData(b3, ipad)) {
+                    return "redirect:/sms?status=true&id=" + b3.getIdB3() + "&ipad=" + ipad;
+                } else {
+                    return "redirect:/sms?status=false&id=" + b3.getIdB3() + "&ipad=" + ipad;
+                }
+            }
+        }
+
+        // CAS: mise à jour d’un enregistrement existant
+        if (StringUtils.hasText(id)) {
+            B3 b3 = b3Rep.findByIdB3(Long.parseLong(id));
+            if (b3 != null) {
+                b3.setNom(nom);
+                b3.setDestination(post);
+                b3.setNumTel(Integer.parseInt(tel));
+                b3.setNumB3(ref);
+                b3Rep.save(b3);
+                return "redirect:/sms?ipad=" + ipad;
+            }
+        }
+
+        // CAS: doublon ref
+        if (b3Rep.existsByNumB3(ref)) {
+            System.out.println("Entré dans if b3 existant");
+            return "redirect:/sms?exist=true&ipad=" + ipad;
+        }
+
+        if (post.isEmpty()) {
+            post = "Agence";
+        }
+
+        // Création d’un nouveau B3
+        B3 b3 = new B3();
         b3.setNom(nom);
         b3.setDestination(post);
         b3.setNumTel(Integer.parseInt(tel));
         b3.setNumB3(ref);
         b3Rep.save(b3);
 
-
-            if(smsService.getApiData(b3,ipad)) {
-                return "redirect:/sms?status="+true+"&id="+b3.getIdB3()+"&ipad="+ipad;
-            }
-         else {
-
-            return "redirect:/sms?status="+false+"&id="+b3.getIdB3()+"&ipad="+ipad;
+        // Envoi SMS
+        if (smsService.getApiData(b3, ipad)) {
+            return "redirect:/sms?status=true&id=" + b3.getIdB3() + "&ipad=" + ipad;
+        } else {
+            return "redirect:/sms?status=false&id=" + b3.getIdB3() + "&ipad=" + ipad;
         }
-
     }
+
     @GetMapping("/b3consul")
     public String consulterB3(Model model,
                               @RequestParam(value = "query", required = false) String query,
