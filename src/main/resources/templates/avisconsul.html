@@ -67,11 +67,21 @@
                             <label class="form-check-label" for="observation">Sans facture</label>
                         </div>
                     </div>
-                    <div class="card-shadow">
+                    <div  th:if="${reprintdelivered}" class="card-shadow">
                         <a style="margin-left:80%"
                            target="_blank"
                            class="btn btn-success btn-print"
-                           th:href="@{/print-sortie(colis=${douane.numColis},reprint=${reprint})}"
+                           th:href="@{/reprintdelivered(colis=${douane.numColis})}"
+                           onclick="if (confirm('Êtes-vous sûr de vouloir imprimer ce colis ?')) { setTimeout(() => window.location.reload(), 1000); } else { return false; }"
+                           title="Imprimer ce colis">
+                            <i class="bi bi-printer-fill"></i>Imprimer
+                        </a>
+                    </div>
+                    <div  th:if="${reprintnotdelivered}" class="card-shadow">
+                        <a style="margin-left:80%"
+                           target="_blank"
+                           class="btn btn-success btn-print"
+                           th:href="@{/reprintnotdelivered(colis=${douane.numColis})}"
                            onclick="if (confirm('Êtes-vous sûr de vouloir imprimer ce colis ?')) { setTimeout(() => window.location.reload(), 1000); } else { return false; }"
                            title="Imprimer ce colis">
                             <i class="bi bi-printer-fill"></i>Imprimer

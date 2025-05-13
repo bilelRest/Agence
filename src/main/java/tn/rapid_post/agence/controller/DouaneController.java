@@ -401,21 +401,29 @@ System.out.println("admin recu "+admin);
         }
         model.addAttribute("isAdmin", isAdmin);
         Douane douane=new Douane();
-        boolean reprint=false;
+        boolean reprintnotdelivered=false;
+        boolean reprintdelivered=false;
+
         if(StringUtils.hasText(colis)){
             douane=douaneRepo.findByNumColis(colis);
 
             if (douane!=null){
-            if (douane.isDelivered() || !douane.isPrinted()){
+            if (douane.isDelivered()){
                 System.out.println(douane.isDelivered());
-                reprint=true;
-            }
+                reprintdelivered=true;
+
+            }else {
+                reprintnotdelivered=true;
+              }
+
 
 
         }
         }else {
-            douane=new Douane();}
-        model.addAttribute("reprint",reprint);
+            douane=new Douane();
+        }
+        model.addAttribute("reprintdelivered",reprintdelivered);
+        model.addAttribute("reprintnotdelivered",reprintnotdelivered);
 model.addAttribute("douane",douane);
 
         return "avisconsul";

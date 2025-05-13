@@ -2,7 +2,6 @@ package tn.rapid_post.agence.controller;
 
 import net.sf.jasperreports.engine.JRException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -13,8 +12,8 @@ import tn.rapid_post.agence.repo.douaneRepo;
 import tn.rapid_post.agence.reports.Reporter;
 
 
+import java.io.IOException;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Controller
@@ -31,46 +30,59 @@ public class Printer {
     public ResponseEntity<byte[]> generateDouaneReport(
             @RequestParam(value = "colis")String colis,
             @RequestParam(value = "reprint",required = false)boolean reprint
-            ) throws JRException {
+            ) throws JRException, IOException {
 
-if (StringUtils.hasText(String.valueOf(reprint))) {
-    if (reprint) {
-        System.out.println("Reimp recu dans print-sortie"+reprint);
-        Douane douane = douaneRep.findByNumColis(colis);
-        if (douane != null) {
-            List<Douane> douaneList = Collections.singletonList(douane);
-            Map<String, Object> parameters = new HashMap<>();
-
-            byte[] pdfBytes = reporter.reports(parameters, douaneList, true);
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .body(pdfBytes);
-        }
-
-    }}
     Douane douane = douaneRep.findByNumColis(colis);
-//if (douane!=null){
-//    if (!douane.isPrinted()){
-//
-//    }
-//}
-
     douane.setDateSortie(LocalDate.now());
-
-
     douane.setDelivered(true);
     douaneRep.save(douane);
     List<Douane> douaneList = Collections.singletonList(douane);
     Map<String, Object> parameters = new HashMap<>();
-    byte[] pdfBytes = reporter.reports(parameters, douaneList, false);
+    byte[] pdfBytes = reporter.printdelivered(parameters, douaneList, false);
     return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_PDF)
             .body(pdfBytes);
 
 
     }
+    @GetMapping("reprintdelivered")
+    public ResponseEntity<byte[]> reprintdelivered(@RequestParam(value = "colis")String colis) throws JRException {
+        List<Douane> douaneList=new ArrayList<>();
+        if (StringUtils.hasText(colis)){
+            Douane douane= douaneRep.findByNumColis(colis);
+            if (douane!=null){
+                douaneList.add(douane);
+            }
+        }
+        Map<String, Object> parameters = new HashMap<>();
+
+
+        byte[] pdfBytes = reporter.reprintdelivered(parameters, douaneList,false);
+        return  ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+
+    }
+    @GetMapping("reprintnotdelivered")
+    public ResponseEntity<byte[]> reprintnotdelivered(@RequestParam(value = "colis")String colis) throws JRException {
+        List<Douane> douaneList=new ArrayList<>();
+        if (StringUtils.hasText(colis)){
+            Douane douane= douaneRep.findByNumColis(colis);
+            if (douane!=null){
+                douaneList.add(douane);
+            }
+        }
+        Map<String, Object> parameters = new HashMap<>();
+
+
+        byte[] pdfBytes = reporter.reprintnotdelivered(parameters, douaneList,false);
+        return  ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+
+    }
     @GetMapping(value = "/print-list")
-    public ResponseEntity<byte[]> printLlist(@RequestParam(value = "id",required = false)String id) throws JRException {
+    public ResponseEntity<byte[]> printLlist(@RequestParam(value = "id",required = false)String id) throws JRException, IOException {
         List<Douane> douaneList =new ArrayList<>();
         if (id!=null){
             Optional douane=douaneRep.findById(Long.parseLong(id));
@@ -89,7 +101,7 @@ if (StringUtils.hasText(String.valueOf(reprint))) {
         Map<String, Object> parameters = new HashMap<>();
 
 
-        byte[] pdfBytes = reporter.reports(parameters, douaneList,false);
+        byte[] pdfBytes = reporter.printnotdelivered(parameters, douaneList,false);
         return  ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdfBytes);
