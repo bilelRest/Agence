@@ -32,31 +32,40 @@ public class Printer {
             @RequestParam(value = "colis")String colis,
             @RequestParam(value = "reprint",required = false)boolean reprint
             ) throws JRException {
-        boolean reimp=false;
-if (StringUtils.hasText(String.valueOf(reprint))){
-    Douane douane=douaneRep.findByNumColis(colis);
-    if (douane!=null){
-    List<Douane> douaneList = Collections.singletonList(douane);
-    Map<String, Object> parameters = new HashMap<>();
-    byte[] pdfBytes = reporter.reports(parameters, douaneList,reimp);
-    return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_PDF)
-            .body(pdfBytes);}
 
-}
-         Douane douane=douaneRep.findByNumColis(colis);
-
-         douane.setDateSortie(LocalDate.now());
-
-
-         douane.setDelivered(true);
-           douaneRep.save(douane);
+if (StringUtils.hasText(String.valueOf(reprint))) {
+    if (reprint) {
+        System.out.println("Reimp recu dans print-sortie"+reprint);
+        Douane douane = douaneRep.findByNumColis(colis);
+        if (douane != null) {
             List<Douane> douaneList = Collections.singletonList(douane);
             Map<String, Object> parameters = new HashMap<>();
-            byte[] pdfBytes = reporter.reports(parameters, douaneList,false);
+
+            byte[] pdfBytes = reporter.reports(parameters, douaneList, true);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfBytes);
+        }
+
+    }}
+    Douane douane = douaneRep.findByNumColis(colis);
+//if (douane!=null){
+//    if (!douane.isPrinted()){
+//
+//    }
+//}
+
+    douane.setDateSortie(LocalDate.now());
+
+
+    douane.setDelivered(true);
+    douaneRep.save(douane);
+    List<Douane> douaneList = Collections.singletonList(douane);
+    Map<String, Object> parameters = new HashMap<>();
+    byte[] pdfBytes = reporter.reports(parameters, douaneList, false);
+    return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .body(pdfBytes);
 
 
     }

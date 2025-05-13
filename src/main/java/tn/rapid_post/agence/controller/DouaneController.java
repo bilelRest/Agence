@@ -54,13 +54,11 @@ public class DouaneController {
         }
         model.addAttribute("isAdmin", isAdmin);
 
-         LocalDate   date1 = LocalDate.now();
-          LocalDate  date2 = LocalDate.now();
-          model.addAttribute("date1",date1);
+
+
 
         List<Douane> colislise = new ArrayList<>();
-        if (date1 != null && date2 != null) {
-            colislise = douaneRepo.findBetweenDates(date1, date2)
+            colislise = douaneRepo.findBetweenDates(LocalDate.now(), LocalDate.now())
                     .stream()
                     .map(d -> {
                         String numStr = d.getSequence().replaceAll("\\D+", "");
@@ -69,9 +67,9 @@ public class DouaneController {
                     })
                     .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
                     .map(AbstractMap.SimpleEntry::getKey)
-                    .collect(Collectors.toList());      }
-        model.addAttribute("date1", date1);
-        model.addAttribute("date2", date2);
+                    .collect(Collectors.toList());
+        model.addAttribute("date1", LocalDate.now());
+        model.addAttribute("date2", LocalDate.now());
         model.addAttribute("colislise", colislise);
 
         return "etatdouane";
@@ -85,6 +83,7 @@ public class DouaneController {
                         @RequestParam(value = "echec", required = false) String notValidated) {
 
         boolean isAdmin = false;
+        boolean notPrinted=false;
         for (AppRole appRole : findLogged().getRoles()) {
             if ("ADMIN".equals(appRole.getName())) {
                 isAdmin = true;
@@ -92,19 +91,10 @@ public class DouaneController {
             }
         }
         model.addAttribute("isAdmin", isAdmin);
-
-
-        System.out.println("Sequence reçue = " + sequence);
-        Douane douane = new Douane();
-        model.addAttribute("notValidated", false);
-
-        if (StringUtils.hasText(notValidated)) {
-            model.addAttribute("notValidated", Boolean.parseBoolean(notValidated));
-        }
-
         if (!StringUtils.hasText(colis)) {
             return "fraisdouane";
         }
+        Douane douane = new Douane();
 
         // Récupération du colis
         douane = douaneRepo.findByNumColis(colis);
@@ -112,6 +102,27 @@ public class DouaneController {
             model.addAttribute("empty", true);
             return "fraisdouane";
         }
+        if (!douane.isPrinted()){
+            notPrinted=true;
+            model.addAttribute("notPrinted",notPrinted);
+
+        }
+        model.addAttribute("notPrinted",notPrinted);
+
+
+
+        System.out.println("Sequence reçue = " + sequence);
+
+        model.addAttribute("notValidated", false);
+
+        if (StringUtils.hasText(notValidated)) {
+            model.addAttribute("notValidated", Boolean.parseBoolean(notValidated));
+        }
+
+
+
+
+
 
         // Si le colis est déjà livré
         if (douane.isDelivered()) {
@@ -166,7 +177,20 @@ public class DouaneController {
         return "fraisdouane";
     }
 
+@GetMapping("setprinted")
+public String setprinted(@RequestParam(value = "id")String id){
+    Douane douane=new Douane();
 
+        if (StringUtils.hasText(id)){
+           douane=douaneRepo.findByNumColis(id);
+            if (douane!=null){
+                douane.setPrinted(true);
+                douaneRepo.save(douane);
+
+            }
+        }
+    return "redirect:/dounecalc?colis="+douane.getNumColis();
+}
     @GetMapping("/avisedit")
     public String avisedit(Model model,
                            @RequestParam(value = "exist", required = false) boolean exist,
@@ -380,8 +404,10 @@ System.out.println("admin recu "+admin);
         boolean reprint=false;
         if(StringUtils.hasText(colis)){
             douane=douaneRepo.findByNumColis(colis);
+
             if (douane!=null){
-            if (douane.isDelivered()){
+            if (douane.isDelivered() || !douane.isPrinted()){
+                System.out.println(douane.isDelivered());
                 reprint=true;
             }
 

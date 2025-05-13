@@ -20,8 +20,17 @@ public class Reporter {
         List<Douane> douaneList=new ArrayList<>();
         List<Douane> douaneList1=new ArrayList<>();
         InputStream inputStream = null;
-if (reprint){
-    inputStream=getClass().getResourceAsStream("/report/recu-tous.jrxml");
+if (reprint) {
+    for (Douane douane : list) {
+        if (!douane.isPrinted()) {
+            douaneList.add(douane);
+        }
+    }
+    if (!douaneList.isEmpty()) {
+        inputStream = getClass().getResourceAsStream("/report/recu-sans-montant.jrxml");
+    } else {
+            inputStream = getClass().getResourceAsStream("/report/recu-tous.jrxml");
+}
     JRBeanArrayDataSource dataSource = new JRBeanArrayDataSource(list.toArray());
     JasperReport jasperReport = JasperCompileManager.compileReport(inputStream);
     JasperPrint print = JasperFillManager.fillReport(jasperReport, params, dataSource);
@@ -35,6 +44,7 @@ if (reprint){
                 douaneList.add(douane);
             }
         }
+
 
 
         if (!douaneList.isEmpty()){

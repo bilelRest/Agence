@@ -40,10 +40,13 @@
                 <!-- Messages d'état -->
                 <div th:if="${empty}" class="alert alert-warning">Aucun colis trouvé avec cette référence.</div>
                 <div th:if="${exist}" class="alert alert-danger">Colis déjà livré.</div>
-
+                <div class="container" th:if="${notPrinted}">
+                    <h>Non imprimé</h>
+                    <a th:href="@{/setprinted(id=${douane.numColis})}" class="btn btn-warning">Marquer comme imprimé</a>
+                </div>
                 <!-- Détails du colis -->
-                <div th:if="${douane != null}" class="card mb-4">
-                    <div class="card-body">
+                <div th:if="${douane != null and notPrinted==false}" class="card mb-4">
+                      <div class="card-body">
                         <h4 class="card-title text-info mb-4"><i class="bi bi-box-seam"></i> Détails du colis</h4>
                         <div class="row">
                             <div class="col-md-6">
@@ -67,12 +70,9 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                     </div>
 
-                <!-- Formulaire de calcul -->
-                <div th:if="${douane != null}" class="card">
-                    <div class="card-body">
+                     <div class="card-body">
                         <form method="get" th:action="@{/dounecalc}">
                             <input type="hidden" name="colis" th:value="${douane.numColis}">
                             <div class="row g-3">
@@ -137,6 +137,11 @@
                             </div>
                         </form>
                     </div>
+
+                </div>
+                    <div>
+                </div>
+
                 </div>
 
             </div> <!-- Fin card-body -->
