@@ -46,10 +46,9 @@ public class RetourB3Controller {
                               @RequestParam(value = "numb3", required = false) String numb3,
                               @RequestParam(value = "name",required = false)String name) {
         boolean autorized = false;
-        if (findLogged().getRoles().contains("ADMIN") || findLogged().getRoles().contains("AGENTD")){
-            autorized =true;
-        }
-        model.addAttribute("autorized",autorized);
+
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+
         String id="";
         List<RetourB3> results=new ArrayList<>();
 
@@ -109,6 +108,7 @@ public class RetourB3Controller {
                            @RequestParam(value = "name", required = false) String name) {
 
         List<RetourB3> results = new ArrayList<>();
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
 
         try {
             if (StringUtils.hasText(numb3)) {

@@ -59,7 +59,6 @@ public class LoginController {
 
                         } else {
                             for (Permission permission : permissions) {
-
                             }
                         }
                     }
@@ -71,7 +70,7 @@ public class LoginController {
             System.out.println("Nom d'utilisateur vide ou null !");
         }
 
-        return "redirect:/"; // redirection après login
+        return "redirect:/welcome"; // redirection après login
     }
 
 

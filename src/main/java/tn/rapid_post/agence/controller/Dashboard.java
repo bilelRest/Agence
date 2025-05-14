@@ -59,7 +59,7 @@ public class Dashboard {
         Boolean etat = null;
         boolean not = true;
         model.addAttribute("pageSizes", List.of(5, 10, 20, 50));
-
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         if (StringUtils.hasText(etat1)) {
             if (etat1.equals("true")) {
                 etat = true;

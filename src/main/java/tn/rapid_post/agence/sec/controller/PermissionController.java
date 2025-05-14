@@ -53,6 +53,7 @@ public class PermissionController {
                 break;
             }
         }
+model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         boolean success = false;
         boolean exist = false;
@@ -66,6 +67,7 @@ public class PermissionController {
                 success = true;
             }
         }
+        model.addAttribute("permiss",permissionRepository.findAll());
 
         model.addAttribute("success", success);
         model.addAttribute("exist", exist);
@@ -82,6 +84,7 @@ public class PermissionController {
                 break;
             }
         }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         List<AppRole> roles = roleRepository.findAll();
         model.addAttribute("roles", roles);
@@ -94,7 +97,7 @@ boolean exist=false;
             if (appUser.isPresent()){
                 appUser1=appUser.get();
                 exist=true;
-                System.out.println("APPUSER nom "+appUser1.getUsername());
+                System.out.println("APPUSER nom "+appUser1.getUsername().toUpperCase());
             }
 
         }
@@ -120,6 +123,7 @@ boolean exist=false;
                 break;
             }
         }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         if (!StringUtils.hasText(roleName)) {
             return "redirect:/roles"; // redirection vers la page de sélection
@@ -176,6 +180,7 @@ boolean exist=false;
                 break;
             }
         }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         boolean edit=false;
         AppUser appUser=new AppUser();

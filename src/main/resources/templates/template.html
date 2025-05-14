@@ -98,6 +98,30 @@
             background: linear-gradient(to right, var(--poste-blue), var(--poste-yellow), var(--poste-orange));
             margin: 0;
         }
+
+        /* Styles ajoutés pour le bouton de déconnexion */
+        .btn-logout {
+            background-color: transparent;
+            color: var(--poste-yellow);
+            border: 1px solid var(--poste-yellow);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background-color: var(--poste-yellow);
+            color: var(--poste-blue);
+            transform: rotate(180deg);
+        }
+
+        .btn-logout:active {
+            transform: scale(0.95) rotate(180deg);
+        }
     </style>
 </head>
 
@@ -106,7 +130,7 @@
 <nav class="navbar navbar-expand-lg navbar-primary navbar-primary sticky-top">
     <div class="container-fluid">
         <!-- Menu Button -->
-        <button title="Afficher le menu " class="btn btn-menu me-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
+        <button title="Afficher le menu" class="btn btn-menu me-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMenu">
             <i class="bi bi-list fs-4 text-light"></i>
         </button>
 
@@ -124,14 +148,25 @@
         </div>
 
         <!-- Poste Logo -->
+        <div>
+            <a href="welcome" class="btn btn-outline-warning" title="Page d'accueil" >Accueil</a>
+        </div>
         <div class="logo-container ms-2">
             <img src="/poste.png" class="img-fluid" alt="Logo Poste" style="width:45px; height:45px;" />
         </div>
-        <form th:action="@{/logout}" method="post" class="d-inline">
-            <button title="Déconnecter" style="margin-left:30%;margin-right=20%" type="submit" class="btn btn-outline-info">
-                <i class="bi bi-box-arrow-right"></i>
-            </button>
-        </form>
+
+        <!-- Zone utilisateur et bouton de déconnexion - Partie modifiée -->
+        <div class="d-flex align-items-center ms-2">
+            <div class="text-end me-3">
+                <span class="text-light fw-bold d-block" style="font-size: 0.9rem;">Bienvenue</span>
+                <span class="text-warning fw-bold" style="font-size: 1rem;"><h6 th:text="${logged}"></h6></span>
+            </div>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button title="Déconnecter" type="submit" class="btn btn-logout btn-sm">
+                    <i class="bi bi-box-arrow-right fs-5"></i>
+                </button>
+            </form>
+        </div>
     </div>
     <div class="header-divider"></div>
 </nav>
@@ -149,71 +184,69 @@
         <ul class="nav flex-column p-3">
             <li th:if="${isAdmin}" class="nav-item">
                 <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu5()">
-                    <i class="bi bi-speedometer text-warning me-3 fs-5"></i>
-                    Adminstration
+                    <i class="bi bi-shield-lock text-warning me-3 fs-5"></i>
+                    Administration
                     <i class="bi bi-chevron-down float-end mt-1"></i>
-
                 </a>
             </li>
 
             <div id="dropMenu5" class="sub-menu ms-4 mb-2" style="display:none;">
-                <ul  class="nav flex-column">
+                <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link text-light py-2" href="utilisateur">
-                            <i class="bi bi-search text-orange me-2"></i>
+                            <i class="bi bi-people-fill text-orange me-2"></i>
                             Utilisateurs
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-light py-2" href="roles">
-                            <i class="bi bi-currency-euro text-orange me-2"></i>
-                            Role
+                            <i class="bi bi-person-lock text-orange me-2"></i>
+                            Rôles
                         </a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item text-danger">
                         <a class="nav-link text-danger py-2" href="permission">
-                            <h6 class="text-danger">  <i class="bi bi-file text-danger me-2"></i>
-                             Permission(!!)</h6>
+                            <i class="bi bi-key-fill text-danger me-2"></i>
+                            Permissions
                         </a>
                     </li>
                 </ul>
             </div>
-            <li  class="nav-item">
+
+            <li class="nav-item">
                 <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu3()">
-                    <i class="bi bi-speedometer text-warning me-3 fs-5"></i>
+                    <i class="bi bi-speedometer2 text-warning me-3 fs-5"></i>
                     Dashboard
                     <i class="bi bi-chevron-down float-end mt-1"></i>
-
                 </a>
             </li>
 
             <div id="dropMenu3" class="sub-menu ms-4 mb-2" style="display:none;">
-                <ul  class="nav flex-column">
+                <ul class="nav flex-column">
                     <li class="nav-item">
                         <a class="nav-link text-light py-2" href="dashdouane">
-                            <i class="bi bi-search text-orange me-2"></i>
-                            Douane
+                            <i class="bi bi-graph-up text-orange me-2"></i>
+                            Statistiques Douane
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-light py-2" href="quinzaine">
-                            <i class="bi bi-currency-euro text-orange me-2"></i>
+                            <i class="bi bi-calendar-week text-orange me-2"></i>
                             Quinzaine
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-light py-2" href="etatperiode">
-                            <i class="bi bi-file text-orange me-2"></i>
-                            Etat périodique
+                            <i class="bi bi-file-earmark-bar-graph text-orange me-2"></i>
+                            État périodique
                         </a>
                     </li>
                 </ul>
             </div>
 
-
             <li class="nav-item">
                 <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu()">
-                    <i class="bi bi-3-square text-warning me-3 fs-5"></i>
+                    <i class="bi bi-file-earmark-text text-warning me-3 fs-5"></i>
                     Bulletin N°3
                     <i class="bi bi-chevron-down float-end mt-1"></i>
                 </a>
@@ -227,60 +260,56 @@
                             Consulter
                         </a>
                     </li>
-                    <li  class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link text-light py-2" href="/sms">
                             <i class="bi bi-chat-text text-orange me-2"></i>
-                            Notifier
+                            Notification
                         </a>
                     </li>
                 </ul>
             </div>
+
             <li class="nav-item">
                 <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu2()">
-                    <i class="bi bi-house-lock text-warning me-3 fs-5"></i>
-                    Colis sous douane
+                    <i class="bi bi-box-seam text-warning me-3 fs-5"></i>
+                    Colis en Douane
                     <i class="bi bi-chevron-down float-end mt-1"></i>
                 </a>
             </li>
 
             <div id="dropMenu2" class="sub-menu ms-4 mb-2" style="display:none;">
                 <ul class="nav flex-column">
-                    <li  class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link text-light py-2" href="dounecalc">
-                            <i class="bi bi-calculator text-orange me-2"></i>
-                            Calculer frais
+                            <i class="bi bi-calculator-fill text-orange me-2"></i>
+                            Calcul des frais
                         </a>
                     </li>
-                    <li   class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link text-light py-2" href="/avisedit">
-                            <i class="bi bi-file-earmark-plus"></i>
-                            Editer avis
+                            <i class="bi bi-plus text-orange me-2"></i>
+                            Nouveau avis
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link text-light py-2" href="/avisconsul">
-                            <i class="bi bi-file-earmark-plus"></i>
-                            Consulter avis
+                            <i class="bi bi-search text-orange me-2"></i>
+                            Consulter les avis
                         </a>
                     </li>
-                    <li   class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link text-light py-2" href="etatdouane">
-                            <i class="bi bi-currency-euro text-orange me-2"></i>
-                            Imprimer Journée
+                            <i class="bi bi-printer-fill text-orange me-2"></i>
+                            État journalier
                         </a>
                     </li>
-
-
                 </ul>
             </div>
 
-
             <li class="nav-item">
                 <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu4()">
-<!--                    <i class="bi bi-3-square text-warning me-3 fs-5"></i>-->
-                    <i class="bi bi-arrow-90deg-left text-warning me-3 fs-5"></i>
-
-                    Retour B3
+                    <i class="bi bi-arrow-return-left text-warning me-3 fs-5"></i>
+                    Retours B3
                     <i class="bi bi-chevron-down float-end mt-1"></i>
                 </a>
             </li>
@@ -293,9 +322,9 @@
                             Consulter
                         </a>
                     </li>
-                    <li   class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link text-light py-2" href="/retourb3rcp">
-                            <i class="bi bi-chat-text text-orange me-2"></i>
+                            <i class="bi bi-check-circle text-orange me-2"></i>
                             Réception
                         </a>
                     </li>
@@ -321,58 +350,27 @@
 <script>
     function toggleMenu() {
         const menu = document.getElementById('dropMenu');
-        const isHidden = menu.style.display === "none" || menu.style.display === "";
-        menu.style.display = isHidden ? "block" : "none";
-
-        // Change l'icône
-        const icon = document.querySelector('#offcanvasMenu .bi-chevron-down');
-        if (icon) {
-            icon.className = isHidden ? 'bi bi-chevron-up float-end mt-1' : 'bi bi-chevron-down float-end mt-1';
-        }
+        menu.style.display = menu.style.display === "none" ? "block" : "none";
     }
-    function toggleMenu5() {
-        const menu = document.getElementById('dropMenu5');
-        const isHidden = menu.style.display === "none" || menu.style.display === "";
-        menu.style.display = isHidden ? "block" : "none";
 
-        // Change l'icône
-        const icon = document.querySelector('#offcanvasMenu .bi-chevron-down');
-        if (icon) {
-            icon.className = isHidden ? 'bi bi-chevron-up float-end mt-1' : 'bi bi-chevron-down float-end mt-1';
-        }
-    }
-    function toggleMenu4() {
-        const menu = document.getElementById('dropMenu4');
-        const isHidden = menu.style.display === "none" || menu.style.display === "";
-        menu.style.display = isHidden ? "block" : "none";
-
-        // Change l'icône
-        const icon = document.querySelector('#offcanvasMenu .bi-chevron-down');
-        if (icon) {
-            icon.className = isHidden ? 'bi bi-chevron-up float-end mt-1' : 'bi bi-chevron-down float-end mt-1';
-        }
-    }
     function toggleMenu2() {
         const menu = document.getElementById('dropMenu2');
-        const isHidden = menu.style.display === "none" || menu.style.display === "";
-        menu.style.display = isHidden ? "block" : "none";
-
-        // Change l'icône
-        const icon = document.querySelector('#offcanvasMenu .bi-chevron-down');
-        if (icon) {
-            icon.className = isHidden ? 'bi bi-chevron-up float-end mt-1' : 'bi bi-chevron-down float-end mt-1';
-        }
+        menu.style.display = menu.style.display === "none" ? "block" : "none";
     }
+
     function toggleMenu3() {
         const menu = document.getElementById('dropMenu3');
-        const isHidden = menu.style.display === "none" || menu.style.display === "";
-        menu.style.display = isHidden ? "block" : "none";
+        menu.style.display = menu.style.display === "none" ? "block" : "none";
+    }
 
-        // Change l'icône
-        const icon = document.querySelector('#offcanvasMenu .bi-chevron-down');
-        if (icon) {
-            icon.className = isHidden ? 'bi bi-chevron-up float-end mt-1' : 'bi bi-chevron-down float-end mt-1';
-        }
+    function toggleMenu4() {
+        const menu = document.getElementById('dropMenu4');
+        menu.style.display = menu.style.display === "none" ? "block" : "none";
+    }
+
+    function toggleMenu5() {
+        const menu = document.getElementById('dropMenu5');
+        menu.style.display = menu.style.display === "none" ? "block" : "none";
     }
 
     // Ajoute la classe active au menu cliqué

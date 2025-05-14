@@ -67,6 +67,7 @@ public class SmsController {
             session.setAttribute("ipad",ipad);
 
         }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         System.out.println("Ip recu"+ipad);
         model.addAttribute("ipad",ipad);
         model.addAttribute("echec",echec);
@@ -194,6 +195,7 @@ public class SmsController {
                 break;
             }
         }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         // Ajout de l'attribut error si présent
         if (error != null && error) {
@@ -244,6 +246,7 @@ public String home(Model model) {
             break;
         }
     }
+    model.addAttribute("logged",findLogged().getUsername().toUpperCase());
     model.addAttribute("isAdmin", isAdmin);
     return "template";
 }
@@ -259,6 +262,7 @@ public String home(Model model) {
                 break;
             }
         }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         List<B3> b3List = new ArrayList<>();
 
@@ -276,12 +280,12 @@ public String home(Model model) {
                     b3.setNumTel(0);
                 }
                 b3List.add(b3);
-            } else {
+            }
                 B3 b3 = b3Rep.findByNumB3(numb3);
                 if (b3 != null) {
                     b3.setRetourId(String.valueOf(b3.getIdB3()));
                     b3List.add(b3);
-                }
+
             }
         }
 
@@ -301,13 +305,13 @@ public String home(Model model) {
             }
 
             // Si aucun retour trouvé, chercher directement dans la table B3
-            if (retourList.isEmpty()) {
+
                 List<B3> foundB3List = b3Rep.findByNumTel(Integer.parseInt(tel));
                 for (B3 b3 : foundB3List) {
                     b3.setRetourId(String.valueOf(b3.getIdB3()));
                     b3List.add(b3);
 
-                }
+
             }
         }
 

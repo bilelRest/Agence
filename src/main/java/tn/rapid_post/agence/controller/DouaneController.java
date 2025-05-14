@@ -53,7 +53,7 @@ public class DouaneController {
             }
         }
         model.addAttribute("isAdmin", isAdmin);
-
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
 
 
 
@@ -90,6 +90,7 @@ public class DouaneController {
                 break;
             }
         }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         if (!StringUtils.hasText(colis)) {
             return "fraisdouane";
@@ -179,6 +180,7 @@ public class DouaneController {
 
 @GetMapping("setprinted")
 public String setprinted(@RequestParam(value = "id")String id){
+
     Douane douane=new Douane();
 
         if (StringUtils.hasText(id)){
@@ -204,6 +206,7 @@ public String setprinted(@RequestParam(value = "id")String id){
                 break;
             }
         }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
 model.addAttribute("date1",LocalDate.now());
         boolean echec=false;
@@ -321,6 +324,7 @@ model.addAttribute("date1",LocalDate.now());
                 break;
             }
         }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         List<Douane> results = new ArrayList<>();
         long nbTot = 0;
@@ -362,6 +366,7 @@ model.addAttribute("date1",LocalDate.now());
                 break;
             }
         }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
 if (StringUtils.hasText(admin)){
 System.out.println("admin recu "+admin);
@@ -399,6 +404,7 @@ System.out.println("admin recu "+admin);
                 break;
             }
         }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         Douane douane=new Douane();
         boolean reprintnotdelivered=false;
@@ -450,6 +456,11 @@ model.addAttribute("douane",douane);
         }
 
     }return "/";}
+    @GetMapping("/welcome")
+    public String welcome(Model model){
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+        return "welcome";
+    }
     @GetMapping("printquinzaine")
     public String printquinzaine(Model model,
                                  @RequestParam(value = "date1",required = false)LocalDate date1,
@@ -461,6 +472,7 @@ model.addAttribute("douane",douane);
                 break;
             }
         }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         boolean autorized = false;
         if (findLogged().getRoles().contains("ADMIN") ){
