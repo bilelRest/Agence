@@ -458,7 +458,16 @@ model.addAttribute("douane",douane);
     }return "/";}
     @GetMapping("/welcome")
     public String welcome(Model model){
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
         model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+        model.addAttribute("isAdmin", isAdmin);
+
         return "welcome";
     }
     @GetMapping("printquinzaine")
