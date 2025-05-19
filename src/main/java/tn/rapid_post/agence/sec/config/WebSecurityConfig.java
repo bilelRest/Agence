@@ -22,6 +22,10 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.disable()) // Désactive X-Frame-Options
+                );
+        http
                 .authorizeHttpRequests(auth -> {
                     dynamicSecurityService.configureDynamicRoutes(auth);
                 })
@@ -34,12 +38,16 @@ public class WebSecurityConfig {
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 );
+        http.sessionManagement(session -> session
+                .sessionConcurrency(concurrency -> concurrency
+                        .maximumSessions(1) // max 1 session par utilisateur
+                        .maxSessionsPreventsLogin(true) // empêche une nouvelle connexion si une session existe déjà
+                )
+        );
+
 
         return http.build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance(); // Remplacer par BCryptPasswordEncoder en production
-    }
+
 }

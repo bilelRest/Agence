@@ -1,6 +1,9 @@
 package tn.rapid_post.agence.sec.service;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,28 +15,35 @@ import tn.rapid_post.agence.sec.repo.UserRepository;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 @Transactional
 public class AppUserInterfaceImpl implements AppUserInterface {
     private UserRepository appUserRepo;
     private RoleRepository appRoleRepo;
 
+    private PasswordEncoder encoder;
 
-    public AppUserInterfaceImpl(UserRepository appUserRepo, RoleRepository appRoleRepo) {
+    public AppUserInterfaceImpl(UserRepository appUserRepo, RoleRepository appRoleRepo, PasswordEncoder encoder) {
         this.appUserRepo = appUserRepo;
         this.appRoleRepo = appRoleRepo;
 
+        this.encoder = encoder;
     }
 
 
     @Override
     public AppRole AddNewRole(AppRole appRole) {
+       if( appRoleRepo.findByName(appRole.getName()).isPresent()){
+           return null;
+       }
+
         return appRoleRepo.save(appRole);
     }
 
     @Override
     public AppUser AddUser(AppUser appUser) {
-        String pass=appUser.getPassword();
+        String pass=encoder.encode(appUser.getPassword());
         appUser.setPassword(pass);
         return appUserRepo.save(appUser);
     }

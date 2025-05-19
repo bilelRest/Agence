@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{template}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nouvel Utilisateur</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #444;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    input[type="button"] {
+      background: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+    }
+    input[type="button"]:hover {
+      background: #45a049;
+    }
+    .error-message {
+      color: red;
+      font-size: 14px;
+      margin-top: 5px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div layout:fragment="content1">
+  <div class="container">
+    <h1>Création d'un nouvel utilisateur</h1>
+    <form id="formuser" th:action="@{newuser}" method="post">
+      <div class="form-group">
+        <label for="nom">Nom complet</label>
+        <input type="text" id="nom" name="nom" placeholder="Entrez votre nom complet" required>
+      </div>
+
+      <div class="form-group">
+        <label for="login">Nom d'utilisateur</label>
+        <input type="text" id="login" name="login" placeholder="Entrez votre login" required>
+      </div>
+
+      <div class="form-group">
+        <label for="pass">Mot de passe</label>
+        <input type="password" id="pass" name="password" placeholder="Créez un mot de passe" required>
+      </div>
+
+      <div class="form-group">
+        <label for="passconf">Confirmation du mot de passe</label>
+        <input type="password" id="passconf" placeholder="Confirmez votre mot de passe" required>
+        <div id="passwordError" class="error-message">Les mots de passe ne correspondent pas</div>
+      </div>
+
+      <div class="form-group">
+        <input type="button" onclick="validateForm()" value="Créer le compte">
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function validateForm() {
+      const pass = document.getElementById("pass").value;
+      const passconf = document.getElementById("passconf").value;
+      const errorElement = document.getElementById("passwordError");
+      const formuser = document.getElementById("formuser");
+
+      if (pass !== passconf) {
+        errorElement.style.display = "block";
+        return false;
+      } else {
+        errorElement.style.display = "none";
+        formuser.submit();
+      }
+    }
+
+    // Ajout de la validation en temps réel
+    document.getElementById("passconf").addEventListener("input", function() {
+      const pass = document.getElementById("pass").value;
+      const passconf = this.value;
+      const errorElement = document.getElementById("passwordError");
+
+      if (passconf.length > 0 && pass !== passconf) {
+        errorElement.style.display = "block";
+      } else {
+        errorElement.style.display = "none";
+      }
+    });
+  </script>
+</div>
+</body>
+</html>

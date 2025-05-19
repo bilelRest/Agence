@@ -162,7 +162,7 @@
                 <span class="text-warning fw-bold" style="font-size: 1rem;"><h6 th:text="${logged}"></h6></span>
             </div>
             <form th:action="@{/logout}" method="post" class="d-inline">
-                <button title="Déconnecter" type="submit" class="btn btn-logout btn-sm">
+                <button title="Déconnecter" type="submit" class="btn btn-light btn-sm">
                     <i class="bi bi-box-arrow-right fs-5"></i>
                 </button>
             </form>
@@ -182,6 +182,137 @@
     </div>
     <div class="offcanvas-body p-0">
         <ul class="nav flex-column p-3">
+            <li class="nav-item">
+                <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu2()">
+                    <i class="bi bi-box-seam text-warning me-3 fs-5"></i>
+                    Colis en Douane
+                    <i class="bi bi-chevron-down float-end mt-1"></i>
+                </a>
+            </li>
+
+            <div id="dropMenu2" class="sub-menu ms-4 mb-2" style="display:none;">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="dounecalc">
+                            <i class="bi bi-calculator-fill text-orange me-2"></i>
+                            Calcul des frais
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="/avisedit">
+                            <i class="bi bi-plus text-orange me-2"></i>
+                            Nouveau avis
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="/avisconsul">
+                            <i class="bi bi-search text-orange me-2"></i>
+                            Consulter les avis
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="etatdouaneagent">
+                            <i class="bi bi-printer-fill text-orange me-2"></i>
+                            Situation
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <li class="nav-item">
+                <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu()">
+                    <i class="bi bi-file-earmark-text text-warning me-3 fs-5"></i>
+                    Bulletin N°3
+                    <i class="bi bi-chevron-down float-end mt-1"></i>
+                </a>
+            </li>
+
+            <div id="dropMenu" class="sub-menu ms-4 mb-2" style="display:none;">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="/b3consul">
+                            <i class="bi bi-search text-orange me-2"></i>
+                            Consulter
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="/sms">
+                            <i class="bi bi-chat-text text-orange me-2"></i>
+                            Notification
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+
+
+            <li class="nav-item">
+                <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu4()">
+                    <i class="bi bi-arrow-return-left text-warning me-3 fs-5"></i>
+                    Retours B3
+                    <i class="bi bi-chevron-down float-end mt-1"></i>
+                </a>
+            </li>
+
+            <div id="dropMenu4" class="sub-menu ms-4 mb-2" style="display:none;">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="/retourb3">
+                            <i class="bi bi-search text-orange me-2"></i>
+                            Consulter
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="/retourb3rcp">
+                            <i class="bi bi-check-circle text-orange me-2"></i>
+                            Réception
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <li class="nav-item">
+                <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu3()">
+                    <i class="bi bi-speedometer2 text-warning me-3 fs-5"></i>
+                    Dashboard
+                    <i class="bi bi-chevron-down float-end mt-1"></i>
+                </a>
+            </li>
+
+            <div id="dropMenu3" class="sub-menu ms-4 mb-2" style="display:none;">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="dashdouane">
+                            <i class="bi bi-graph-up text-orange me-2"></i>
+                            Statistiques Douane
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="quinzaine">
+                            <i class="bi bi-calendar-week text-orange me-2"></i>
+                            Quinzaine
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="etatperiode">
+                            <i class="bi bi-file-earmark-bar-graph text-orange me-2"></i>
+                            État périodique
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="etatperiode">
+                            <i class="bi bi-file-earmark-bar-graph text-orange me-2"></i>
+                            Journée globale
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-light py-2" href="history">
+                            <i class="bi bi-file-earmark-bar-graph text-orange me-2"></i>
+                            Historique colis
+                        </a>
+                    </li>
+                </ul>
+            </div>
             <li th:if="${isAdmin}" class="nav-item">
                 <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu5()">
                     <i class="bi bi-shield-lock text-warning me-3 fs-5"></i>
@@ -213,123 +344,7 @@
                 </ul>
             </div>
 
-            <li class="nav-item">
-                <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu3()">
-                    <i class="bi bi-speedometer2 text-warning me-3 fs-5"></i>
-                    Dashboard
-                    <i class="bi bi-chevron-down float-end mt-1"></i>
-                </a>
-            </li>
 
-            <div id="dropMenu3" class="sub-menu ms-4 mb-2" style="display:none;">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="dashdouane">
-                            <i class="bi bi-graph-up text-orange me-2"></i>
-                            Statistiques Douane
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="quinzaine">
-                            <i class="bi bi-calendar-week text-orange me-2"></i>
-                            Quinzaine
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="etatperiode">
-                            <i class="bi bi-file-earmark-bar-graph text-orange me-2"></i>
-                            État périodique
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <li class="nav-item">
-                <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu()">
-                    <i class="bi bi-file-earmark-text text-warning me-3 fs-5"></i>
-                    Bulletin N°3
-                    <i class="bi bi-chevron-down float-end mt-1"></i>
-                </a>
-            </li>
-
-            <div id="dropMenu" class="sub-menu ms-4 mb-2" style="display:none;">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="/b3consul">
-                            <i class="bi bi-search text-orange me-2"></i>
-                            Consulter
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="/sms">
-                            <i class="bi bi-chat-text text-orange me-2"></i>
-                            Notification
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <li class="nav-item">
-                <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu2()">
-                    <i class="bi bi-box-seam text-warning me-3 fs-5"></i>
-                    Colis en Douane
-                    <i class="bi bi-chevron-down float-end mt-1"></i>
-                </a>
-            </li>
-
-            <div id="dropMenu2" class="sub-menu ms-4 mb-2" style="display:none;">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="dounecalc">
-                            <i class="bi bi-calculator-fill text-orange me-2"></i>
-                            Calcul des frais
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="/avisedit">
-                            <i class="bi bi-plus text-orange me-2"></i>
-                            Nouveau avis
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="/avisconsul">
-                            <i class="bi bi-search text-orange me-2"></i>
-                            Consulter les avis
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="etatdouane">
-                            <i class="bi bi-printer-fill text-orange me-2"></i>
-                            État journalier
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <li class="nav-item">
-                <a class="nav-link text-light py-3" style="cursor: pointer;" onclick="toggleMenu4()">
-                    <i class="bi bi-arrow-return-left text-warning me-3 fs-5"></i>
-                    Retours B3
-                    <i class="bi bi-chevron-down float-end mt-1"></i>
-                </a>
-            </li>
-
-            <div id="dropMenu4" class="sub-menu ms-4 mb-2" style="display:none;">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="/retourb3">
-                            <i class="bi bi-search text-orange me-2"></i>
-                            Consulter
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="/retourb3rcp">
-                            <i class="bi bi-check-circle text-orange me-2"></i>
-                            Réception
-                        </a>
-                    </li>
-                </ul>
-            </div>
         </ul>
 
         <div class="position-absolute bottom-0 start-0 end-0 p-3 bg-dark">

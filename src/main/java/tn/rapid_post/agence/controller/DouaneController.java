@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import tn.rapid_post.agence.entity.Douane;
+import tn.rapid_post.agence.entity.HistoryDouane;
 import tn.rapid_post.agence.repo.douaneRepo;
+import tn.rapid_post.agence.repo.historyDouanerepo;
 import tn.rapid_post.agence.sec.entity.AppRole;
 import tn.rapid_post.agence.sec.entity.AppUser;
 import tn.rapid_post.agence.sec.repo.UserRepository;
@@ -28,6 +30,8 @@ public class DouaneController {
     private douaneRepo douaneRepo;
     @Autowired
     private UserRepository appUserRepo;
+    @Autowired
+    private historyDouanerepo historyDouaneRepo;
     public AppUser findLogged() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
@@ -74,6 +78,68 @@ public class DouaneController {
 
         return "etatdouane";
     }
+    @GetMapping("etatdouaneagent")
+    public String etatDouaneAgent(Model model,@RequestParam(value = "print",required = false)String print) {
+
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+
+
+
+        List<Douane> colislise = new ArrayList<>();
+
+
+      List<Douane>  toutColis = douaneRepo.findBetweenDatesUser(LocalDate.now(), LocalDate.now(),findLogged().getId());
+       boolean validated=true;
+        if (StringUtils.hasText(print)){
+            for (Douane douane:toutColis){
+                douane.setSituation(true);
+                douane.setValidateSituation(true);
+douaneRepo.save(douane);
+            }
+        }
+        for (Douane douane:toutColis){
+            if (!douane.isValidateSituation()){
+                colislise.add(douane);
+
+            }
+
+        }
+
+
+               colislise .stream()
+                .map(d -> {
+                    String numStr = d.getSequence().replaceAll("\\D+", "");
+                    int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
+                    return new AbstractMap.SimpleEntry<>(d, sequenceNum);
+                })
+                .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
+                .map(AbstractMap.SimpleEntry::getKey)
+                .collect(Collectors.toList());
+        model.addAttribute("date1", LocalDate.now());
+        model.addAttribute("date2", LocalDate.now());
+        model.addAttribute("colislise", colislise);
+
+        return "etatdouaneagent";
+    }
+    @PostMapping("situationAgent")
+    public String situationAgent(){
+        List<Douane> colislise = new ArrayList<>();
+        colislise = douaneRepo.findBetweenDatesUser(LocalDate.now(), LocalDate.now(),findLogged().getId());
+        for (Douane douane:colislise){
+            douane.setSituation(true);
+            douane.setValidateSituation(true);
+            douaneRepo.save(douane);
+        }
+        return "redirect:/etatdouaneagent?print="+true;
+    }
 
     @GetMapping("/dounecalc")
     public String frais(Model model,
@@ -81,7 +147,7 @@ public class DouaneController {
                         @RequestParam(value = "droit", required = false) String droit,
                         @RequestParam(value = "sequence", required = false) String sequence,
                         @RequestParam(value = "echec", required = false) String notValidated) {
-
+//verification des droit d'utilisteur
         boolean isAdmin = false;
         boolean notPrinted=false;
         for (AppRole appRole : findLogged().getRoles()) {
@@ -92,9 +158,12 @@ public class DouaneController {
         }
         model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
+
+//verification si pas de num colis
         if (!StringUtils.hasText(colis)) {
             return "fraisdouane";
         }
+
         Douane douane = new Douane();
 
         // Récupération du colis
@@ -140,14 +209,29 @@ public class DouaneController {
             try {
                 double droitValue = Double.parseDouble(droit);
                 douane.setDroitDouane(droitValue);
-                douaneRepo.save(douane);
+
 
                 // Vérifie si la séquence est déjà utilisée par un autre colis
-                Optional<Douane> existingWithSequence = douaneRepo.findBySequence(sequence);
-                if (existingWithSequence.isPresent() &&
-                        !existingWithSequence.get().getNumColis().equals(douane.getNumColis())) {
+                List<Douane> existingWithSequence = douaneRepo.findBySequence(sequence);
+
+                boolean sequenceValide = true;
+
+                for (Douane d : existingWithSequence) {
+                    if (Objects.equals(d.getNumColis(), douane.getNumColis())) {
+                        // Même colis : modification → séquence autorisée
+                        break;
+                    }
+
+                    if (d.getDateSortie().getYear() == LocalDate.now().getYear()) {
+                        // Même séquence déjà utilisée cette année pour un autre colis → invalide
+                        sequenceValide = false;
+                    }
+                }
+
+                if (!sequenceValide) {
                     return "redirect:/dounecalc?colis=" + colis + "&echec=true";
                 }
+
 
                 // Calcul des frais
                 douane.setDroitDouane(droitValue);
@@ -162,7 +246,8 @@ public class DouaneController {
                 douane.setFraisDedouane(douane.getNbColis() * 4);
                 douane.setFraisReemballage(douane.getNbColis() * 2);
                 douane.setTotPayer(total);
-
+                douane.setAppUser(findLogged());
+historyDouaneRepo.save(new HistoryDouane(douane.getDateArrivee(),douane.getDateSortie(),douane.getNumColis(),String.valueOf(douane.getTotPayer()),douane.getSequence(), findLogged().getUsername(),douane.getBloc(), "Calucl frais"));
                 douaneRepo.save(douane);
 
 
@@ -187,6 +272,12 @@ public String setprinted(@RequestParam(value = "id")String id){
            douane=douaneRepo.findByNumColis(id);
             if (douane!=null){
                 douane.setPrinted(true);
+                douane.setAppUser(findLogged());
+                historyDouaneRepo.save(new HistoryDouane(douane.getDateArrivee(),
+                        douane.getDateSortie(),douane.getNumColis(),
+                        String.valueOf(douane.getTotPayer()),douane.getSequence(),
+                        findLogged().getUsername(),douane.getBloc(), "Impression"));
+
                 douaneRepo.save(douane);
 
             }
@@ -275,6 +366,12 @@ model.addAttribute("date1",LocalDate.now());
 
                 colis.setDateSortie(LocalDate.now());
                 colis.setValidated(true);
+                colis.setAppUser(findLogged());
+
+                historyDouaneRepo.save(new HistoryDouane(colis.getDateArrivee(),
+                        colis.getDateSortie(),colis.getNumColis(),
+                        String.valueOf(colis.getTotPayer()),colis.getSequence(),
+                        findLogged().getUsername(),douane.get().getBloc(), "Edition avis"));
                 douaneRepo.save(colis);
                 return "redirect:/avisedit";
 
@@ -308,7 +405,18 @@ model.addAttribute("date1",LocalDate.now());
 
         colis.setDateSortie(LocalDate.now());
         colis.setValidated(true);
+        colis.setAppUser(findLogged());
+
         douaneRepo.save(colis);
+      Douane douane=  douaneRepo.findByNumColis(colis.getNumColis());
+        if (douane!=null){
+            douane.setAppUser(findLogged());
+
+            historyDouaneRepo.save(new HistoryDouane(douane.getDateArrivee(),
+                    douane.getDateSortie(),douane.getNumColis(),
+                    String.valueOf(douane.getTotPayer()),douane.getSequence(),
+                    findLogged().getUsername(),douane.getBloc(), "Edition avis"));
+        }
 
         return "redirect:/avisedit";
     }
@@ -358,7 +466,10 @@ model.addAttribute("date1",LocalDate.now());
     @GetMapping("etatperiode")
     public String etatperiode(Model model, @RequestParam(value = "date1", required = false) LocalDate date1,
                               @RequestParam(value = "date2", required = false) LocalDate date2,
-                              @RequestParam(value = "admin",required = false)String admin) {
+                              @RequestParam(value = "admin",required = false)String admin,
+                              @RequestParam(value = "agent",required = false)String agent) {
+        List<AppUser> agents=appUserRepo.findAll();
+        model.addAttribute("agents",agents);
         boolean isAdmin = false;
         for (AppRole appRole : findLogged().getRoles()) {
             if ("ADMIN".equals(appRole.getName())) {
@@ -377,8 +488,18 @@ System.out.println("admin recu "+admin);
         }
         List<Douane> colislise = new ArrayList<>();
         if (date1 != null && date2 != null) {
-            colislise = douaneRepo.findBetweenDates(date1, date2)
-                    .stream()
+            List<Douane> list=douaneRepo.findBetweenDates(date1, date2);
+            if (StringUtils.hasText(agent)){
+                for (Douane douane:list) {
+                    if (douane.getAppUser().getUsername().equals(agent)) {
+                        colislise.add(douane);
+                    }
+                }
+            }else {
+                colislise=list;
+
+            }
+                  colislise  .stream()
                     .map(d -> {
                         String numStr = d.getSequence().replaceAll("\\D+", "");
                         int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
@@ -394,6 +515,7 @@ System.out.println("admin recu "+admin);
         return "etatdouaneadmin";
 
     }
+
     @GetMapping("avisconsul")
     public String avisconsul(Model model,@RequestParam(value = "colis",required = false)String colis,
                              @RequestParam(value = "echec",required = false)String echec){
@@ -438,11 +560,33 @@ model.addAttribute("douane",douane);
     public String delete(@RequestParam(value = "id",required = true)long id,
                          @RequestParam(value = "dash",required = false)String dash){
 
-        if (findLogged().getRoles().contains("ADMIN") ){
 
 
         try {
-            douaneRepo.deleteById(id);
+            Optional<Douane> douane=douaneRepo.findById(id);
+System.out.println(douane.get().getNumColis());
+
+
+            if (douane.isPresent()){
+                System.out.println("Entréé dans suppression ");
+                try {
+
+                    historyDouaneRepo.save(new HistoryDouane(douane.get().getDateArrivee(),
+                            douane.get().getDateSortie(),douane.get().getNumColis(),
+                            String.valueOf(douane.get().getTotPayer()),douane.get().getSequence(),
+                            findLogged().getUsername(),douane.get().getBloc(), "Suppression"));
+
+
+                   douane.get().setAppUser(null);
+
+                    douaneRepo.delete(douane.get());
+
+//                    douaneRepo.delete(douane.get());
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+            }
             if (StringUtils.hasText(dash)){
                 return "redirect:/dashdouane";
             }
@@ -455,7 +599,7 @@ model.addAttribute("douane",douane);
             return "redirect:/avisedit?error="+true;
         }
 
-    }return "/";}
+   }
     @GetMapping("/welcome")
     public String welcome(Model model){
         boolean isAdmin = false;

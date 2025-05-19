@@ -26,6 +26,7 @@ import tn.rapid_post.agence.service.ApiService;
 import tn.rapid_post.agence.repo.b3Repo;
 
 import java.io.UnsupportedEncodingException;
+import java.net.http.HttpRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,11 +63,26 @@ public class SmsController {
                       @RequestParam(value = "status", required = false) String status,
                       @RequestParam(value = "id", required = false) String id,
                       @RequestParam(value = "echec",required = false)boolean echec,
-                      @RequestParam(value = "ipad",required = false)String ipad) {
-        if(StringUtils.hasText(ipad)){
-            session.setAttribute("ipad",ipad);
+                      @RequestParam(value = "ipad",required = false)String ipad,HttpServletResponse response,HttpServletRequest request) {
+        if (StringUtils.hasText(ipad)) {
+            Cookie cookie = new Cookie("ipad", ipad);
+            cookie.setPath("/");
+            cookie.setMaxAge(85600);
+            response.addCookie(cookie);
+
+        }else {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("ipad".equals(cookie.getName()) && StringUtils.hasText(cookie.getValue())) {
+                        ipad = cookie.getValue();
+                        break;
+                    }
+                }
+            }
 
         }
+
         model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         System.out.println("Ip recu"+ipad);
         model.addAttribute("ipad",ipad);
@@ -118,20 +134,27 @@ public class SmsController {
                       @RequestParam(value = "resend", required = false) boolean resend,
                       @RequestParam(value = "id", required = false) String id,
                       @RequestParam(value = "ipad", required = false) String ipad,
-                      HttpServletResponse response) throws UnsupportedEncodingException {
+                      HttpServletResponse response,HttpServletRequest request) throws UnsupportedEncodingException {
+
 
         // Gestion de l'adresse IP
         if (!StringUtils.hasText(ipad)) {
-            ipad = "192.168.137.172"; // valeur par défaut si non fournie
+
+            Cookie[] cookies=request.getCookies();
+            for (Cookie cookie:cookies){
+                if (cookie.getAttribute("ipad")!=null){
+                    ipad=cookie.getValue();
+                }else {
+                    return "redirect:/sms?status=false";
+                }
+
+            }
         }
 
         // Création et ajout du cookie correctement
-        Cookie cookie = new Cookie("ipad", ipad);
-        cookie.setPath("/");           // pour que le cookie soit disponible dans toute l'application
-        cookie.setMaxAge(86400);        // durée de vie de 1h (en secondes)
-        response.addCookie(cookie);    // ajout à la réponse HTTP
 
-        System.out.println("IP utilisée : " + ipad);
+
+        System.out.println("IP utilisée dans cookie : " + ipad);
 
         // CAS: resend
         if (resend) {
@@ -154,6 +177,7 @@ public class SmsController {
                 b3.setNumTel(Integer.parseInt(tel));
                 b3.setNumB3(ref);
                 b3Rep.save(b3);
+                smsService.getApiData(b3,ipad);
                 return "redirect:/sms?ipad=" + ipad;
             }
         }
@@ -161,12 +185,13 @@ public class SmsController {
         // CAS: doublon ref
         if (b3Rep.existsByNumB3(ref)) {
             System.out.println("Entré dans if b3 existant");
-            return "redirect:/sms?exist=true&ipad=" + ipad;
+            return "redirect:/sms?exist=true&ipad=" +ipad;
         }
 
-        if (post.isEmpty()) {
-            post = "Agence";
-        }
+//        if (!StringUtils.hasText(post)) {
+//            System.out.println("post recu "+post);
+//            post = "Agence";
+//        }
 
         // Création d’un nouveau B3
         B3 b3 = new B3();

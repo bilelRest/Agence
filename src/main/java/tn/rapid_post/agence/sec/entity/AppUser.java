@@ -12,22 +12,54 @@ public class AppUser implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, columnDefinition = "VARCHAR DEFAULT ''")
 
+    private String nomPrenom;
     private String username;
     private String password;
+    @Column(nullable = false, columnDefinition = "Boolean DEFAULT true ")
+
+    private boolean isActive;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private List<AppRole> roles = new ArrayList<>();
 
-    // Constructeurs
-    public AppUser() {}
-    public AppUser(String username, String password) {
-        this.username = username;
-        this.password = password;
+    public boolean isActive() {
+        return isActive;
     }
-    public AppUser(String username, String password, List<AppRole> roles) {
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public AppUser() {
+
+    }
+
+    public String getNomPrenom() {
+        return nomPrenom;
+    }
+
+    public void setNomPrenom(String nomPrenom) {
+        this.nomPrenom = nomPrenom;
+    }
+
+    // Constructeurs
+    public AppUser(String nomPrenom, boolean isActive) {
+        this.nomPrenom = nomPrenom;
+        this.isActive = isActive;
+    }
+    public AppUser(String nomPrenom, String username, String password, boolean isActive) {
+        this.nomPrenom = nomPrenom;
         this.username = username;
         this.password = password;
+        this.isActive = isActive;
+    }
+    public AppUser(String nomPrenom, String username, String password, boolean isActive, List<AppRole> roles) {
+        this.nomPrenom = nomPrenom;
+        this.username = username;
+        this.password = password;
+        this.isActive = isActive;
         this.roles = roles;
     }
 

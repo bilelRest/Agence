@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,16 +12,23 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 import tn.rapid_post.agence.entity.Douane;
+import tn.rapid_post.agence.entity.HistoryDouane;
 import tn.rapid_post.agence.repo.douaneRepo;
+import tn.rapid_post.agence.repo.historyDouanerepo;
 import tn.rapid_post.agence.sec.entity.AppRole;
 import tn.rapid_post.agence.sec.entity.AppUser;
 import tn.rapid_post.agence.sec.repo.UserRepository;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Controller
@@ -29,6 +37,10 @@ public class Dashboard {
     private douaneRepo douaneRepo;
     @Autowired
     private UserRepository appUserRepo;
+    @Autowired
+    private historyDouanerepo historyDouanerepo;
+    @Autowired
+    private RestTemplate restTemplate;
 
     public AppUser findLogged() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -56,6 +68,14 @@ public class Dashboard {
 
 
         // Traitement des paramètres de filtre
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin",isAdmin);
         Boolean etat = null;
         boolean not = true;
         model.addAttribute("pageSizes", List.of(5, 10, 20, 50));
@@ -120,5 +140,107 @@ public class Dashboard {
         model.addAttribute("not", not);
 
         return "dashdouane";
+    }
+    @GetMapping("history")
+    public String history(Model model,
+                          @RequestParam(value = "colis",required = false)String colis){
+        List<HistoryDouane> historyDouaneList=historyDouanerepo.findByNumColis(colis);
+        model.addAttribute("history",historyDouaneList);
+        return "history";
+    }
+    @GetMapping("aviseditadmin")
+    public String aviseditadmin(Model model,
+                                @RequestParam(value = "id",required = false)String id,
+                                @RequestParam(value = "exist",required = false)String exist,
+                                @RequestParam(value = "status",required = false)String status){
+        if (StringUtils.hasText(id)){
+            Optional<Douane> douane=douaneRepo.findById(Long.parseLong(id));
+            if (douane.isPresent()){
+                model.addAttribute("douane",douane.get());
+            }
+
+        }
+        if (StringUtils.hasText(exist)){
+            model.addAttribute("exist",Boolean.parseBoolean(exist));
+        }
+        if (StringUtils.hasText(status)){
+            model.addAttribute("status",Boolean.parseBoolean(status));
+        }
+
+        return "aviseditadmin";
+    }
+    @PostMapping("/update-colis")
+    public String updateColis(
+            @RequestParam("numColis") String numColis,
+            @RequestParam("bloc") String bloc,
+            @RequestParam("dateArrivee")  LocalDate dateArrivee,
+            @RequestParam( "dateSortie")  LocalDate dateSortie,
+            @RequestParam("origin") String origin,
+            @RequestParam("nom") String nom,
+            @RequestParam("poid") String poid,
+            @RequestParam("nbColis") String nbColis,
+            @RequestParam(value = "sequence",required = false) String sequence,
+            @RequestParam(value = "droitDouane",required = false) String droitDouane,
+            Model model) {
+
+        try {
+            // Création de l'objet Douane avec les paramètres
+            Douane douane = douaneRepo.findByNumColis(numColis);
+            douane.setNumColis(numColis);
+            douane.setBloc(bloc);
+            douane.setDateArrivee(dateArrivee);
+            douane.setDateSortie(dateSortie);
+            douane.setOrigin(origin);
+            douane.setNom(nom);
+            douane.setPoid(Double.parseDouble(poid));
+            douane.setNbColis(Integer.parseInt(nbColis));
+
+
+if (StringUtils.hasText(sequence)) {
+    List<Douane> douaneBySequence = douaneRepo.findBySequence(sequence);
+    boolean sequenceValide = true;
+
+    for (Douane d : douaneBySequence) {
+        if (Objects.equals(d.getNumColis(), numColis)) {
+            douane.setSequence(sequence);
+            break;
+        }
+
+        if (d.getDateSortie().getYear() == LocalDate.now().getYear()) {
+            sequenceValide = false;
+        }
+    }
+
+    if (sequenceValide) {
+        douane.setSequence(sequence);
+    }
+
+
+}
+if (StringUtils.hasText(droitDouane)) {
+    douane.setDroitDouane(Double.parseDouble(droitDouane));
+    long daysBetween = ChronoUnit.DAYS.between(dateArrivee, dateSortie);
+    double magasinage = Math.max(0, (daysBetween - 6) * douane.getNbColis());
+    double fraisFixes = douane.getNbColis() * 6;
+    double total = fraisFixes + magasinage + Double.parseDouble(droitDouane);
+
+    douane.setFraisMagasin(magasinage);
+    douane.setFraisDedouane(douane.getNbColis() * 4);
+    douane.setFraisReemballage(douane.getNbColis() * 2);
+    douane.setTotPayer(total);
+}
+            historyDouanerepo.save(new HistoryDouane(douane.getDateArrivee(),douane.getDateSortie(),douane.getNumColis(),String.valueOf(douane.getTotPayer()),douane.getSequence(), findLogged().getUsername(),douane.getBloc(), "Modification par administrateur "));
+            douaneRepo.save(douane);
+
+                return "redirect:/aviseditadmin?status="+true+"&id="+douane.getIdDouane();
+
+
+
+
+
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Erreur lors de la mise à jour: " + e.getMessage());
+            return "redirect:/aviseditadmin?status="+false;
+        }
     }
 }

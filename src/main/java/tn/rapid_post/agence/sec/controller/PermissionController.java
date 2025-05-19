@@ -15,6 +15,7 @@ import tn.rapid_post.agence.sec.entity.Permission;
 import tn.rapid_post.agence.sec.repo.PermissionRepository;
 import tn.rapid_post.agence.sec.repo.RoleRepository;
 import tn.rapid_post.agence.sec.repo.UserRepository;
+import tn.rapid_post.agence.sec.service.AppUserInterfaceImpl;
 
 import java.util.*;
 
@@ -23,6 +24,9 @@ public class PermissionController {
 
     @Autowired
     private PermissionRepository permissionRepository;
+    @Autowired
+    private AppUserInterfaceImpl appUserInterface;
+
 
     @Autowired
     private RoleRepository roleRepository;
@@ -73,10 +77,15 @@ model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("exist", exist);
         return "permission";
     }
+
     @GetMapping("/roles")
     public String showRolesAndUserRoles(
             @RequestParam(value = "id", required = false) String userId,
+            @RequestParam(value = "exist",required = false)boolean roleExist,
+            @RequestParam(value = "echec",required = false)boolean echec,
             Model model) {
+        model.addAttribute("echec",echec);
+        model.addAttribute("roleExist",roleExist);
         boolean isAdmin = false;
         for (AppRole appRole : findLogged().getRoles()) {
             if ("ADMIN".equals(appRole.getName())) {
@@ -101,11 +110,24 @@ boolean exist=false;
             }
 
         }
+        model.addAttribute("roles",roleRepository.findAll());
         model.addAttribute("exist",exist);
         model.addAttribute("selectedUser",appUser1);
 
 
         return "role-select";
+    }
+    @PostMapping("addrole")
+    public String addrole(@RequestParam(value = "role",required = false)String role){
+        if (StringUtils.hasText(role)){
+
+            if (roleRepository.findByName(role.toUpperCase()).isPresent()){
+                return "redirect:/roles?exist="+true;
+            }
+
+        appUserInterface.AddNewRole(new AppRole(role.toUpperCase()));
+    }
+    return "redirect:/role?roleName="+role;
     }
 
 
@@ -233,7 +255,7 @@ boolean exist=false;
                 System.out.println("utilisateur existant ");
                 return "redirect:/utilisateur?exist="+true;
             }else {
-                appUserRepo.save(new AppUser(username,password));
+//                appUserRepo.save(new AppUser(username,password));
             }
         }
 

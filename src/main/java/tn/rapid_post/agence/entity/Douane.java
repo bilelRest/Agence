@@ -30,8 +30,14 @@ public class Douane {
     private String sequence;
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean rePrint;
-    @OneToOne(fetch = FetchType.LAZY)
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+private boolean situation;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private boolean validateSituation;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "app_user_id")
     private AppUser appUser;
+
 
     private boolean validated;
 
@@ -43,7 +49,7 @@ public class Douane {
         this.sequence = sequence;
     }
 
-    public Douane(String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, AppUser appUser, boolean validated, String sequence, boolean rePrint) {
+    public Douane(String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, AppUser appUser, boolean validated, String sequence, boolean rePrint, boolean situation, boolean validateSituation) {
         this.nom = nom;
         this.numColis = numColis;
         this.dateSortie = dateSortie;
@@ -65,6 +71,8 @@ public class Douane {
         this.sequence=sequence;
 
         this.rePrint = rePrint;
+        this.situation = situation;
+        this.validateSituation = validateSituation;
     }
 
     public boolean isRePrint() {
@@ -110,9 +118,11 @@ public class Douane {
         this.bloc = bloc;
     }
 
-    public Douane(boolean printed, boolean rePrint) {
+    public Douane(boolean printed, boolean rePrint, boolean situation, boolean validateSituation) {
         this.printed = printed;
         this.rePrint = rePrint;
+        this.situation = situation;
+        this.validateSituation = validateSituation;
     }
 
     public boolean isPrinted() {
@@ -131,7 +141,7 @@ public class Douane {
         this.delivered = delivered;
     }
 
-    public Douane(long idDouane, String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, boolean rePrint, boolean validated) {
+    public Douane(long idDouane, String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, boolean rePrint, boolean situation, boolean validateSituation, boolean validated) {
         this.idDouane = idDouane;
         this.nom = nom;
         this.numColis = numColis;
@@ -150,6 +160,8 @@ public class Douane {
         this.origin = origin;
         this.bloc = bloc;
         this.rePrint = rePrint;
+        this.situation = situation;
+        this.validateSituation = validateSituation;
         this.validated=validated;
     }
 
@@ -159,6 +171,14 @@ public class Douane {
 
     public void setIdDouane(long idDouane) {
         this.idDouane = idDouane;
+    }
+
+    public boolean isSituation() {
+        return situation;
+    }
+
+    public void setSituation(boolean situation) {
+        this.situation = situation;
     }
 
     public String getNom() {
@@ -257,7 +277,17 @@ public class Douane {
         this.observation = observation;
     }
 
-    public Douane(boolean rePrint) {
+    public Douane(boolean rePrint, boolean situation, boolean validateSituation) {
         this.rePrint = rePrint;
+        this.situation = situation;
+        this.validateSituation = validateSituation;
+    }
+
+    public boolean isValidateSituation() {
+        return validateSituation;
+    }
+
+    public void setValidateSituation(boolean validateSituation) {
+        this.validateSituation = validateSituation;
     }
 }

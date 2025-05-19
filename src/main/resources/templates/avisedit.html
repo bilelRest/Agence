@@ -68,6 +68,7 @@
                 this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
             });
 
+
             document.querySelectorAll('.btn-delete').forEach(btn => {
                 btn.addEventListener('click', function() {
                     if(confirm("Voulez-vous vraiment supprimer ce colis ?")) {
@@ -177,7 +178,7 @@
                 <h5 class="mb-0">Liste des colis enregistrés</h5>
                 <a id="printBtn" th:class="${colisList.isEmpty()?'btn btn-secondary disabled':'btn btn-secondary'}"
                    th:href="@{/print-list}" target="_blank" onclick="setTimeout(() => window.location.reload(), 1000);" title="Imprimer la liste">
-                    <i class="bi bi-printer-fill"></i> Imprimer
+                    <i class="bi bi-printer-fill"></i> Imprimer tout
                 </a>
             </div>
             <div class="card-body p-0 table-container">
@@ -191,6 +192,7 @@
                         <th class="py-3">Poids (kg)</th>
                         <th class="py-3">Origine</th>
                         <th class="py-3">Observation</th>
+                        <th class="py-3">Utilisateur</th>
                         <th class="py-3 action-column">Actions</th>
                     </tr>
                     </thead>
@@ -203,6 +205,7 @@
                         <td th:text="${col.poid}" class="align-middle "></td>
                         <td th:text="${col.origin}" class="align-middle"></td>
                         <td th:text="${col.observation}" class="align-middle"></td>
+                        <td th:text="${col.getAppUser().getUsername()}"></td>
                         <td style="display:flex">
                             <a th:href="@{/avisedit(id=${col.idDouane})}" class="btn btn-primary btn-edit" title="Modifier ce colis">
                                 <i class="bi bi-pen-fill"></i>

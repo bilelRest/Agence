@@ -20,6 +20,7 @@ import tn.rapid_post.agence.sec.entity.AppUser;
 import tn.rapid_post.agence.sec.entity.Permission;
 import tn.rapid_post.agence.sec.repo.RoleRepository;
 import tn.rapid_post.agence.sec.repo.UserRepository;
+import tn.rapid_post.agence.sec.service.AppUserInterfaceImpl;
 import tn.rapid_post.agence.sec.service.CustomUserDetailsService;
 
 import java.net.Authenticator;
@@ -33,6 +34,8 @@ public class LoginController {
     private RoleRepository roleRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private AppUserInterfaceImpl userInterface;
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
     @GetMapping("loginpath")
@@ -79,5 +82,18 @@ public class LoginController {
 
         return "login";
     }
-
+    @GetMapping("/new")
+    public String newUser(Model model){
+        model.addAttribute("new","Hello from thymeleaf");
+        return "new";
+    }
+@PostMapping("newuser")
+    public String newuser(@RequestParam(value = "nom")String nom,
+                          @RequestParam(value = "login")String login,
+                          @RequestParam(value = "password")String password){
+        System.out.println(nom+" "+login+" "+password);
+        AppUser appUser=new AppUser(nom,login,password,true);
+        userInterface.AddUser(appUser);
+        return "redirect:/login";
+}
 }
