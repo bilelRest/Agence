@@ -53,9 +53,24 @@
             font-size: 0.9rem;
         }
     </style>
+    <script>
+        // Masquer automatiquement après 5 secondes (5000 ms)
+        setTimeout(function() {
+            const msg = document.getElementById('successMsg');
+            if (msg) {
+                msg.style.display = 'none';
+            }
+        }, 5000);
+    </script>
 </head>
 <body>
 <div layout:fragment="content1">
+    <div th:if="${status}">
+        <div class="d-flex justify-content-center mt-3">
+            <div id="successMsg" class="alert alert-success text-center w-75 shadow-sm" style="transition: opacity 1s;">
+                ✅ Mot de passe mis à jour avec succès
+            </div>
+        </div>    </div>
     <!-- Hero Section Compacte -->
     <section class="hero-section mb-3">
         <div class="container">

@@ -122,6 +122,7 @@
         .btn-logout:active {
             transform: scale(0.95) rotate(180deg);
         }
+
     </style>
 </head>
 
@@ -156,17 +157,25 @@
         </div>
 
         <!-- Zone utilisateur et bouton de déconnexion - Partie modifiée -->
-        <div class="d-flex align-items-center ms-2">
-            <div class="text-end me-3">
-                <span class="text-light fw-bold d-block" style="font-size: 0.9rem;">Bienvenue</span>
-                <span class="text-warning fw-bold" style="font-size: 1rem;"><h6 th:text="${logged}"></h6></span>
+        <div class="d-flex align-items-center gap-3 ms-2">
+
+            <!-- Bouton Clé + Nom d'utilisateur -->
+            <div class="d-flex align-items-center gap-2">
+                <a href="/updtps" title="Changer le mot de passe" class="btn btn-success">
+                    <i class="bi bi-key fs-5"></i>
+                </a>
+
+                <span class="text-warning fw-bold fs-6" th:text="${logged}">Utilisateur</span>
             </div>
+
+            <!-- Bouton de déconnexion -->
             <form th:action="@{/logout}" method="post" class="d-inline">
-                <button title="Déconnecter" type="submit" class="btn btn-light btn-sm">
+                <button title="Déconnecter" type="submit" class="btn btn-outline-light btn-sm">
                     <i class="bi bi-box-arrow-right fs-5"></i>
                 </button>
             </form>
         </div>
+
     </div>
     <div class="header-divider"></div>
 </nav>
@@ -299,7 +308,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-light py-2" href="etatperiode">
+                        <a class="nav-link text-light py-2" href="etatjourneeadmin">
                             <i class="bi bi-file-earmark-bar-graph text-orange me-2"></i>
                             Journée globale
                         </a>

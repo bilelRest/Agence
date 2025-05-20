@@ -6,7 +6,11 @@ import jakarta.servlet.http.HttpSession;
 import org.bouncycastle.math.raw.Mod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -38,6 +42,8 @@ public class LoginController {
     private AppUserInterfaceImpl userInterface;
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private PasswordEncoder encoder;
     @GetMapping("loginpath")
     public String afterLoginUser(HttpServletRequest request, HttpSession session) {
         String username = request.getUserPrincipal().getName();
@@ -75,7 +81,19 @@ public class LoginController {
 
         return "redirect:/welcome"; // redirection après login
     }
+    public AppUser findLogged() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
 
+
+            String utilisateur = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+
+            Optional<AppUser> appUser1 = userRepository.findByUsername(utilisateur);
+            return appUser1.orElse(null);
+
+        } else return null;
+    }
 
     @GetMapping("login")
     public String loginUser( ){
@@ -83,17 +101,53 @@ public class LoginController {
         return "login";
     }
     @GetMapping("/new")
-    public String newUser(Model model){
+    public String newUser(Model model,@RequestParam(value = "exist",required = false)boolean exist){
+        model.addAttribute("exist",exist);
         model.addAttribute("new","Hello from thymeleaf");
         return "new";
     }
+
 @PostMapping("newuser")
     public String newuser(@RequestParam(value = "nom")String nom,
                           @RequestParam(value = "login")String login,
                           @RequestParam(value = "password")String password){
         System.out.println(nom+" "+login+" "+password);
         AppUser appUser=new AppUser(nom,login,password,true);
+        if(userInterface.LoadUserByUserName(login)!=null)
+    {
+        return "redirect:/new?exist="+true;
+    }else{
         userInterface.AddUser(appUser);
-        return "redirect:/login";
+        return "redirect:/utilisateur";
+    }
+}
+    @GetMapping("updtps")
+    public String updatePassword(Model model,@RequestParam(value = "status",required = false)String status){
+        if (StringUtils.hasText(status)){
+            model.addAttribute("status",Boolean.parseBoolean(status));
+        }
+        model.addAttribute("logged",findLogged().getUsername());
+        return "updps";
+    }
+@PostMapping("updatepwd")
+    public String updatepwd(@RequestParam(value = "password")String password,
+                            @RequestParam(value = "newpwd")String newpwd){
+       AppUser appUser= userInterface.LoadUserByUserName(findLogged().getUsername());
+        if(appUser!=null){
+System.out.println("App user non null");
+            if (encoder.matches( password,appUser.getPassword())){
+                System.out.println("Mot de passe correspond ");
+                appUser.setPassword(encoder.encode(newpwd));
+                userRepository.save(appUser);
+                return "redirect:/welcome?status="+true;
+
+            }else {
+                System.out.println("Mot de passe ne correspond pas");
+                return "redirect:/updtps?status="+false;
+            }
+    }else {
+            return "redirect:/updtps?status="+false;
+
+        }
 }
 }

@@ -76,10 +76,11 @@ public class Dashboard {
             }
         }
         model.addAttribute("isAdmin",isAdmin);
+        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         Boolean etat = null;
         boolean not = true;
         model.addAttribute("pageSizes", List.of(5, 10, 20, 50));
-        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+
         if (StringUtils.hasText(etat1)) {
             if (etat1.equals("true")) {
                 etat = true;
@@ -144,6 +145,15 @@ public class Dashboard {
     @GetMapping("history")
     public String history(Model model,
                           @RequestParam(value = "colis",required = false)String colis){
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin",isAdmin);
+        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         List<HistoryDouane> historyDouaneList=historyDouanerepo.findByNumColis(colis);
         model.addAttribute("history",historyDouaneList);
         return "history";
@@ -153,6 +163,15 @@ public class Dashboard {
                                 @RequestParam(value = "id",required = false)String id,
                                 @RequestParam(value = "exist",required = false)String exist,
                                 @RequestParam(value = "status",required = false)String status){
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin",isAdmin);
+        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         if (StringUtils.hasText(id)){
             Optional<Douane> douane=douaneRepo.findById(Long.parseLong(id));
             if (douane.isPresent()){

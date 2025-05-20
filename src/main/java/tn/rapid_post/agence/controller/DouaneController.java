@@ -89,7 +89,7 @@ public class DouaneController {
             }
         }
         model.addAttribute("isAdmin", isAdmin);
-        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
 
 
 
@@ -515,6 +515,39 @@ System.out.println("admin recu "+admin);
         return "etatdouaneadmin";
 
     }
+    @GetMapping("etatjourneeadmin")
+    public String etatjourneeadmin(Model model) {
+        List<AppUser> agents=appUserRepo.findAll();
+        model.addAttribute("agents",agents);
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+        model.addAttribute("isAdmin", isAdmin);
+
+
+        List<Douane> colislise=douaneRepo.findBetweenDates(LocalDate.now(), LocalDate.now());
+
+            colislise  .stream()
+                    .map(d -> {
+                        String numStr = d.getSequence().replaceAll("\\D+", "");
+                        int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
+                        return new AbstractMap.SimpleEntry<>(d, sequenceNum);
+                    })
+                    .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
+                    .map(AbstractMap.SimpleEntry::getKey)
+                    .collect(Collectors.toList());
+
+       model.addAttribute("date1",LocalDate.now());
+       model.addAttribute("date2",LocalDate.now());
+        model.addAttribute("colislise", colislise);
+        return "etatjourneeadmin";
+
+    }
 
     @GetMapping("avisconsul")
     public String avisconsul(Model model,@RequestParam(value = "colis",required = false)String colis,
@@ -526,7 +559,7 @@ System.out.println("admin recu "+admin);
                 break;
             }
         }
-        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         Douane douane=new Douane();
         boolean reprintnotdelivered=false;
@@ -601,7 +634,8 @@ System.out.println(douane.get().getNumColis());
 
    }
     @GetMapping("/welcome")
-    public String welcome(Model model){
+    public String welcome(Model model,@RequestParam(value = "status",required = false)boolean status){
+        model.addAttribute("status",status);
         boolean isAdmin = false;
         for (AppRole appRole : findLogged().getRoles()) {
             if ("ADMIN".equals(appRole.getName())) {
@@ -609,7 +643,7 @@ System.out.println(douane.get().getNumColis());
                 break;
             }
         }
-        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
 
         return "welcome";
@@ -625,7 +659,7 @@ System.out.println(douane.get().getNumColis());
                 break;
             }
         }
-        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         boolean autorized = false;
         if (findLogged().getRoles().contains("ADMIN") ){

@@ -13,6 +13,7 @@ import tn.rapid_post.agence.entity.B3;
 import tn.rapid_post.agence.entity.RetourB3;
 import tn.rapid_post.agence.repo.b3Repo;
 import tn.rapid_post.agence.repo.retourB3Rep;
+import tn.rapid_post.agence.sec.entity.AppRole;
 import tn.rapid_post.agence.sec.entity.AppUser;
 import tn.rapid_post.agence.sec.repo.UserRepository;
 
@@ -47,8 +48,15 @@ public class RetourB3Controller {
                               @RequestParam(value = "name",required = false)String name) {
         boolean autorized = false;
 
-        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
-
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin",isAdmin);
+        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         String id="";
         List<RetourB3> results=new ArrayList<>();
 
@@ -108,8 +116,15 @@ public class RetourB3Controller {
                            @RequestParam(value = "name", required = false) String name) {
 
         List<RetourB3> results = new ArrayList<>();
-        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
-
+        boolean isAdmin = false;
+        for (AppRole appRole : findLogged().getRoles()) {
+            if ("ADMIN".equals(appRole.getName())) {
+                isAdmin = true;
+                break;
+            }
+        }
+        model.addAttribute("isAdmin",isAdmin);
+        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         try {
             if (StringUtils.hasText(numb3)) {
                 // Recherche par numéro B3

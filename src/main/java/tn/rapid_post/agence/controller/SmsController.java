@@ -83,7 +83,7 @@ public class SmsController {
 
         }
 
-        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         System.out.println("Ip recu"+ipad);
         model.addAttribute("ipad",ipad);
         model.addAttribute("echec",echec);
@@ -220,7 +220,7 @@ public class SmsController {
                 break;
             }
         }
-        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         // Ajout de l'attribut error si présent
         if (error != null && error) {
@@ -271,7 +271,7 @@ public String home(Model model) {
             break;
         }
     }
-    model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+    model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
     model.addAttribute("isAdmin", isAdmin);
     return "template";
 }
@@ -287,7 +287,7 @@ public String home(Model model) {
                 break;
             }
         }
-        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         List<B3> b3List = new ArrayList<>();
 

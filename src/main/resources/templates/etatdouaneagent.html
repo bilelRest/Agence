@@ -22,6 +22,9 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+        .text-end {
+            text-align: right;
+        }
     </style>
     <script>
         function formatDate(dateString) {
@@ -34,9 +37,10 @@
         }
 
         function printTable() {
-            const date1 = document.getElementById('date1').value;
-            const date2 = document.getElementById('date2').value;
-            const isSameDay = date1 === date2;
+            // Utiliser la date passée en paramètre ou la date du jour
+            const dateParam = document.getElementById('dateParam').value;
+            const currentDate = dateParam || new Date().toISOString().split('T')[0];
+            const isSameDay = true;
 
             let totalMontant = 0;
             let totalColis = 0;
@@ -45,7 +49,10 @@
             let totalFraisReemballage = 0;
             let totalFraisMagasin = 0;
 
-            const rows = Array.from(document.querySelectorAll('tbody tr')).map(row => {
+            // Sélectionner uniquement les lignes de données (exclure la ligne de totaux si elle existe)
+            const dataRows = Array.from(document.querySelectorAll('tbody tr')).filter(row => !row.classList.contains('total-row'));
+
+            const rows = dataRows.map(row => {
                 const cells = row.cells;
                 const montant = parseFloat(cells[8].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
                 const nbColis = parseFloat(cells[3].textContent.replace(/\s/g, '').replace(',', '.')) || 0;
@@ -76,7 +83,7 @@
                 `;
             });
 
-            const totCRA603 = totalFraisDedouane ;
+            const totCRA603 = totalFraisDedouane;
             const totCRA600 = totalFraisReemballage + totalFraisMagasin;
 
             const printWindow = window.open('', '_blank');
@@ -101,16 +108,14 @@
                     <body>
                         <div class="header">
                         <div style="text-align:left" class="title">Agence Rapid Poste Sfax ElBousten</div>
-            <br><br>
-                            <div class="title">${isSameDay ? 'ETAT DU REGLEMENT DES COLIS SOUS DOUANE' : 'ETAT PERIODIQUE DU REGLEMENT DES COLIS SOUS DOUANE'}</div>
+                        <br><br>
+                            <div class="title">ETAT DU REGLEMENT DES COLIS SOUS DOUANE</div>
                             <div class="period">
-                                ${isSameDay ?
-                                    'JOURNEE : ' + formatDate(date1) :
-                                    'Période du ' + formatDate(date1) + ' au ' + formatDate(date2)}
+                                JOURNEE : ${formatDate(currentDate)}
                             </div>
                         </div>
 
-                        <table>
+                        <table >
                             <thead>
                                 <tr>
                                     <th>Séq</th>
@@ -141,7 +146,7 @@
                         </table>
 
                         <br>
-                        <table>
+                        <table style="width: fit-content">
                             <thead>
                                 <tr>
                                     <th>Ligne CRA</th>
@@ -164,22 +169,16 @@
 
                         <div style="border:solid 2px; width:200; height:100; display: flex; flex-direction: column; justify-content: space-between; padding: 10px;;margin-left:60%">
                             <div>Imprimé le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</div>
-    <div style="text-align: center;margin-top:10%">Signature : _________________________</div>
-</div>
+                            <div style="text-align: center;margin-top:10%">Signature : _________________________</div>
+                        </div>
                     </body>
                 </html>
             `);
+            printWindow.print();
             printWindow.document.close();
             setTimeout(() => {
                 printWindow.print();
             }, 500);
-        }
-
-        function printToday() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('date1').value = today;
-            document.getElementById('date2').value = today;
-            document.querySelector('form').submit();
         }
     </script>
 </head>
@@ -193,10 +192,9 @@
 
     <div class="card">
         <div class="card-header">
-            <h1> </h1><h1 th:text="'Journée du :' +${date1}"></h1>
+            <h1 th:text="'Journée du : ' + ${#temporals.format(date1, 'dd/MM/yyyy')}"></h1>
         </div>
-        <input type="hidden" id="date1" name="date1" class="form-control" th:value="${date1}">
-        <input type="hidden"  id="date2" name="date2" class="form-control" th:value="${date2}">
+        <input type="hidden" id="dateParam" th:value="${date1}">
 
         <div class="card-body">
             <div class="table-responsive">
@@ -226,8 +224,16 @@
                         <td th:text="${#numbers.formatDecimal(colis.fraisMagasin, 1, 3)}" class="text-end"></td>
                         <td th:text="${#numbers.formatDecimal(colis.totPayer, 1, 3)}" class="text-end"></td>
                     </tr>
+                    <tr class="total-row">
+                        <td colspan="3" class="text-end"><strong>Totaux</strong></td>
+                        <td class="text-end"><strong th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![nbColis]), 1, 0)}"></strong></td>
+                        <td class="text-end"><strong th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![droitDouane]), 1, 3)}"></strong></td>
+                        <td class="text-end"><strong th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![fraisDedouane]), 1, 3)}"></strong></td>
+                        <td class="text-end"><strong th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![fraisReemballage]), 1, 3)}"></strong></td>
+                        <td class="text-end"><strong th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![fraisMagasin]), 1, 3)}"></strong></td>
+                        <td class="text-end"><strong th:text="${#numbers.formatDecimal(#aggregates.sum(colislise.![totPayer]), 1, 3)}"></strong></td>
+                    </tr>
                     </tbody>
-
                 </table>
                 <a th:if="${!colislise.isEmpty()}" onclick="if (confirm('Arrêt de situation ! Êtes-vous sûr ?')) { printTable(); } else { return false; }"
                    th:href="@{/etatdouaneagent?print=true}"
