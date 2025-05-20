@@ -113,7 +113,7 @@
                         <!-- Poids -->
                         <div class="col-auto">
                             <label for="poidColis" class="form-label">Poids (kg)</label>
-                            <input th:value="${douane.poid}" min="0.1" type="number" style="width: 80px" class="form-control" id="poidColis" name="poidColis"  required>
+                            <input th:value="${douane.poid}" min="0.005" step="any"  type="number" style="width: 80px" class="form-control" id="poidColis" name="poidColis"  required>
                         </div>
 
                         <!-- Destinataire -->

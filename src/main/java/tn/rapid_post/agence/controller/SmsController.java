@@ -17,7 +17,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tn.rapid_post.agence.entity.B3;
+import tn.rapid_post.agence.entity.Compteur;
 import tn.rapid_post.agence.entity.RetourB3;
+import tn.rapid_post.agence.repo.compteurRepo;
 import tn.rapid_post.agence.repo.retourB3Rep;
 import tn.rapid_post.agence.sec.entity.AppRole;
 import tn.rapid_post.agence.sec.entity.AppUser;
@@ -43,6 +45,8 @@ public class SmsController {
     private retourB3Rep rep;
     @Autowired
     private UserRepository appUserRepo;
+    @Autowired
+    private compteurRepo compteur;
 
     public AppUser findLogged() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -58,65 +62,57 @@ public class SmsController {
         } else return null;
     }
     @GetMapping("/sms")
-    public String sms(Model model, HttpSession session,
+    public String sms(Model model,
                       @RequestParam(value = "exist", required = false, defaultValue = "false") boolean exist,
                       @RequestParam(value = "status", required = false) String status,
                       @RequestParam(value = "id", required = false) String id,
-                      @RequestParam(value = "echec",required = false)boolean echec,
-                      @RequestParam(value = "ipad",required = false)String ipad,HttpServletResponse response,HttpServletRequest request) {
-        if (StringUtils.hasText(ipad)) {
-            Cookie cookie = new Cookie("ipad", ipad);
+                      @RequestParam(value = "echec", required = false, defaultValue = "false") boolean echec,
+                      @RequestParam(value = "reset", required = false) String reset,
+                      @RequestParam(value = "forfait", required = false, defaultValue = "false") boolean forfait,
+                      @CookieValue(value = "ipad", required = false) String ipadCookie,
+                      @RequestParam(value = "ipad", required = false) String ipadParam,
+                      HttpServletResponse response) {
+
+        // Mise à jour du compteur si "reset" est fourni
+        compteur.findById(1).ifPresent(c -> {
+            if (StringUtils.hasText(reset)) {
+                c.setValeur(Integer.parseInt(reset));
+                compteur.save(c);
+            }
+            model.addAttribute("counter", c);
+        });
+
+        // Gestion de l'adresse IP à travers les cookies ou param
+        String ipad = StringUtils.hasText(ipadParam) ? ipadParam : ipadCookie;
+        if (StringUtils.hasText(ipadParam)) {
+            Cookie cookie = new Cookie("ipad", ipadParam);
             cookie.setPath("/");
-            cookie.setMaxAge(85600);
+            cookie.setMaxAge(86400); // 24h
             response.addCookie(cookie);
-
-        }else {
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if ("ipad".equals(cookie.getName()) && StringUtils.hasText(cookie.getValue())) {
-                        ipad = cookie.getValue();
-                        break;
-                    }
-                }
-            }
-
         }
 
-        model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
-        System.out.println("Ip recu"+ipad);
-        model.addAttribute("ipad",ipad);
-        model.addAttribute("echec",echec);
-        boolean isAdmin = false;
-        for (AppRole appRole : findLogged().getRoles()) {
-            if ("ADMIN".equals(appRole.getName())) {
-                isAdmin = true;
-                break;
-            }
-        }
+        model.addAttribute("ipad", ipad);
+        model.addAttribute("logged", findLogged().getNomPrenom().toUpperCase());
+        model.addAttribute("echec", echec);
+        model.addAttribute("forfait", forfait);
+
+        boolean isAdmin = findLogged().getRoles().stream()
+                .anyMatch(r -> "ADMIN".equalsIgnoreCase(r.getName()));
         model.addAttribute("isAdmin", isAdmin);
-        B3 b31=new B3();
-        model.addAttribute("b3mod",b31);
 
-        if (StringUtils.hasText(id)&&!StringUtils.hasText(status)) {
-            b31 = b3Rep.findByIdB3(Long.parseLong(id));
-            if (b31 != null) {
-                System.out.println("B3 trouvé pour modif " + b31.getIdB3());
-            } else {
-                System.out.println("Else null");
-                b31 = new B3(); // fallback si l'ID est incorrect
-            }
-        } else {
-            System.out.println("Else id vide");
-            b31 = new B3(); // cas d'ajout
+        B3 b3mod = new B3();
+        if (StringUtils.hasText(id) && !StringUtils.hasText(status)) {
+            b3mod = b3Rep.findByIdB3(Long.parseLong(id));
+            if (b3mod == null) b3mod = new B3(); // fallback
         }
-        System.out.println("B3 trouvé pour modif apres elses " + b31.getIdB3());
+        model.addAttribute("b3mod", b3mod);
 
-        model.addAttribute("b3mod", b31);
-
-        model.addAttribute("b3List", b3Rep.findByNotifiedFalse().stream()
+        // Chargement de la liste B3 non notifiés
+        List<B3> b3List = b3Rep.findByNotifiedFalse()
+                .stream()
                 .sorted(Comparator.comparing(B3::getIdB3).reversed())
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+        model.addAttribute("b3List", b3List);
 
         model.addAttribute("exist", exist);
         model.addAttribute("status", status);
@@ -124,51 +120,42 @@ public class SmsController {
 
         return "sms";
     }
-
-    @PostMapping("sms")
+    @PostMapping("/sms")
     public String sms(@RequestParam String tel,
-                      HttpSession session,
                       @RequestParam String ref,
                       @RequestParam String post,
                       @RequestParam(value = "nom", defaultValue = "") String nom,
-                      @RequestParam(value = "resend", required = false) boolean resend,
+                      @RequestParam(value = "resend", required = false, defaultValue = "false") boolean resend,
                       @RequestParam(value = "id", required = false) String id,
-                      @RequestParam(value = "ipad", required = false) String ipad,
-                      HttpServletResponse response,HttpServletRequest request) throws UnsupportedEncodingException {
+                      @CookieValue(value = "ipad", required = false) String ipadCookie,
+                      @RequestParam(value = "ipad", required = false) String ipadParam,
+                      HttpServletRequest request,
+                      HttpServletResponse response) throws UnsupportedEncodingException {
 
-
-        // Gestion de l'adresse IP
+        String ipad = StringUtils.hasText(ipadParam) ? ipadParam : ipadCookie;
         if (!StringUtils.hasText(ipad)) {
-
-            Cookie[] cookies=request.getCookies();
-            for (Cookie cookie:cookies){
-                if (cookie.getAttribute("ipad")!=null){
-                    ipad=cookie.getValue();
-                }else {
-                    return "redirect:/sms?status=false";
-                }
-
-            }
+            return "redirect:/sms?status=false";
         }
 
-        // Création et ajout du cookie correctement
+//         Vérification de forfait
+        Compteur compteur1 = compteur.findById(1).orElseThrow();
+        if (compteur1.getCounter() >= compteur1.getValeur()) {
+            return "redirect:/sms?forfait=true";
+        }
 
-
-        System.out.println("IP utilisée dans cookie : " + ipad);
-
-        // CAS: resend
+        // Gestion du "resend"
         if (resend) {
-            B3 b3 = b3Rep.findByNumB3(ref);
-            if (b3 != null) {
-                if (smsService.getApiData(b3, ipad)) {
-                    return "redirect:/sms?status=true&id=" + b3.getIdB3() + "&ipad=" + ipad;
-                } else {
-                    return "redirect:/sms?status=false&id=" + b3.getIdB3() + "&ipad=" + ipad;
-                }
+            B3 existing = b3Rep.findByNumB3(ref);
+            if (existing != null && smsService.getApiData(existing, ipad)) {
+              //  compteur1.setCounter(compteur1.getCounter() + 1);
+               // compteur.save(compteur1);
+                return "redirect:/sms?status=true&id=" + existing.getIdB3() + "&ipad=" + ipad;
+            } else {
+                return "redirect:/sms?status=false&id=" + (existing != null ? existing.getIdB3() : "") + "&ipad=" + ipad;
             }
         }
 
-        // CAS: mise à jour d’un enregistrement existant
+        // Mise à jour
         if (StringUtils.hasText(id)) {
             B3 b3 = b3Rep.findByIdB3(Long.parseLong(id));
             if (b3 != null) {
@@ -177,23 +164,17 @@ public class SmsController {
                 b3.setNumTel(Integer.parseInt(tel));
                 b3.setNumB3(ref);
                 b3Rep.save(b3);
-                smsService.getApiData(b3,ipad);
+                smsService.getApiData(b3, ipad);
                 return "redirect:/sms?ipad=" + ipad;
             }
         }
 
-        // CAS: doublon ref
+        // Vérification de doublon
         if (b3Rep.existsByNumB3(ref)) {
-            System.out.println("Entré dans if b3 existant");
-            return "redirect:/sms?exist=true&ipad=" +ipad;
+            return "redirect:/sms?exist=true&ipad=" + ipad;
         }
 
-//        if (!StringUtils.hasText(post)) {
-//            System.out.println("post recu "+post);
-//            post = "Agence";
-//        }
-
-        // Création d’un nouveau B3
+        // Ajout nouveau B3
         B3 b3 = new B3();
         b3.setNom(nom);
         b3.setDestination(post);
@@ -201,8 +182,9 @@ public class SmsController {
         b3.setNumB3(ref);
         b3Rep.save(b3);
 
-        // Envoi SMS
         if (smsService.getApiData(b3, ipad)) {
+            compteur1.setCounter(compteur1.getCounter() + 1);
+            compteur.save(compteur1);
             return "redirect:/sms?status=true&id=" + b3.getIdB3() + "&ipad=" + ipad;
         } else {
             return "redirect:/sms?status=false&id=" + b3.getIdB3() + "&ipad=" + ipad;
