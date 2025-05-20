@@ -107,13 +107,13 @@
                         <!-- Nombre -->
                         <div class="col-auto">
                             <label for="nbColis" class="form-label">Nombre</label>
-                            <input th:value="${douane.nbColis}" type="number" style="width: 60px" class="form-control" id="nbColis" name="nbColis" value="0" required>
+                            <input th:value="${douane.nbColis}" min="1" type="number" style="width: 60px" class="form-control" id="nbColis" name="nbColis" value="0" required>
                         </div>
 
                         <!-- Poids -->
                         <div class="col-auto">
                             <label for="poidColis" class="form-label">Poids (kg)</label>
-                            <input th:value="${douane.poid}" type="text" style="width: 80px" class="form-control" id="poidColis" name="poidColis" value="0.0" required>
+                            <input th:value="${douane.poid}" min="0.1" type="number" style="width: 80px" class="form-control" id="poidColis" name="poidColis"  required>
                         </div>
 
                         <!-- Destinataire -->
