@@ -99,7 +99,7 @@ public class B3 {
     }
 
     public void setNumB3(String numB3) {
-        this.numB3 = numB3;
+        this.numB3 = numB3.toUpperCase();
     }
 
     public String getDestination() {

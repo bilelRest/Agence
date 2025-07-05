@@ -28,9 +28,9 @@ public class ApiService {
         if (b3!=null) {
 
                 if (b3.getDestination().equals("Agence")) {
-                    messageAr = " -البريد التونسي يرحب بكم و يعلمكم أن البطاقة عدد 3 موجودة بوكالة البريد السريع باب بحر صفاقس "+b3.getIdB3();
+                    messageAr = " البريد التونسي يرحب بكم و يعلمكم أن البطاقة عدد 3 موجودة بوكالة البريد السريع باب بحر صفاقس "+b3.getIdB3();
                 }if (!b3.getDestination().equals("Agence")) {
-                    messageAr = " البريد التونسي يرحب بكم و يعلمكم أن البطاقة عدد 3 موجودة بمكتب بريد" + b3.getDestination();
+                    messageAr = " البريد التونسي يرحب بكم و يعلمكم أنه بامكانكم إستلام البطاقة عدد 3 غدا على الساعة الثانية و النصف بمكتب بريد" + b3.getDestination();
                 }
                 // Construction du message bilingue
                 String fullMessage = messageAr + " "+b3.getNumB3()+" " ;

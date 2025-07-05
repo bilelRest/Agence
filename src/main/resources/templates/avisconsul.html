@@ -72,7 +72,6 @@
                            target="_blank"
                            class="btn btn-success btn-print"
                            th:href="@{/reprintdelivered(colis=${douane.numColis})}"
-                           onclick="if (confirm('Êtes-vous sûr de vouloir imprimer ce colis ?')) { setTimeout(() => window.location.reload(), 1000); } else { return false; }"
                            title="Imprimer ce colis">
                             <i class="bi bi-printer-fill"></i>Imprimer
                         </a>
@@ -82,7 +81,6 @@
                            target="_blank"
                            class="btn btn-success btn-print"
                            th:href="@{/reprintnotdelivered(colis=${douane.numColis})}"
-                           onclick="if (confirm('Êtes-vous sûr de vouloir imprimer ce colis ?')) { setTimeout(() => window.location.reload(), 1000); } else { return false; }"
                            title="Imprimer ce colis">
                             <i class="bi bi-printer-fill"></i>Imprimer
                         </a>

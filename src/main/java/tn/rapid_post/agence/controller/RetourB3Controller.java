@@ -125,6 +125,8 @@ public class RetourB3Controller {
         }
         model.addAttribute("isAdmin",isAdmin);
         model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
+        model.addAttribute("numb3",numb3!=null?numb3.toUpperCase():"");
+        model.addAttribute("name",name!=null?name.toUpperCase():"");
         try {
             if (StringUtils.hasText(numb3)) {
                 // Recherche par numéro B3

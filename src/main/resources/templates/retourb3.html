@@ -39,6 +39,11 @@
                                     <label for="name" class="form-label">Nom du destinataire</label>
                                     <input type="text" class="form-control" id="name" name="name" placeholder="Nom ou prénom"/>
                                 </div>
+                                <div>
+                                    <h6 class="alert bg-info" th:if="${name != null && name != ''}" th:text="'Nom saisie :'+${name}"></h6>
+                                    <h6 class="alert bg-info" th:if="${numb3 != null && numb3 != ''}" th:text="'Numéro saisie :'+${numb3}"></h6>
+
+                                </div>
 
                                 <div class="col-md-2">
                                     <button type="submit" class="btn btn-success w-100">

@@ -2,6 +2,7 @@ package tn.rapid_post.agence.controller;
 
 import net.sf.jasperreports.engine.fill.EvaluationBoundAction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.Banner;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -62,19 +63,18 @@ public class DouaneController {
 
 
         List<Douane> colislise = new ArrayList<>();
-            colislise = douaneRepo.findBetweenDates(LocalDate.now(), LocalDate.now())
-                    .stream()
-                    .map(d -> {
-                        String numStr = d.getSequence().replaceAll("\\D+", "");
-                        int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
-                        return new AbstractMap.SimpleEntry<>(d, sequenceNum);
-                    })
-                    .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
-                    .map(AbstractMap.SimpleEntry::getKey)
-                    .collect(Collectors.toList());
+    model.addAttribute("colislise",    colislise  .stream()
+                .map(d -> {
+                    String numStr = d.getSequence().replaceAll("\\D+", "");
+                    int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
+                    return new AbstractMap.SimpleEntry<>(d, sequenceNum);
+                })
+                .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
+                .map(AbstractMap.SimpleEntry::getKey)
+                .collect(Collectors.toList()));
         model.addAttribute("date1", LocalDate.now());
         model.addAttribute("date2", LocalDate.now());
-        model.addAttribute("colislise", colislise);
+
 
         return "etatdouane";
     }
@@ -97,10 +97,9 @@ public class DouaneController {
 
 
       List<Douane>  toutColis = douaneRepo.findBetweenDatesUser(LocalDate.now(), LocalDate.now(),findLogged().getId());
-       boolean validated=true;
         if (StringUtils.hasText(print)){
             for (Douane douane:toutColis){
-                douane.setSituation(true);
+                
                 douane.setValidateSituation(true);
 douaneRepo.save(douane);
             }
@@ -114,7 +113,7 @@ douaneRepo.save(douane);
         }
 
 
-               colislise .stream()
+        model.addAttribute("colislise",       colislise .stream()
                 .map(d -> {
                     String numStr = d.getSequence().replaceAll("\\D+", "");
                     int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
@@ -122,17 +121,16 @@ douaneRepo.save(douane);
                 })
                 .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
                 .map(AbstractMap.SimpleEntry::getKey)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
         model.addAttribute("date1", LocalDate.now());
         model.addAttribute("date2", LocalDate.now());
-        model.addAttribute("colislise", colislise);
+
 
         return "etatdouaneagent";
     }
     @PostMapping("situationAgent")
     public String situationAgent(){
-        List<Douane> colislise = new ArrayList<>();
-        colislise = douaneRepo.findBetweenDatesUser(LocalDate.now(), LocalDate.now(),findLogged().getId());
+       List<Douane> colislise = douaneRepo.findBetweenDatesUser(LocalDate.now(), LocalDate.now(),findLogged().getId());
         for (Douane douane:colislise){
             douane.setSituation(true);
             douane.setValidateSituation(true);
@@ -479,6 +477,7 @@ model.addAttribute("date1",LocalDate.now());
         }
         model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
+        List<Douane> douaneList =new ArrayList<>();
 if (StringUtils.hasText(admin)){
 System.out.println("admin recu "+admin);
 }
@@ -499,19 +498,20 @@ System.out.println("admin recu "+admin);
                 colislise=list;
 
             }
-                  colislise  .stream()
+          douaneList=  colislise  .stream()
                     .map(d -> {
-                        String numStr = d.getSequence().replaceAll("\\D+", "");
+                        String numStr = d.getSequence();
                         int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
                         return new AbstractMap.SimpleEntry<>(d, sequenceNum);
                     })
                     .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
                     .map(AbstractMap.SimpleEntry::getKey)
-                    .collect(Collectors.toList());
+                    .toList();
         }
+        model.addAttribute("colislise", douaneList);
         model.addAttribute("date1", date1);
         model.addAttribute("date2", date2);
-        model.addAttribute("colislise", colislise);
+
         return "etatdouaneadmin";
 
     }
@@ -532,15 +532,15 @@ System.out.println("admin recu "+admin);
 
         List<Douane> colislise=douaneRepo.findBetweenDates(LocalDate.now(), LocalDate.now());
 
-            colislise  .stream()
-                    .map(d -> {
-                        String numStr = d.getSequence().replaceAll("\\D+", "");
-                        int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
-                        return new AbstractMap.SimpleEntry<>(d, sequenceNum);
-                    })
-                    .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
-                    .map(AbstractMap.SimpleEntry::getKey)
-                    .collect(Collectors.toList());
+        colislise  .stream()
+                .map(d -> {
+                    String numStr = d.getSequence().replaceAll("\\D+", "");
+                    int sequenceNum = numStr.isEmpty() ? 0 : Integer.parseInt(numStr);
+                    return new AbstractMap.SimpleEntry<>(d, sequenceNum);
+                })
+                .sorted(Comparator.comparingInt(AbstractMap.SimpleEntry::getValue))
+                .map(AbstractMap.SimpleEntry::getKey)
+                .collect(Collectors.toList());
 
        model.addAttribute("date1",LocalDate.now());
        model.addAttribute("date2",LocalDate.now());
@@ -683,5 +683,31 @@ System.out.println(douane.get().getNumColis());
         model.addAttribute("list",results);
         return "printquinzaine";
     }
+@GetMapping("manifest")
+    public String manifest(Model model,
+                           @RequestParam(value = "date1",required = false)LocalDate date1){
+        LocalDate date=LocalDate.now();
+        if (date1!=null){
+            date=date1;
 
+        }
+      List<Douane> douaneList=  douaneRepo.findByDateArriveeOrderByIdDouaneAsc(date);
+        int total=0;
+        if(!douaneList.isEmpty()){
+        for (Douane douane:douaneList){
+            total=total+douane.getNbColis();
+        }}
+        model.addAttribute("total",total);
+        model.addAttribute("list",douaneList);
+        model.addAttribute("date1",date);
+
+        return "manifest";
+}
+@GetMapping("manifestprint")
+    public String manifestprint(Model model,@RequestParam(value = "date1")LocalDate date1){
+        List<Douane> list=douaneRepo.findByDateArriveeOrderByIdDouaneAsc(date1);
+        model.addAttribute("list",list);
+        model.addAttribute("date1",date1);
+        return "manifestprint";
+}
 }

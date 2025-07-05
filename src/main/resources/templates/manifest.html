@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="template">
+<head>
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/webjars/bootstrap-icons/1.10.5/font/bootstrap-icons.css">
+    <script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <title>Manifeste</title>
+</head>
+<body>
+<div id="template" layout:fragment="content1">
+<div class="card">
+    <div class="card-header">
+        <form method="get" th:action="@{/manifest}">
+        <div class="col-md-6 d-flex" >
+            <label for="date1" class="form-element" >Choisir la date</label>
+            <input type="date" id="date1" name="date1" class="form-control" th:value="${date1}">
+            <button style="margin-left:10px" type="submit" class="btn btn-outline-primary form-control"><i class="bi bi-search"> Chercher</i></button>
+
+        </div>
+        </form>
+    </div>
+</div>
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+            <th>Bloc</th>
+            <th>Num Colis</th>
+            <th>Nb colis</th>
+            <th>Déstinataire</th>
+            <th>Origine</th>
+            </thead>
+            <tbody></tbody>
+            <tr th:each="douane,ind:${list}">
+                <td th:text="${douane.bloc}"></td>
+                <td th:text="${douane.numColis}"></td>
+                <td th:text="${douane.nbColis}"></td>
+                <td th:text="${douane.nom}"></td>
+                <td th:text="${douane.origin}"></td>
+            </tr>
+
+        </table>
+    </div>
+    <div class="card-footer">
+        <form method="get" th:action="@{/manifestprint}" target="_blank">
+            <input type="hidden" name="date1" th:value="${date1}">
+        <button th:if="${list.size()>0}" class="btn btn-success" type="submit" ><i class="bi bi-printer" >Imprimer</i> </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

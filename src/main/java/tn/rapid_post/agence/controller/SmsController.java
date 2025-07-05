@@ -63,24 +63,29 @@ public class SmsController {
     }
     @GetMapping("/sms")
     public String sms(Model model,
-                      @RequestParam(value = "exist", required = false, defaultValue = "false") boolean exist,
+                      @RequestParam(value = "exist", required = false) boolean exist,
                       @RequestParam(value = "status", required = false) String status,
                       @RequestParam(value = "id", required = false) String id,
-                      @RequestParam(value = "echec", required = false, defaultValue = "false") boolean echec,
+                      @RequestParam(value = "echec", required = false) boolean echec,
                       @RequestParam(value = "reset", required = false) String reset,
-                      @RequestParam(value = "forfait", required = false, defaultValue = "false") boolean forfait,
+                      @RequestParam(value = "forfait", required = false) boolean forfait,
                       @CookieValue(value = "ipad", required = false) String ipadCookie,
                       @RequestParam(value = "ipad", required = false) String ipadParam,
+                      @RequestParam(value = "raz",required = false)boolean raz,
                       HttpServletResponse response) {
-
         // Mise à jour du compteur si "reset" est fourni
         compteur.findById(1).ifPresent(c -> {
+            if (raz){
+c.setCounter(0);
+compteur.save(c);
+            }
             if (StringUtils.hasText(reset)) {
                 c.setValeur(Integer.parseInt(reset));
                 compteur.save(c);
             }
             model.addAttribute("counter", c);
         });
+
 
         // Gestion de l'adresse IP à travers les cookies ou param
         String ipad = StringUtils.hasText(ipadParam) ? ipadParam : ipadCookie;
@@ -147,8 +152,8 @@ public class SmsController {
         if (resend) {
             B3 existing = b3Rep.findByNumB3(ref);
             if (existing != null && smsService.getApiData(existing, ipad)) {
-              //  compteur1.setCounter(compteur1.getCounter() + 1);
-               // compteur.save(compteur1);
+               compteur1.setCounter(compteur1.getCounter() + 1);
+                compteur.save(compteur1);
                 return "redirect:/sms?status=true&id=" + existing.getIdB3() + "&ipad=" + ipad;
             } else {
                 return "redirect:/sms?status=false&id=" + (existing != null ? existing.getIdB3() : "") + "&ipad=" + ipad;
@@ -162,9 +167,12 @@ public class SmsController {
                 b3.setNom(nom);
                 b3.setDestination(post);
                 b3.setNumTel(Integer.parseInt(tel));
-                b3.setNumB3(ref);
+                b3.setNumB3(ref.toUpperCase());
                 b3Rep.save(b3);
-                smsService.getApiData(b3, ipad);
+               if( smsService.getApiData(b3, ipad)){
+                   compteur1.setCounter(compteur1.getCounter() + 1);
+                   compteur.save(compteur1);
+               }
                 return "redirect:/sms?ipad=" + ipad;
             }
         }
@@ -179,7 +187,7 @@ public class SmsController {
         b3.setNom(nom);
         b3.setDestination(post);
         b3.setNumTel(Integer.parseInt(tel));
-        b3.setNumB3(ref);
+        b3.setNumB3(ref.toUpperCase());
         b3Rep.save(b3);
 
         if (smsService.getApiData(b3, ipad)) {
@@ -269,12 +277,14 @@ public String home(Model model) {
                 break;
             }
         }
+        model.addAttribute("numb3",numb3.toUpperCase());
+        model.addAttribute("tel",tel);
         model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
         List<B3> b3List = new ArrayList<>();
 
         if (StringUtils.hasText(numb3)) {
-            Optional<RetourB3> optionalRetour = rep.findBynumB3(numb3);
+            Optional<RetourB3> optionalRetour = rep.findBynumB3(numb3.toUpperCase());
             if (optionalRetour.isPresent()) {
                 RetourB3 retour = optionalRetour.get();
                 B3 b3 = new B3();
@@ -288,7 +298,7 @@ public String home(Model model) {
                 }
                 b3List.add(b3);
             }
-                B3 b3 = b3Rep.findByNumB3(numb3);
+                B3 b3 = b3Rep.findByNumB3(numb3.toUpperCase());
                 if (b3 != null) {
                     b3.setRetourId(String.valueOf(b3.getIdB3()));
                     b3List.add(b3);

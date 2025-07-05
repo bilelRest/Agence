@@ -79,7 +79,9 @@
                                 <!-- Numéro de séquence -->
                                 <div class="col-md-4 mb-3">
                                     <label for="sequence" class="form-label fw-bold">Numéro de séquence</label>
-                                    <input type="text"
+                                    <input type="number"
+                                           max="99999"
+                                           min="1"
                                            id="sequence"
                                            name="sequence"
                                            th:value="${douane.sequence}"

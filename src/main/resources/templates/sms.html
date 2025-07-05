@@ -3,9 +3,10 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="template">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <head>
     <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <title>Envoi de SMS</title>
     <style>
@@ -18,6 +19,7 @@
 
         body {
             background-color: #f8f9fa;
+            zoom: 90%;
         }
 
         .card {
@@ -141,6 +143,7 @@
         </div>
 
         <!-- Section 1 : Configuration du serveur -->
+        <!-- Section 1 : Configuration du serveur -->
         <div class="card mb-4">
             <div class="card-header bg-success text-white">
                 <div class="d-flex justify-content-between align-items-center">
@@ -148,59 +151,70 @@
                         <i class="bi bi-server me-2"></i>Configuration du serveur SMS
                     </h5>
                     <span class="badge bg-light text-dark">
-                        <i class="bi bi-info-circle me-1"></i>Configuration requise
-                    </span>
+                <i class="bi bi-info-circle me-1"></i>Configuration requise
+            </span>
                 </div>
             </div>
 
             <div class="card-body">
-                <!-- Compteur SMS -->
-                <div class="counter-display d-flex flex-wrap align-items-center mb-4">
-                    <div class="me-4">
-                        <label>SMS envoyés :</label>
-                        <span class="value" th:text="${counter.getCounter()}"></span>
-                    </div>
-                    <div class="me-4">
-                        <label>SMS disponibles :</label>
-                        <span class="value" th:text="${counter.getValeur()}"></span>
-                    </div>
-                    <form th:action="@{/sms}" method="get" class="d-flex align-items-center">
-                        <div class="input-group me-2" style="width: 200px;">
-                            <span class="input-group-text" title="Réinitialiser le compteur">
-                                <i class="bi bi-arrow-counterclockwise"></i>
-                            </span>
-                            <input type="number" class="form-control" placeholder="Nouveau forfait"
-                                   name="reset" th:value="${counter.getValeur()}">
-                        </div>
-                        <button type="submit" class="btn btn-warning btn-sm">
-                            <i class="bi bi-arrow-repeat me-1"></i>Mettre à jour
-                        </button>
-                    </form>
-                </div>
+                <div class="row g-3 align-items-center">
+                    <!-- Compteur SMS - Colonne gauche avec fond bleu -->
+                    <div class="col-md-6">
+                        <div class="counter-display p-3 rounded" style="background-color: #e7f5ff; border-left: 4px solid #228be6;">
+                            <h6 class="fw-bold mb-3 text-primary">
+                                <i class="bi bi-calculator me-2"></i>Compteur SMS
+                            </h6>
+                            <div class="d-flex flex-wrap align-items-center">
+                                <div class="me-4 mb-2">
+                                    <label class="text-muted">SMS envoyés :</label>
+<!--                                    <span class="value fw-bold" ></span>-->
+                                    <a th:text="${counter.getCounter()}" class="btn btn-warning" th:href="@{sms?raz=true}" title="Cliquer pour mettre à zéro le compteur des sms envoyé">
+                                    </a>
+                                </div>
+                                <div class="me-4 mb-2">
+                                    <label class="text-muted">SMS disponibles :</label>
+                                    <span class="value fw-bold" th:text="${counter.getValeur()}"></span>
+                                </div>
+                                <form th:action="@{/sms}" method="get" class="d-flex align-items-center mb-2">
+                                    <div class="input-group me-2" style="width: 200px;">
 
-                <!-- Configuration IP -->
-                <form th:action="@{/sms}" method="GET" class="form-section">
-                    <h6 class="mb-3 fw-bold text-success">
-                        <i class="bi bi-ethernet me-2"></i>Paramètres réseau
-                    </h6>
-
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-8">
-                            <label for="ipad" class="form-label required-field">Adresse IP du serveur SMS</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-router"></i></span>
-                                <input type="text" class="form-control" id="ipad" name="ipad"
-                                       th:value="${ipad}" placeholder="Ex: 192.168.1.100" required>
+                                </span>
+                                        <input type="number" class="form-control" placeholder="Nouveau forfait"
+                                               name="reset" th:value="${counter.getValeur()}">
+                                    </div>
+                                    <button type="submit" title="Cliquer mettre à jour le forfait sms" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-arrow-repeat me-1"></i>Mettre à jour
+                                    </button>
+                                </form>
                             </div>
-                            <small class="text-muted">Format: IP:Port (ex: 192.168.1.100)</small>
-                        </div>
-                        <div class="col-md-4">
-                            <button type="submit" class="btn btn-success w-100 btn-icon">
-                                <i class="bi bi-check-circle me-1"></i>Appliquer
-                            </button>
                         </div>
                     </div>
-                </form>
+
+                    <!-- Configuration IP - Colonne droite avec fond vert -->
+                    <div class="col-md-6">
+                        <div class="p-3 rounded" style="background-color: #ebfbee; border-left: 4px solid #2b8a3e;">
+                            <h6 class="fw-bold mb-3 text-success">
+                                <i class="bi bi-ethernet me-2"></i>Paramètres réseau
+                            </h6>
+                            <form th:action="@{/sms}" method="GET" class="row g-2 align-items-end">
+                                <div class="col-8">
+                                    <label for="ipad" class="form-label small text-muted">Adresse IP du serveur SMS</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-success text-white"><i class="bi bi-router"></i></span>
+                                        <input type="text" class="form-control" id="ipad" name="ipad"
+                                               th:value="${ipad}" placeholder="Ex: 192.168.1.100" required>
+                                    </div>
+                                    <small class="text-muted">Format: IP (ex: 192.168.1.100)</small>
+                                </div>
+                                <div class="col-4">
+                                    <button type="submit" class="btn btn-success w-100 btn-sm btn-icon">
+                                        <i class="bi bi-check-circle me-1"></i>Appliquer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 

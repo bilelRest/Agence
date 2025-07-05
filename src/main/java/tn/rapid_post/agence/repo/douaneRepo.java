@@ -74,6 +74,7 @@ public interface douaneRepo extends JpaRepository<Douane,Long> {
                                       @Param("endDate") LocalDate endDate,
                                       @Param("id") long id);
 
+    List<Douane> findByDateArriveeOrderByIdDouaneAsc(LocalDate date);
 }
 
 

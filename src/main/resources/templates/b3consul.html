@@ -41,6 +41,7 @@
                                 <div class="col-md-5">
                                     <label for="tel" class="form-label">Numéro de Téléphone</label>
                                     <input type="text" class="form-control" id="tel" name="tel" placeholder="Numéro de téléphone"/>
+
                                 </div>
                                 <div class="col-md-2">
                                     <button type="submit" class="btn btn-success w-100">
@@ -50,6 +51,11 @@
                             </div>
                         </form>
                     </div>
+                </div>
+                <div >
+                    <h5 th:if="${numb3 != null && numb3 != ''}" class=" alert alert-dismissable bg-info" th:text="'Numéro de B3 saisie :'+${numb3}"></h5>
+                    <h5 th:if="${tel != null && tel!= ''}" class=" alert alert-dismissable bg-info"
+                        th:text="'Téléphone saisie : '+${tel}"></h5>
                 </div>
 
                 <div class="row">

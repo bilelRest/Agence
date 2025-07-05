@@ -87,99 +87,120 @@
             const totCRA600 = totalFraisReemballage + totalFraisMagasin;
 
             const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>Rapport de douane</title>
-                        <style>
-                            body { font-family: Arial, sans-serif; margin: 10px; font-size: 10px; }
-                            .header { text-align: center; margin-bottom: 10px; }
-                            .title { font-size: 12px; font-weight: bold; }
-                            .period { font-size: 12px; margin: 5px 0; color: #555; }
-                            table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-                            th, td { border: 1px solid #ddd; padding: 5px; }
-                            th { background-color: #f2f2f2; text-align: center; }
-                            .text-center { text-align: center; }
-                            .text-end { text-align: right; }
-                            .text-bold { font-weight: bold; }
-                            .footer { margin-top: 15px; font-size: 8px; text-align: center; color: #666; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="header">
-                        <div style="text-align:left" class="title">Agence Rapid Poste Sfax ElBousten</div>
-                        <br><br>
-                            <div class="title">ETAT DU REGLEMENT DES COLIS SOUS DOUANE</div>
-                            <div class="period">
-                                JOURNEE : ${formatDate(currentDate)}
-                            </div>
-                        </div>
 
-                        <table >
-                            <thead>
-                                <tr>
-                                    <th>Séq</th>
-                                    <th>N° colis</th>
-                                    <th>Client</th>
-                                    <th>Nb</th>
-                                    <th>Douan</th>
-                                    <th>Déd</th>
-                                    <th>Réemb</th>
-                                    <th>Mag</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${rows.join('')}
-                            </tbody>
-                            <tfoot>
-                                <tr class="text-bold">
-                                    <td colspan="3" class="text-end">Totaux:</td>
-                                    <td class="text-end">${totalColis}</td>
-                                    <td class="text-end">${totalDroitDouane.toFixed(3)}</td>
-                                    <td class="text-end">${totalFraisDedouane.toFixed(3)}</td>
-                                    <td class="text-end">${totalFraisReemballage.toFixed(3)}</td>
-                                    <td class="text-end">${totalFraisMagasin.toFixed(3)}</td>
-                                    <td class="text-end">${totalMontant.toFixed(3)}</td>
-                                </tr>
-                            </tfoot>
-                        </table>
+            if (!printWindow) {
+                alert("Le pop-up d'impression a été bloqué. Veuillez autoriser les pop-ups pour ce site.");
+                return;
+            }
 
-                        <br>
-                        <table style="width: fit-content">
-                            <thead>
-                                <tr>
-                                    <th>Ligne CRA</th>
-                                    <th>603</th>
-                                    <th>606</th>
-                                    <th>600</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr style="text-align:center">
-                                    <td>Montant</td>
-                                    <td class="text-end">${totCRA603.toFixed(3)}</td>
-                                    <td class="text-end">${totalDroitDouane.toFixed(3)}</td>
-                                    <td class="text-end">${totCRA600.toFixed(3)}</td>
-                                    <td class="text-end">${totalMontant.toFixed(3)}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+            const htmlContent = `
+        <html>
+            <head>
+                <title>Rapport de douane</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 10px; font-size: 10px; }
+                    .header { text-align: center; margin-bottom: 10px; }
+                    .title { font-size: 12px; font-weight: bold; }
+                    .period { font-size: 12px; margin: 5px 0; color: #555; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+                    th, td { border: 1px solid #ddd; padding: 5px; }
+                    th { background-color: #f2f2f2; text-align: center; }
+                    .text-center { text-align: center; }
+                    .text-end { text-align: right; }
+                    .text-bold { font-weight: bold; }
+                    .footer { margin-top: 15px; font-size: 8px; text-align: center; color: #666; }
+                    @media print {
+                        body { margin: 0; padding: 10px; }
+                        .no-print { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <div style="text-align:left" class="title">Agence Rapid Poste Sfax ElBousten</div>
+                    <br><br>
+                    <div class="title">ETAT DU REGLEMENT DES COLIS SOUS DOUANE</div>
+                    <div class="period">
+                        JOURNEE : ${formatDate(currentDate)}
+                    </div>
+                </div>
 
-                        <div style="border:solid 2px; width:200; height:100; display: flex; flex-direction: column; justify-content: space-between; padding: 10px;;margin-left:60%">
-                            <div>Imprimé le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</div>
-                            <div style="text-align: center;margin-top:10%">Signature : _________________________</div>
-                        </div>
-                    </body>
-                </html>
-            `);
-            printWindow.print();
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Séq</th>
+                            <th>N° colis</th>
+                            <th>Client</th>
+                            <th>Nb</th>
+                            <th>Douan</th>
+                            <th>Déd</th>
+                            <th>Réemb</th>
+                            <th>Mag</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.join('')}
+                    </tbody>
+                    <tfoot>
+                        <tr class="text-bold">
+                            <td colspan="3" class="text-end">Totaux:</td>
+                            <td class="text-end">${totalColis}</td>
+                            <td class="text-end">${totalDroitDouane.toFixed(3)}</td>
+                            <td class="text-end">${totalFraisDedouane.toFixed(3)}</td>
+                            <td class="text-end">${totalFraisReemballage.toFixed(3)}</td>
+                            <td class="text-end">${totalFraisMagasin.toFixed(3)}</td>
+                            <td class="text-end">${totalMontant.toFixed(3)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <br>
+                <table style="width: fit-content">
+                    <thead>
+                        <tr>
+                            <th>Ligne CRA</th>
+                            <th>603</th>
+                            <th>606</th>
+                            <th>600</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="text-align:center">
+                            <td>Montant</td>
+                            <td class="text-end">${totCRA603.toFixed(3)}</td>
+                            <td class="text-end">${totalDroitDouane.toFixed(3)}</td>
+                            <td class="text-end">${totCRA600.toFixed(3)}</td>
+                            <td class="text-end">${totalMontant.toFixed(3)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="border:solid 2px; width:200px; height:100px; display: flex; flex-direction: column; justify-content: space-between; padding: 10px; margin-left:60%">
+                    <div>Imprimé le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})}</div>
+                    <div style="text-align: center; margin-top:10%">Signature : _________________________</div>
+                </div>
+
+                <div class="no-print" style="margin-top: 20px; text-align: center;">
+                    <button class="btn btn-success" onclick="window.print()">Imprimer</button>
+                    <button class="btn btn-secondary" onclick="window.close()">Fermer</button>
+                </div>
+            </body>
+        </html>
+    `;
+
+            printWindow.document.write(htmlContent);
             printWindow.document.close();
-            setTimeout(() => {
-                printWindow.print();
-            }, 500);
-        }
+
+            // Attendre que le contenu soit chargé avant d'imprimer
+            printWindow.onload = function() {
+                // Petite temporisation supplémentaire pour être sûr
+                setTimeout(() => {
+                    printWindow.focus();
+                    printWindow.print();
+                }, 200);
+            };}
     </script>
 </head>
 <body>
@@ -235,10 +256,13 @@
                     </tr>
                     </tbody>
                 </table>
-                <a th:if="${!colislise.isEmpty()}" onclick="if (confirm('Arrêt de situation ! Êtes-vous sûr ?')) { printTable(); } else { return false; }"
-                   th:href="@{/etatdouaneagent?print=true}"
-                   class="btn btn-outline-secondary mt-3">                    <i class="bi bi-printer"></i> Valider/Imprimer
+                <a th:if="${!colislise.isEmpty()}"
+                   href="/etatdouaneagent?print=true"
+                   onclick="return confirm('Arrêt de situation ! Êtes-vous sûr ?') ? printTable() : false;"
+                   class="btn btn-outline-secondary mt-3">
+                    <i class="bi bi-printer"></i> Valider/Imprimer
                 </a>
+
             </div>
         </div>
     </div>
