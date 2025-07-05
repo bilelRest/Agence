@@ -79,45 +79,46 @@
         });
 function verif(input) {
     const son = document.getElementById("sound-alert");
-
     const valeur = input.value.trim();
+    const message = document.getElementById("spanInfo");
 
     const alphaNumRegex = /^[a-zA-Z0-9]+$/;
-        if (valeur === "") return;
+
+    if (valeur === "") {
+        return;
+    }
 
     if (!alphaNumRegex.test(valeur)) {
-            son.play();  // 🔊 joue le son
-
-        alert("Le numéro de colis ne doit contenir que des lettres et des chiffres.");
+        son.play();
+        message.innerText = "Numéro invalide : " + valeur;
+        message.style.display = "block";
+        input.value = "";
         setTimeout(() => input.focus(), 0);
         return;
     }
 
-    // Numérique uniquement
     if (/^\d+$/.test(valeur)) {
-        if (valeur.length < 10) {
-                son.play();  // 🔊 joue le son
-
-            alert("Le numéro de colis numérique doit contenir au moins 10 chiffres.");
+        if (valeur.length != 10) {
+            son.play();
+            message.innerText = "Numéro incorrect  : " + valeur;
+            message.style.display = "block";
+            input.value = "";
             setTimeout(() => input.focus(), 0);
             return;
         }
-    }
-    // Alphanumérique 2L + 9D + 2L
-    else if (/^[a-zA-Z]{2}\d{9}[a-zA-Z]{2}$/.test(valeur)) {
-        // OK ✅
-    }
-    else {
-            son.play();  // 🔊 joue le son
-
-        alert("Le numéro de colis alphanumérique doit être de 13 caractères : 2 lettres, 9 chiffres, puis 2 lettres.");
+    } else if (!/^[a-zA-Z]{2}\d{9}[a-zA-Z]{2}$/.test(valeur)) {
+        son.play();
+        message.innerText = "Format alphanumérique invalide : " + valeur;
+        message.style.display = "block";
+        input.value = "";
         setTimeout(() => input.focus(), 0);
         return;
     }
+
+    // ✅ Saisie correcte
+    message.style.display = "none";
 }
-
-
-    </script>
+</script>
 </head>
 <body>
 
@@ -138,9 +139,8 @@ function verif(input) {
                         <!-- Numéro -->
                         <div class="col-auto">
                             <label for="numColis" class="form-label">Numéro</label>
-                            <input onblur="verif(this)" type="text" style="width: 200px" class="form-control" th:value="${douane.numColis}" id="numColis" name="numColis" required>
+                            <input  onblur="verif(this)" type="text" style="width: 200px" class="form-control" th:value="${douane.numColis}" id="numColis" name="numColis" required>
                         </div>
-
                         <!-- Bloc -->
                         <div class="col-auto">
                             <label for="bloc" class="form-label">Bloc</label>
@@ -212,6 +212,8 @@ function verif(input) {
                     </div>
                 </form>
             </div>
+            <h3 style="display:none" id="spanInfo" class="alert alert-danger" ></h3>
+
         </div>
     </div>
 
