@@ -83,6 +83,8 @@ function verif(input) {
     const valeur = input.value.trim();
 
     const alphaNumRegex = /^[a-zA-Z0-9]+$/;
+        if (valeur === "") return;
+
     if (!alphaNumRegex.test(valeur)) {
             son.play();  // 🔊 joue le son
 
