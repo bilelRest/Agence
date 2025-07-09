@@ -18,7 +18,7 @@ public class B3 {
     private boolean notified;
     private int numTel;
 
-    private final LocalDateTime dateNotif= LocalDateTime.now();
+    private final LocalDate dateNotif= LocalDate.now();
 
     @OneToOne(fetch = FetchType.LAZY)
     private AppUser appUser;
@@ -118,7 +118,7 @@ public class B3 {
         this.notified = notified;
     }
 
-    public LocalDateTime getDateNotif() {
+    public LocalDate getDateNotif() {
         return dateNotif;
     }
 

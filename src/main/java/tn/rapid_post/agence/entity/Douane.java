@@ -190,11 +190,11 @@ private boolean situation;
     }
 
     public String getNumColis() {
-        return numColis;
+        return numColis!=null?numColis.toUpperCase():numColis;
     }
 
     public void setNumColis(String numColis) {
-        this.numColis = numColis;
+        this.numColis = numColis.toUpperCase();
     }
 
     public LocalDate getDateSortie() {

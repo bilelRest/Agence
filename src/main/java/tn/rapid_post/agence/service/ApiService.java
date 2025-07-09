@@ -21,7 +21,7 @@ public class ApiService {
         this.restTemplate = restTemplate;
     }
 
-    public boolean getApiData(B3 b3,String ipRecu) {
+    public boolean getApiData(B3 b3,String ipRecu,String date) {
         String apiUrl = "http://"+ipRecu+":8080/send_sms";
         String messageAr = "";
         // Message en arabe fixe
@@ -30,7 +30,7 @@ public class ApiService {
                 if (b3.getDestination().equals("Agence")) {
                     messageAr = " البريد التونسي يرحب بكم و يعلمكم أن البطاقة عدد 3 موجودة بوكالة البريد السريع باب بحر صفاقس "+b3.getIdB3();
                 }if (!b3.getDestination().equals("Agence")) {
-                    messageAr = " البريد التونسي يرحب بكم و يعلمكم أنه بامكانكم إستلام البطاقة عدد 3 غدا على الساعة الثانية و النصف بمكتب بريد" + b3.getDestination();
+                    messageAr = " البريد التونسي يرحب بكم و يعلمكم أنه بامكانكم إستلام البطاقة عدد 3 يوم : "+date+" إبتداء من الساعة الثانية عشرة بمكتب بريد" + b3.getDestination();
                 }
                 // Construction du message bilingue
                 String fullMessage = messageAr + " "+b3.getNumB3()+" " ;
@@ -44,6 +44,7 @@ public class ApiService {
                      restTemplate.getForObject(fullUrl, String.class);
                      b3.setNotified(true);
                      b3Rep.save(b3);
+                  System.out.println(fullMessage);
                      return true;
 
                 } catch (Exception e) {

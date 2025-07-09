@@ -9,6 +9,49 @@
     <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
     <script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <title>Envoi de SMS</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+        const dest=document.getElementById('post1');
+          const input = document.getElementById('dateInput');
+          const message = document.getElementById('message');
+          const divDate=document.getElementById('divDate');
+dest.addEventListener('change', function () {
+  if (dest.value === "Agence") {
+    divDate.style.visibility = "hidden"; // Correction ici
+  } else {
+    divDate.style.visibility = "visible"; // Pour le réafficher si besoin
+  }
+});
+
+
+
+          input.addEventListener('input', function () {
+            const selectedDate = new Date(this.value);
+                        const day = selectedDate.getDay();
+
+const [annee, mois, jour] = input.value.split("-");
+
+if (
+  (mois === "01" && jour === "01") ||
+  (mois === "03" && jour === "20") ||
+  (mois === "04" && jour === "09") ||
+  (mois === "05" && jour === "01") ||
+  (mois === "07" && jour === "25") ||
+  (mois === "08" && jour === "13") ||
+  (mois === "10" && jour === "15") ||
+  (mois === "12" && jour === "17")
+) {
+  message.textContent = "Vous ne pouvez pas choisir un jour férié.";
+  input.value = '';
+} else if (day === 0 || day === 6) {
+              message.textContent = "Vous ne pouvez pas choisir un samedi ou un dimanche.";
+              this.value = '';
+            } else {
+              message.textContent = '';
+            }
+          });
+        });
+    </script>
     <style>
         :root {
             --primary-color: #3498db;
@@ -125,6 +168,7 @@
             }
         }
     </style>
+
 </head>
 <body>
 <div layout:fragment="content1">
@@ -264,10 +308,10 @@
 
                         <!-- Bureau -->
                         <div class="col-md-2">
-                            <label for="post" class="form-label required-field">Bureau</label>
+                            <label for="post1" class="form-label required-field">Bureau</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-building"></i></span>
-                                <select class="form-select" id="post" name="post" th:value="${b3mod.destination}">
+                                <select class="form-select" id="post1" name="post" th:value="${b3mod.destination}">
                                     <option value="Agence">Agence</option>
                                     <option value="3000صفاقس">3000 - Sfax</option>
                                     <option value="3006مطار صفاقس">3006 - Sfax Aéroport</option>
@@ -352,6 +396,14 @@
                                     <option value="3097سيدي الظاهر">3097 - Sidi Dhahar</option>
                                     <option value="3099البستان">3099 - El Bousten</option>
                                 </select>
+                            </div>
+                        </div>
+                        <div id="divDate" style="visibility:hidden" class="col-md-2">
+                            <label for="dateInput" class="form-label required-field">Date</label>
+                            <div class="input-group">
+                                <input   type="date" class="form-control" required id="dateInput"
+                                       name="date" th:value="${date}" >
+                                <p id="message" style="color: red; font-weight: bold;"></p>
                             </div>
                         </div>
 
@@ -469,5 +521,7 @@
         </div>
     </div>
 </div>
+
+
 </body>
 </html>

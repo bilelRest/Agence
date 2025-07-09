@@ -564,9 +564,14 @@ System.out.println("admin recu "+admin);
         Douane douane=new Douane();
         boolean reprintnotdelivered=false;
         boolean reprintdelivered=false;
+        boolean empty=false;
 
         if(StringUtils.hasText(colis)){
             douane=douaneRepo.findByNumColis(colis);
+            if (douane==null){
+                model.addAttribute("num",colis);
+                empty=true;
+            }
 
             if (douane!=null){
             if (douane.isDelivered()){
@@ -583,6 +588,7 @@ System.out.println("admin recu "+admin);
         }else {
             douane=new Douane();
         }
+        model.addAttribute("empty",empty);
         model.addAttribute("reprintdelivered",reprintdelivered);
         model.addAttribute("reprintnotdelivered",reprintnotdelivered);
 model.addAttribute("douane",douane);
@@ -686,6 +692,15 @@ System.out.println(douane.get().getNumColis());
 @GetMapping("manifest")
     public String manifest(Model model,
                            @RequestParam(value = "date1",required = false)LocalDate date1){
+    boolean isAdmin = false;
+    for (AppRole appRole : findLogged().getRoles()) {
+        if ("ADMIN".equals(appRole.getName())) {
+            isAdmin = true;
+            break;
+        }
+    }
+    model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+    model.addAttribute("isAdmin", isAdmin);
         LocalDate date=LocalDate.now();
         if (date1!=null){
             date=date1;
@@ -705,6 +720,15 @@ System.out.println(douane.get().getNumColis());
 }
 @GetMapping("manifestprint")
     public String manifestprint(Model model,@RequestParam(value = "date1")LocalDate date1){
+    boolean isAdmin = false;
+    for (AppRole appRole : findLogged().getRoles()) {
+        if ("ADMIN".equals(appRole.getName())) {
+            isAdmin = true;
+            break;
+        }
+    }
+    model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+    model.addAttribute("isAdmin", isAdmin);
         List<Douane> list=douaneRepo.findByDateArriveeOrderByIdDouaneAsc(date1);
         model.addAttribute("list",list);
         model.addAttribute("date1",date1);

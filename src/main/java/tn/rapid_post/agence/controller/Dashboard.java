@@ -16,15 +16,20 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
+import tn.rapid_post.agence.entity.B3;
 import tn.rapid_post.agence.entity.Douane;
 import tn.rapid_post.agence.entity.HistoryDouane;
+import tn.rapid_post.agence.entity.RetourB3;
+import tn.rapid_post.agence.repo.b3Repo;
 import tn.rapid_post.agence.repo.douaneRepo;
 import tn.rapid_post.agence.repo.historyDouanerepo;
+import tn.rapid_post.agence.repo.retourB3Rep;
 import tn.rapid_post.agence.sec.entity.AppRole;
 import tn.rapid_post.agence.sec.entity.AppUser;
 import tn.rapid_post.agence.sec.repo.UserRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -261,5 +266,57 @@ if (StringUtils.hasText(droitDouane)) {
             model.addAttribute("errorMessage", "Erreur lors de la mise à jour: " + e.getMessage());
             return "redirect:/aviseditadmin?status="+false;
         }
+    }
+    @Autowired
+     b3Repo repoB3;
+    @Autowired
+    retourB3Rep retourRep;
+    @GetMapping("dashb3")
+    public String dashb3(Model model,
+                         @RequestParam(value = "key", required = false) String key,
+                         @RequestParam(value = "date1", required = false) LocalDate date1,
+                         @RequestParam(value = "date2", required = false) LocalDate date2,
+                         @RequestParam(value = "dest", required = false) String dest,
+                         @RequestParam(defaultValue = "0") int page,
+                         @RequestParam(defaultValue = "10") int size,
+                         @RequestParam(value = "id",required = false)String id) {
+
+        // Set default dates if not provided
+        date1 = date1 == null ? LocalDate.now().minusDays(7) : date1;
+        date2 = date2 == null ? LocalDate.now() : date2;
+
+        // Check if user is admin
+        boolean isAdmin = findLogged().getRoles().stream()
+                .anyMatch(role -> "ADMIN".equals(role.getName()));
+
+        Page<B3> b3Page;
+if (StringUtils.hasText(id)){
+    Optional<B3> b3Optional=repoB3.findById(Long.parseLong(id));
+    if (b3Optional.isPresent()){
+    Optional<RetourB3> retourB3=retourRep.findByNumB3(b3Optional.get().getNumB3());
+    if (retourB3.isPresent()){
+        retourB3.get().setB3(null);
+        retourRep.save(retourB3.get());
+    }
+    b3Optional.get().setRetourId(null);
+    repoB3.save(b3Optional.get());
+    b3Optional.ifPresent(b3 -> repoB3.delete(b3));}
+}
+       b3Page=repoB3.searchBetweenDatesWithKeyAndEtat(date1.toString(),date2.toString(),key!=null?key:"",dest!=null?dest:"",PageRequest.of(page,size));
+
+        // Add attributes to model
+        model.addAttribute("date1", date1);
+        model.addAttribute("date2", date2);
+        model.addAttribute("list", b3Page.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", b3Page.getTotalPages());
+        model.addAttribute("totalItems", b3Page.getTotalElements());
+        model.addAttribute("pageSize", size);
+        model.addAttribute("key", key != null ? key : "");
+        model.addAttribute("dest", dest != null ? dest : "");
+        model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("logged", findLogged().getNomPrenom().toUpperCase());
+
+        return "dashb3";
     }
 }

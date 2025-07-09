@@ -29,6 +29,9 @@ import tn.rapid_post.agence.repo.b3Repo;
 
 import java.io.UnsupportedEncodingException;
 import java.net.http.HttpRequest;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.chrono.ChronoLocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -73,6 +76,12 @@ public class SmsController {
                       @RequestParam(value = "ipad", required = false) String ipadParam,
                       @RequestParam(value = "raz",required = false)boolean raz,
                       HttpServletResponse response) {
+        LocalDate date=LocalDate.now().plusDays(1);
+        if (date.getDayOfWeek()==DayOfWeek.SATURDAY) {
+            System.out.println("Condition demain jeudi donc on ajoute 3");
+            date = LocalDate.now().plusDays(3);
+        }
+
         // Mise à jour du compteur si "reset" est fourni
         compteur.findById(1).ifPresent(c -> {
             if (raz){
@@ -96,10 +105,12 @@ compteur.save(c);
             response.addCookie(cookie);
         }
 
+
         model.addAttribute("ipad", ipad);
         model.addAttribute("logged", findLogged().getNomPrenom().toUpperCase());
         model.addAttribute("echec", echec);
         model.addAttribute("forfait", forfait);
+        model.addAttribute("date",date);
 
         boolean isAdmin = findLogged().getRoles().stream()
                 .anyMatch(r -> "ADMIN".equalsIgnoreCase(r.getName()));
@@ -134,6 +145,7 @@ compteur.save(c);
                       @RequestParam(value = "id", required = false) String id,
                       @CookieValue(value = "ipad", required = false) String ipadCookie,
                       @RequestParam(value = "ipad", required = false) String ipadParam,
+                      @RequestParam(value = "date",required = false) String date,
                       HttpServletRequest request,
                       HttpServletResponse response) throws UnsupportedEncodingException {
 
@@ -148,10 +160,11 @@ compteur.save(c);
             return "redirect:/sms?forfait=true";
         }
 
+
         // Gestion du "resend"
         if (resend) {
-            B3 existing = b3Rep.findByNumB3(ref);
-            if (existing != null && smsService.getApiData(existing, ipad)) {
+            B3 existing = b3Rep.findByNumB3IgnoreCaseContaining(ref);
+            if (existing != null && smsService.getApiData(existing, ipad,date)) {
                compteur1.setCounter(compteur1.getCounter() + 1);
                 compteur.save(compteur1);
                 return "redirect:/sms?status=true&id=" + existing.getIdB3() + "&ipad=" + ipad;
@@ -169,7 +182,7 @@ compteur.save(c);
                 b3.setNumTel(Integer.parseInt(tel));
                 b3.setNumB3(ref.toUpperCase());
                 b3Rep.save(b3);
-               if( smsService.getApiData(b3, ipad)){
+               if( smsService.getApiData(b3, ipad,date)){
                    compteur1.setCounter(compteur1.getCounter() + 1);
                    compteur.save(compteur1);
                }
@@ -190,7 +203,7 @@ compteur.save(c);
         b3.setNumB3(ref.toUpperCase());
         b3Rep.save(b3);
 
-        if (smsService.getApiData(b3, ipad)) {
+        if (smsService.getApiData(b3, ipad,date)) {
             compteur1.setCounter(compteur1.getCounter() + 1);
             compteur.save(compteur1);
             return "redirect:/sms?status=true&id=" + b3.getIdB3() + "&ipad=" + ipad;
@@ -284,7 +297,7 @@ public String home(Model model) {
         List<B3> b3List = new ArrayList<>();
 
         if (StringUtils.hasText(numb3)) {
-            Optional<RetourB3> optionalRetour = rep.findBynumB3(numb3.toUpperCase());
+            Optional<RetourB3> optionalRetour = rep.findBynumB3IgnoreCaseContaining(numb3);
             if (optionalRetour.isPresent()) {
                 RetourB3 retour = optionalRetour.get();
                 B3 b3 = new B3();
@@ -298,7 +311,7 @@ public String home(Model model) {
                 }
                 b3List.add(b3);
             }
-                B3 b3 = b3Rep.findByNumB3(numb3.toUpperCase());
+                B3 b3 = b3Rep.findByNumB3IgnoreCaseContaining(numb3);
                 if (b3 != null) {
                     b3.setRetourId(String.valueOf(b3.getIdB3()));
                     b3List.add(b3);
@@ -336,14 +349,20 @@ public String home(Model model) {
         return "b3consul";
     }
     @PostMapping("deletesms")
-    public String deletesms(@RequestParam(value = "id")String id){
+    public String deletesms(@RequestParam(value = "id")String id,
+                            @RequestParam(value = "dash",required = false)String dash){
         if(StringUtils.hasText(id)){
+            System.out.println("id recu "+id);
         try {
           Optional<B3> b3=  b3Rep.findById(Long.parseLong(id));
+          System.out.println(b3.get().toString());
           if (b3.isPresent()){
-              b3.get().setNotified(true);
-              b3Rep.save(b3.get());
-              return "redirect:/sms";
+
+              b3Rep.delete(b3.get());
+              if (!StringUtils.hasText(dash)){
+              return "redirect:/sms";}else {
+                  return "redirect:/dashb3";
+              }
           }
         }catch (Exception e){
             return "redirect:/sms?echec="+true;
