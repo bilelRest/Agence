@@ -76,8 +76,12 @@ public class SmsController {
                       @RequestParam(value = "ipad", required = false) String ipadParam,
                       @RequestParam(value = "raz",required = false)boolean raz,
                       HttpServletResponse response) {
-        LocalDate date=LocalDate.now().plusDays(1);
+        LocalDate date=LocalDate.now().plusDays(2);
         if (date.getDayOfWeek()==DayOfWeek.SATURDAY) {
+            System.out.println("Condition demain jeudi donc on ajoute 3");
+            date = LocalDate.now().plusDays(4);
+        }
+        if (date.getDayOfWeek()==DayOfWeek.SUNDAY) {
             System.out.println("Condition demain jeudi donc on ajoute 3");
             date = LocalDate.now().plusDays(3);
         }
