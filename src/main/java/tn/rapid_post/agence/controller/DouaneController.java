@@ -1,6 +1,8 @@
 package tn.rapid_post.agence.controller;
 
 import net.sf.jasperreports.engine.fill.EvaluationBoundAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.security.core.Authentication;
@@ -23,6 +25,7 @@ import tn.rapid_post.agence.sec.repo.UserRepository;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+
 import java.util.stream.Collectors;
 
 @Controller
@@ -139,102 +142,102 @@ douaneRepo.save(douane);
         return "redirect:/etatdouaneagent?print="+true;
     }
 
+    private static final Logger log = LoggerFactory.getLogger(DouaneController.class);
+
     @GetMapping("/dounecalc")
     public String frais(Model model,
                         @RequestParam(value = "colis", required = false) String colis,
                         @RequestParam(value = "droit", required = false) String droit,
                         @RequestParam(value = "sequence", required = false) String sequence,
                         @RequestParam(value = "echec", required = false) String notValidated) {
-//verification des droit d'utilisteur
+
+        System.out.println(">>> Accès à /dounecalc");
+        System.out.println(">>> Params reçus - colis: " + colis + ", droit: " + droit + ", sequence: " + sequence + ", echec: " + notValidated);
+
+        // Vérification des droits
         boolean isAdmin = false;
-        boolean notPrinted=false;
+        boolean notPrinted = false;
+        String loggedUser = findLogged().getUsername();
+
         for (AppRole appRole : findLogged().getRoles()) {
             if ("ADMIN".equals(appRole.getName())) {
                 isAdmin = true;
                 break;
             }
         }
-        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
+
+        System.out.println(">>> Utilisateur connecté : " + loggedUser + ", est admin ? " + isAdmin);
+        model.addAttribute("logged", loggedUser.toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
 
-//verification si pas de num colis
         if (!StringUtils.hasText(colis)) {
+            System.out.println(">>> Aucun numéro de colis fourni");
             return "fraisdouane";
         }
 
-        Douane douane = new Douane();
+        Douane douane = douaneRepo.findByNumColis(colis);
 
-        // Récupération du colis
-        douane = douaneRepo.findByNumColis(colis);
         if (douane == null) {
+            System.out.println(">>> Aucun colis trouvé pour : " + colis);
             model.addAttribute("empty", true);
             return "fraisdouane";
         }
-        if (!douane.isPrinted()){
-            notPrinted=true;
-            model.addAttribute("notPrinted",notPrinted);
 
+        System.out.println(">>> Colis trouvé : " + douane.getNumColis() + " - Nom : " + douane.getNom());
+
+        if (!douane.isPrinted()) {
+            notPrinted = true;
+
+            System.out.println(">>> Colis non imprimé.");
         }
-        model.addAttribute("notPrinted",notPrinted);
 
-
-
-        System.out.println("Sequence reçue = " + sequence);
-
+        model.addAttribute("notPrinted", notPrinted);
         model.addAttribute("notValidated", false);
 
         if (StringUtils.hasText(notValidated)) {
-            model.addAttribute("notValidated", Boolean.parseBoolean(notValidated));
+            boolean notValid = Boolean.parseBoolean(notValidated);
+            model.addAttribute("notValidated", notValid);
+            System.out.println(">>> Saisie invalide précédente détectée.");
         }
 
-
-
-
-
-
-        // Si le colis est déjà livré
         if (douane.isDelivered()) {
-            model.addAttribute("douane", douane);
+            System.out.println(">>> Colis déjà livré.");
+
             model.addAttribute("exist", true);
             return "fraisdouane";
         }
 
         model.addAttribute("exist", false);
-        model.addAttribute("douane", douane);
 
-        // Validation de la saisie (calcul)
+
         if (StringUtils.hasText(sequence) && StringUtils.hasText(droit)) {
             try {
                 double droitValue = Double.parseDouble(droit);
                 douane.setDroitDouane(droitValue);
+                System.out.println(">>> Droit de douane saisi : " + droitValue);
 
-
-                // Vérifie si la séquence est déjà utilisée par un autre colis
                 List<Douane> existingWithSequence = douaneRepo.findBySequence(sequence);
-
                 boolean sequenceValide = true;
 
                 for (Douane d : existingWithSequence) {
                     if (Objects.equals(d.getNumColis(), douane.getNumColis())) {
-                        // Même colis : modification → séquence autorisée
+                        System.out.println(">>> Même colis, la séquence est autorisée.");
                         break;
                     }
 
                     if (d.getDateSortie().getYear() == LocalDate.now().getYear()) {
-                        // Même séquence déjà utilisée cette année pour un autre colis → invalide
+                        System.out.println(">>> Séquence déjà utilisée cette année par un autre colis.");
                         sequenceValide = false;
                     }
                 }
 
                 if (!sequenceValide) {
+                    System.out.println(">>> Séquence invalide, redirection.");
                     return "redirect:/dounecalc?colis=" + colis + "&echec=true";
                 }
 
-
                 // Calcul des frais
-                douane.setDroitDouane(droitValue);
                 douane.setSequence(sequence);
-
                 long daysBetween = ChronoUnit.DAYS.between(douane.getDateArrivee(), LocalDate.now());
                 double magasinage = Math.max(0, (daysBetween - 6) * douane.getNbColis());
                 double fraisFixes = douane.getNbColis() * 6;
@@ -245,23 +248,38 @@ douaneRepo.save(douane);
                 douane.setFraisReemballage(douane.getNbColis() * 2);
                 douane.setTotPayer(total);
                 douane.setAppUser(findLogged());
-historyDouaneRepo.save(new HistoryDouane(douane.getDateArrivee(),douane.getDateSortie(),douane.getNumColis(),String.valueOf(douane.getTotPayer()),douane.getSequence(), findLogged().getUsername(),douane.getBloc(), "Calucl frais"));
-                douaneRepo.save(douane);
 
+                System.out.println(">>> Calcul des frais terminé. Total à payer : " + total);
+                System.out.println(">>> Détails - Magasinage : " + magasinage + ", Jours : " + daysBetween);
+
+                historyDouaneRepo.save(new HistoryDouane(
+                        douane.getDateArrivee(),
+                        douane.getDateSortie(),
+                        douane.getNumColis(),
+                        String.valueOf(douane.getTotPayer()),
+                        douane.getSequence(),
+                        loggedUser,
+                        douane.getBloc(),
+                        "Calucl frais"
+                ));
+
+                douaneRepo.save(douane);
+                System.out.println(">>> Données sauvegardées en base.");
 
                 model.addAttribute("validated", true);
                 model.addAttribute("daysBetween", daysBetween);
 
             } catch (NumberFormatException e) {
+                System.out.println(">>> Erreur : droit de douane invalide - " + droit);
                 return "redirect:/dounecalc?colis=" + colis + "&echec=true";
             }
-
         }
-
+        model.addAttribute("douane",douane);
         return "fraisdouane";
     }
 
-@GetMapping("setprinted")
+
+    @GetMapping("setprinted")
 public String setprinted(@RequestParam(value = "id")String id){
 
     Douane douane=new Douane();
