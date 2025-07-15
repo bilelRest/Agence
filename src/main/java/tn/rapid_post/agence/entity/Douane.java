@@ -103,7 +103,7 @@ private boolean situation;
     }
 
     public String getOrigin() {
-        return origin;
+        return origin.toUpperCase();
     }
 
     public void setOrigin(String origin) {
@@ -182,7 +182,7 @@ private boolean situation;
     }
 
     public String getNom() {
-        return nom;
+        return nom.toUpperCase();
     }
 
     public void setNom(String nom) {

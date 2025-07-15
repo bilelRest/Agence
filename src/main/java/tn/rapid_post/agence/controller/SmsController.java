@@ -294,7 +294,7 @@ public String home(Model model) {
                 break;
             }
         }
-        model.addAttribute("numb3",numb3.toUpperCase());
+        model.addAttribute("numb3",numb3!=null?numb3.toUpperCase():null);
         model.addAttribute("tel",tel);
         model.addAttribute("logged",findLogged().getNomPrenom().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);

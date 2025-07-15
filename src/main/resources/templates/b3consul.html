@@ -37,11 +37,14 @@
                                 <div class="col-md-5">
                                     <label for="numb3" class="form-label">Numéro du B3</label>
                                     <input type="text" class="form-control" id="numb3" name="numb3" placeholder="Ex: EAxxxxxxxxxTN"/>
+                                    <span th:if="${!#lists.isEmpty(results)}"  class=" alert alert-dismissable "
+                                           th:text="${numb3 != null && numb3!= ''? 'Numéro de B3 saisie :'+numb3:''}"></span>
                                 </div>
                                 <div class="col-md-5">
                                     <label for="tel" class="form-label">Numéro de Téléphone</label>
-                                    <input type="text" class="form-control" id="tel" name="tel" placeholder="Numéro de téléphone"/>
-
+                                    <input type="text" class="form-control" id="tel"  name="tel" placeholder="Numéro de téléphone"/>
+                                    <span th:if="${!#lists.isEmpty(results)}" class=" alert alert-dismissable "
+                                        th:text="${tel != null && tel!= ''? 'Téléphone saisie : '+tel:''}"></span>
                                 </div>
                                 <div class="col-md-2">
                                     <button type="submit" class="btn btn-success w-100">
@@ -52,19 +55,15 @@
                         </form>
                     </div>
                 </div>
-                <div >
-                    <h5 th:if="${numb3 != null && numb3 != ''}" class=" alert alert-dismissable bg-info" th:text="'Numéro de B3 saisie :'+${numb3}"></h5>
-                    <h5 th:if="${tel != null && tel!= ''}" class=" alert alert-dismissable bg-info"
-                        th:text="'Téléphone saisie : '+${tel}"></h5>
-                </div>
 
-                <div class="row">
+
+                <div  class="row">
                     <div class="col-12">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover table-bordered">
+                        <div th:if="${!#lists.isEmpty(results)}" class="table-responsive ">
+                            <table class="table table-success table-striped table-hover table-bordered">
                                 <thead class="table-dark">
                                 <tr>
-                                    <th  scope="col">Numéro interne</th>
+                                    <th scope="col">Numéro interne</th>
                                     <th scope="col">Numéro suivie</th>
                                     <th scope="col">Nom et prénom</th>
                                     <th scope="col">Numéro de Tel°</th>
@@ -72,20 +71,35 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="col:${results}">
-                                    <td th:text="${( (col.destination == 'Agence' or (col.retourId != null and col.retourId.contains('RO')))) ? col.retourId : ''}"></td>                                    <td th:text="${col.numB3}"></td>
+                                <!-- Affichage des résultats s'il y en a -->
+                                <tr th:each="col : ${results}">
+                                    <td th:text="${(col.destination == 'Agence' or (col.retourId != null and col.retourId.contains('RO'))) ? col.retourId : ''}"></td>
+                                    <td th:text="${col.numB3}"></td>
                                     <td th:text="${col.nom}"></td>
                                     <td th:text="${col.numTel}"></td>
                                     <td th:text="${col.destination}"></td>
                                 </tr>
-                                <tr th:if="${#lists.isEmpty(results)}">
-                                    <td colspan="3" class="text-center text-muted">Aucun résultat trouvé</td>
-                                </tr>
+
+                                <!-- Affichage du message si la liste est vide et qu'une recherche a été faite -->
+
                                 </tbody>
                             </table>
+
+
+                        </div>
+                        <div class="alert alert-warning text-center py-4"  th:if="${#lists.isEmpty(results) and (numb3 != null or tel != null)}">
+                                <span th:if="${numb3!='' and numb3!=null}" class="text-danger fw-bold fs-4">
+                                    <i class="bi bi-envelope-x"></i>
+                                    <h5 th:text="${'Aucun B3 trouvé avec ce numero de suivie : '+numb3}"></h5>
+                                </span>
+                            <span th:if="${tel!='' and tel!=null}" class="text-danger  fw-bold fs-4" >
+                                <i class="bi bi-telephone-x"></i>
+                                <h5 th:text="${'Aucun B3 trouvé avec ce numero de téléphone : '+tel}"></h5>
+                                </span>
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <div class="card-footer bg-light">

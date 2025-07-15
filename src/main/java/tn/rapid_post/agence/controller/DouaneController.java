@@ -150,94 +150,98 @@ douaneRepo.save(douane);
                         @RequestParam(value = "droit", required = false) String droit,
                         @RequestParam(value = "sequence", required = false) String sequence,
                         @RequestParam(value = "echec", required = false) String notValidated) {
-
-        System.out.println(">>> Accès à /dounecalc");
-        System.out.println(">>> Params reçus - colis: " + colis + ", droit: " + droit + ", sequence: " + sequence + ", echec: " + notValidated);
-
-        // Vérification des droits
+//verification des droit d'utilisteur
         boolean isAdmin = false;
-        boolean notPrinted = false;
-        String loggedUser = findLogged().getUsername();
-
+        boolean notPrinted=false;
         for (AppRole appRole : findLogged().getRoles()) {
             if ("ADMIN".equals(appRole.getName())) {
                 isAdmin = true;
                 break;
             }
         }
-
-        System.out.println(">>> Utilisateur connecté : " + loggedUser + ", est admin ? " + isAdmin);
-        model.addAttribute("logged", loggedUser.toUpperCase());
+        model.addAttribute("logged",findLogged().getUsername().toUpperCase());
         model.addAttribute("isAdmin", isAdmin);
 
+//verification si pas de num colis
         if (!StringUtils.hasText(colis)) {
-            System.out.println(">>> Aucun numéro de colis fourni");
             return "fraisdouane";
         }
 
+
+
+        // Récupération du colis
         Douane douane = douaneRepo.findByNumColis(colis);
 
         if (douane == null) {
-            System.out.println(">>> Aucun colis trouvé pour : " + colis);
             model.addAttribute("empty", true);
             return "fraisdouane";
         }
+        System.out.println("nom trouve pu num "+colis+" est "+douane.getNom());
+        if (!douane.isPrinted()){
+            notPrinted=true;
+            model.addAttribute("notPrinted",notPrinted);
 
-        System.out.println(">>> Colis trouvé : " + douane.getNumColis() + " - Nom : " + douane.getNom());
-
-        if (!douane.isPrinted()) {
-            notPrinted = true;
-
-            System.out.println(">>> Colis non imprimé.");
         }
+        model.addAttribute("notPrinted",notPrinted);
 
-        model.addAttribute("notPrinted", notPrinted);
+
+
+        System.out.println("Sequence reçue = " + sequence);
+
         model.addAttribute("notValidated", false);
 
         if (StringUtils.hasText(notValidated)) {
-            boolean notValid = Boolean.parseBoolean(notValidated);
-            model.addAttribute("notValidated", notValid);
-            System.out.println(">>> Saisie invalide précédente détectée.");
+            model.addAttribute("notValidated", Boolean.parseBoolean(notValidated));
         }
 
-        if (douane.isDelivered()) {
-            System.out.println(">>> Colis déjà livré.");
 
+
+
+
+
+        // Si le colis est déjà livré
+        if (douane.isDelivered()) {
+            model.addAttribute("douane", douane);
             model.addAttribute("exist", true);
             return "fraisdouane";
         }
 
         model.addAttribute("exist", false);
+        model.addAttribute("douane", douane);
 
-
+        // Validation de la saisie (calcul)
         if (StringUtils.hasText(sequence) && StringUtils.hasText(droit)) {
             try {
                 double droitValue = Double.parseDouble(droit);
                 douane.setDroitDouane(droitValue);
-                System.out.println(">>> Droit de douane saisi : " + droitValue);
 
+
+                // Vérifie si la séquence est déjà utilisée par un autre colis
                 List<Douane> existingWithSequence = douaneRepo.findBySequence(sequence);
+
                 boolean sequenceValide = true;
 
                 for (Douane d : existingWithSequence) {
                     if (Objects.equals(d.getNumColis(), douane.getNumColis())) {
-                        System.out.println(">>> Même colis, la séquence est autorisée.");
+                        // Même colis : modification → séquence autorisée
                         break;
                     }
 
                     if (d.getDateSortie().getYear() == LocalDate.now().getYear()) {
-                        System.out.println(">>> Séquence déjà utilisée cette année par un autre colis.");
+                        // Même séquence déjà utilisée cette année pour un autre colis → invalide
                         sequenceValide = false;
                     }
                 }
 
                 if (!sequenceValide) {
-                    System.out.println(">>> Séquence invalide, redirection.");
                     return "redirect:/dounecalc?colis=" + colis + "&echec=true";
                 }
 
+
                 // Calcul des frais
+                douane.setDroitDouane(droitValue);
                 douane.setSequence(sequence);
+
                 long daysBetween = ChronoUnit.DAYS.between(douane.getDateArrivee(), LocalDate.now());
                 double magasinage = Math.max(0, (daysBetween - 6) * douane.getNbColis());
                 double fraisFixes = douane.getNbColis() * 6;
@@ -248,33 +252,18 @@ douaneRepo.save(douane);
                 douane.setFraisReemballage(douane.getNbColis() * 2);
                 douane.setTotPayer(total);
                 douane.setAppUser(findLogged());
-
-                System.out.println(">>> Calcul des frais terminé. Total à payer : " + total);
-                System.out.println(">>> Détails - Magasinage : " + magasinage + ", Jours : " + daysBetween);
-
-                historyDouaneRepo.save(new HistoryDouane(
-                        douane.getDateArrivee(),
-                        douane.getDateSortie(),
-                        douane.getNumColis(),
-                        String.valueOf(douane.getTotPayer()),
-                        douane.getSequence(),
-                        loggedUser,
-                        douane.getBloc(),
-                        "Calucl frais"
-                ));
-
+                historyDouaneRepo.save(new HistoryDouane(douane.getDateArrivee(),douane.getDateSortie(),douane.getNumColis(),String.valueOf(douane.getTotPayer()),douane.getSequence(), findLogged().getUsername(),douane.getBloc(), "Calucl frais"));
                 douaneRepo.save(douane);
-                System.out.println(">>> Données sauvegardées en base.");
+
 
                 model.addAttribute("validated", true);
                 model.addAttribute("daysBetween", daysBetween);
 
             } catch (NumberFormatException e) {
-                System.out.println(">>> Erreur : droit de douane invalide - " + droit);
                 return "redirect:/dounecalc?colis=" + colis + "&echec=true";
             }
+
         }
-        model.addAttribute("douane",douane);
         return "fraisdouane";
     }
 
@@ -367,10 +356,10 @@ model.addAttribute("date1",LocalDate.now());
 
                 colis.setNbColis(nbColis);
                 colis.setBloc(bloc);
-                colis.setOrigin(origin);
+                colis.setOrigin(origin.toUpperCase());
                 colis.setNumColis(numColis);
                 colis.setPoid(poidColis);
-                colis.setNom(nomDest);
+                colis.setNom(nomDest.toUpperCase());
                 colis.setObservation(observation ? "Sans facture" : "");
                 colis.setDroitDouane(0);
                 colis.setFraisMagasin(0);
