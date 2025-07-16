@@ -10,18 +10,18 @@ import java.time.LocalDate;
 public class Douane {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idDouane;
+    private Long idDouane;
     private String nom;
     private String numColis;
     private LocalDate dateSortie;
     private LocalDate dateArrivee;
-    private int nbColis;
+    private Integer nbColis;
     private double droitDouane;
     private double fraisDedouane;
     private double fraisReemballage;
     private double fraisMagasin;
     private double totPayer;
-    private double poid;
+    private Double poid;
     private String observation;
     private boolean printed;
     private boolean delivered;
@@ -49,7 +49,7 @@ private boolean situation;
         this.sequence = sequence;
     }
 
-    public Douane(String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, AppUser appUser, boolean validated, String sequence, boolean rePrint, boolean situation, boolean validateSituation) {
+    public Douane(String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, Integer nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, Double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, AppUser appUser, boolean validated, String sequence, boolean rePrint, boolean situation, boolean validateSituation) {
         this.nom = nom;
         this.numColis = numColis;
         this.dateSortie = dateSortie;
@@ -103,7 +103,7 @@ private boolean situation;
     }
 
     public String getOrigin() {
-        return origin.toUpperCase();
+        return origin!=null?origin.toUpperCase():origin;
     }
 
     public void setOrigin(String origin) {
@@ -141,7 +141,7 @@ private boolean situation;
         this.delivered = delivered;
     }
 
-    public Douane(long idDouane, String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, int nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, boolean rePrint, boolean situation, boolean validateSituation, boolean validated) {
+    public Douane(Long idDouane, String nom, String numColis, LocalDate dateSortie, LocalDate dateArrivee, Integer nbColis, double droitDouane, double fraisDedouane, double fraisReemballage, double fraisMagasin, double totPayer, Double poid, String observation, boolean printed, boolean delivered, String origin, String bloc, boolean rePrint, boolean situation, boolean validateSituation, boolean validated) {
         this.idDouane = idDouane;
         this.nom = nom;
         this.numColis = numColis;
@@ -165,11 +165,11 @@ private boolean situation;
         this.validated=validated;
     }
 
-    public long getIdDouane() {
+    public Long getIdDouane() {
         return idDouane;
     }
 
-    public void setIdDouane(long idDouane) {
+    public void setIdDouane(Long idDouane) {
         this.idDouane = idDouane;
     }
 
@@ -182,7 +182,7 @@ private boolean situation;
     }
 
     public String getNom() {
-        return nom.toUpperCase();
+        return nom!=null?nom.toUpperCase():nom;
     }
 
     public void setNom(String nom) {
@@ -213,7 +213,7 @@ private boolean situation;
         this.dateArrivee = dateArrivee;
     }
 
-    public int getNbColis() {
+    public Integer getNbColis() {
         return nbColis;
     }
 
@@ -261,11 +261,11 @@ private boolean situation;
         this.totPayer = totPayer;
     }
 
-    public double getPoid() {
+    public Double getPoid() {
         return poid;
     }
 
-    public void setPoid(double poid) {
+    public void setPoid(Double poid) {
         this.poid = poid;
     }
 

@@ -9,6 +9,7 @@ import tn.rapid_post.agence.entity.Douane;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface douaneRepo extends JpaRepository<Douane,Long> {
     @Query("SELECT d FROM Douane d WHERE  d.delivered = true AND d.dateSortie BETWEEN ?1 AND ?2")
@@ -20,7 +21,7 @@ public interface douaneRepo extends JpaRepository<Douane,Long> {
 
     List<Douane> findByPrintedFalse();
 
-    Douane findByNumColis(String num);
+   Optional< Douane> findByNumColis(String num);
 
     Douane findByBloc(String bloc);
 

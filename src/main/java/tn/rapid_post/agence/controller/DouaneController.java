@@ -170,7 +170,7 @@ douaneRepo.save(douane);
 
 
         // Récupération du colis
-        Douane douane = douaneRepo.findByNumColis(colis);
+        Douane douane = douaneRepo.findByNumColis(colis).get();
 
         if (douane == null) {
             model.addAttribute("empty", true);
@@ -273,19 +273,19 @@ public String setprinted(@RequestParam(value = "id")String id){
 
     Douane douane=new Douane();
 
-        if (StringUtils.hasText(id)){
-           douane=douaneRepo.findByNumColis(id);
-            if (douane!=null){
-                douane.setPrinted(true);
-                douane.setAppUser(findLogged());
-                historyDouaneRepo.save(new HistoryDouane(douane.getDateArrivee(),
-                        douane.getDateSortie(),douane.getNumColis(),
-                        String.valueOf(douane.getTotPayer()),douane.getSequence(),
-                        findLogged().getUsername(),douane.getBloc(), "Impression"));
+        if (StringUtils.hasText(id)) {
+            if (douaneRepo.findById(Long.parseLong(id)).isPresent()) {
+                douane = douaneRepo.findById(Long.parseLong(id)).get();
 
-                douaneRepo.save(douane);
+            douane.setPrinted(true);
+            douane.setAppUser(findLogged());
+            historyDouaneRepo.save(new HistoryDouane(douane.getDateArrivee(),
+                    douane.getDateSortie(), douane.getNumColis(),
+                    String.valueOf(douane.getTotPayer()), douane.getSequence(),
+                    findLogged().getUsername(), douane.getBloc(), "Impression"));
 
-            }
+            douaneRepo.save(douane);
+        }
         }
     return "redirect:/dounecalc?colis="+douane.getNumColis();
 }
@@ -335,25 +335,32 @@ model.addAttribute("date1",LocalDate.now());
     }
 
     @PostMapping("/addColis")
-    public String addColis(@RequestParam(value = "numColis") String numColis,
-                           @RequestParam(value = "nbColis") int nbColis,
-                           @RequestParam(value = "poidColis") double poidColis,
-                           @RequestParam(value = "nomDest") String nomDest,
+    public String addColis(@RequestParam("numColis") String numColis,
+                           @RequestParam("nbColis") int nbColis,
+                           @RequestParam("poidColis") double poidColis,
+                           @RequestParam("nomDest") String nomDest,
                            @RequestParam(value = "observation", defaultValue = "false") boolean observation,
-                           @RequestParam(value = "bloc") String bloc,
-                           @RequestParam(value = "origin") String origin,
+                           @RequestParam("bloc") String bloc,
+                           @RequestParam("origin") String origin,
                            @RequestParam(value = "id", required = false) String id,
-                           @RequestParam(value = "datear") LocalDate datear) {
-
-
+                           @RequestParam("datear") LocalDate datear) {
 
         Douane colis = new Douane();
-        if (StringUtils.hasText(id)) {
-            Optional<Douane> douane = douaneRepo.findById(Long.parseLong(id));
-            if (douane.isPresent()) {
-                colis = (Douane) douane.get();
-                colis.setDateArrivee(datear);
+        System.out.println("numcolis recu"+numColis);
 
+        // 🔍 Vérifier s'il existe déjà un colis avec le même numColis
+
+
+        // ✏️ Mode modification (id fourni et ≠ 0)
+        if (StringUtils.hasText(id)) {
+            Optional<Douane> optionalDouane = douaneRepo.findById(Long.parseLong(id));
+            if (optionalDouane.isPresent()) {
+                colis = optionalDouane.get();
+                System.out.println("Modification du colis ID: " + id);
+
+
+                // ✍️ Remplissage des champs
+                colis.setDateArrivee(datear);
                 colis.setNbColis(nbColis);
                 colis.setBloc(bloc);
                 colis.setOrigin(origin.toUpperCase());
@@ -368,62 +375,71 @@ model.addAttribute("date1",LocalDate.now());
                 colis.setTotPayer(0);
                 colis.setPrinted(false);
                 colis.setDelivered(false);
-
                 colis.setDateSortie(LocalDate.now());
                 colis.setValidated(true);
                 colis.setAppUser(findLogged());
 
-                historyDouaneRepo.save(new HistoryDouane(colis.getDateArrivee(),
-                        colis.getDateSortie(),colis.getNumColis(),
-                        String.valueOf(colis.getTotPayer()),colis.getSequence(),
-                        findLogged().getUsername(),douane.get().getBloc(), "Edition avis"));
+                // 💾 Sauvegarde
                 douaneRepo.save(colis);
+
+                // 🧾 Historique
+                historyDouaneRepo.save(new HistoryDouane(
+                        colis.getDateArrivee(),
+                        colis.getDateSortie(),
+                        colis.getNumColis(),
+                        String.valueOf(colis.getTotPayer()),
+                        colis.getSequence(),
+                        findLogged().getUsername(),
+                        colis.getBloc(),
+                        (StringUtils.hasText(id) && !id.equals("0")) ? "Édition avis" : "Ajout avis"
+                ));
+
                 return "redirect:/avisedit";
+            }}
+            if (douaneRepo.findByNumColis(numColis.toUpperCase()).isPresent()) {
+                System.out.println("entreer dans else not null "+numColis);
+                return "redirect:/avisedit?exist=" + true + "&colis=" + numColis.toUpperCase();
+            } else {
+                colis.setDateArrivee(datear);
+                colis.setNbColis(nbColis);
+                colis.setBloc(bloc);
+                colis.setOrigin(origin.toUpperCase());
+                colis.setNumColis(numColis);
+                colis.setPoid(poidColis);
+                colis.setNom(nomDest.toUpperCase());
+                colis.setObservation(observation ? "Sans facture" : "");
+                colis.setDroitDouane(0);
+                colis.setFraisMagasin(0);
+                colis.setFraisDedouane(4);
+                colis.setFraisReemballage(2);
+                colis.setTotPayer(0);
+                colis.setPrinted(false);
+                colis.setDelivered(false);
+                colis.setDateSortie(LocalDate.now());
+                colis.setValidated(true);
+                colis.setAppUser(findLogged());
 
+                // 💾 Sauvegarde
+                douaneRepo.save(colis);
+                System.out.println("Enregistrement colis");
+
+                // 🧾 Historique
+                historyDouaneRepo.save(new HistoryDouane(
+                        colis.getDateArrivee(),
+                        colis.getDateSortie(),
+                        colis.getNumColis(),
+                        String.valueOf(colis.getTotPayer()),
+                        colis.getSequence(),
+                        findLogged().getUsername(),
+                        colis.getBloc(),
+                        (StringUtils.hasText(id) && !id.equals("0")) ? "Édition avis" : "Ajout avis"
+                ));
+
+                return "redirect:/avisedit";
             }
-        }
-        colis = new Douane();
 
-            if (douaneRepo.findByNumColis(numColis) != null ) {
-                return "redirect:/avisedit?exist=" + true+"&colis="+colis.getNumColis();
 
-            }
 
-        System.out.println("Bloc recu : " + bloc);
-        System.out.println("Date arrivee" + datear);
-        colis.setDateArrivee(datear);
-
-        colis.setNbColis(nbColis);
-        colis.setBloc(bloc);
-        colis.setOrigin(origin);
-        colis.setNumColis(numColis);
-        colis.setPoid(poidColis);
-        colis.setNom(nomDest);
-        colis.setObservation(observation ? "Sans facture" : "");
-        colis.setDroitDouane(0);
-        colis.setFraisMagasin(0);
-        colis.setFraisDedouane(4);
-        colis.setFraisReemballage(2);
-        colis.setTotPayer(0);
-        colis.setPrinted(false);
-        colis.setDelivered(false);
-
-        colis.setDateSortie(LocalDate.now());
-        colis.setValidated(true);
-        colis.setAppUser(findLogged());
-
-        douaneRepo.save(colis);
-      Douane douane=  douaneRepo.findByNumColis(colis.getNumColis());
-        if (douane!=null){
-            douane.setAppUser(findLogged());
-
-            historyDouaneRepo.save(new HistoryDouane(douane.getDateArrivee(),
-                    douane.getDateSortie(),douane.getNumColis(),
-                    String.valueOf(douane.getTotPayer()),douane.getSequence(),
-                    findLogged().getUsername(),douane.getBloc(), "Edition avis"));
-        }
-
-        return "redirect:/avisedit";
     }
 
     @GetMapping("quinzaine")
@@ -574,24 +590,19 @@ System.out.println("admin recu "+admin);
         boolean empty=false;
 
         if(StringUtils.hasText(colis)){
-            douane=douaneRepo.findByNumColis(colis);
-            if (douane==null){
-                model.addAttribute("num",colis);
-                empty=true;
+            if (douaneRepo.findByNumColis(colis).isPresent()){
+            douane=douaneRepo.findByNumColis(colis).get();
+
+                if (douane.isDelivered()) {
+                    System.out.println(douane.isDelivered());
+                    reprintdelivered = true;
+
+                } else {
+                    reprintnotdelivered = true;
+                }
+
+
             }
-
-            if (douane!=null){
-            if (douane.isDelivered()){
-                System.out.println(douane.isDelivered());
-                reprintdelivered=true;
-
-            }else {
-                reprintnotdelivered=true;
-              }
-
-
-
-        }
         }else {
             douane=new Douane();
         }

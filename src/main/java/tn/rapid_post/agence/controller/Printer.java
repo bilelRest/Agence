@@ -56,7 +56,7 @@ public class Printer {
             @RequestParam(value = "reprint",required = false)boolean reprint
             ) throws JRException, IOException {
 
-    Douane douane = douaneRep.findByNumColis(colis);
+    Douane douane = douaneRep.findByNumColis(colis).get();
     douane.setDateSortie(LocalDate.now());
     douane.setDelivered(true);
     douaneRep.save(douane);
@@ -80,7 +80,7 @@ public class Printer {
     public ResponseEntity<byte[]> reprintdelivered(@RequestParam(value = "colis")String colis) throws JRException {
         List<Douane> douaneList=new ArrayList<>();
         if (StringUtils.hasText(colis)){
-            Douane douane= douaneRep.findByNumColis(colis);
+            Douane douane= douaneRep.findByNumColis(colis).get();
             if (douane!=null){
                 douaneList.add(douane);
             }
@@ -101,7 +101,7 @@ public class Printer {
     public ResponseEntity<byte[]> reprintnotdelivered(@RequestParam(value = "colis")String colis) throws JRException {
         List<Douane> douaneList=new ArrayList<>();
         if (StringUtils.hasText(colis)){
-            Douane douane= douaneRep.findByNumColis(colis);
+            Douane douane= douaneRep.findByNumColis(colis).get();
             if (douane!=null){
                 douaneList.add(douane);
             }

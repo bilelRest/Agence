@@ -209,7 +209,7 @@ public class Dashboard {
 
         try {
             // Création de l'objet Douane avec les paramètres
-            Douane douane = douaneRepo.findByNumColis(numColis);
+            Douane douane = douaneRepo.findByNumColis(numColis).get();
             douane.setNumColis(numColis);
             douane.setBloc(bloc);
             douane.setDateArrivee(dateArrivee);
