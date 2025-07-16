@@ -39,6 +39,8 @@
 
                 <!-- Messages d'état -->
                 <div th:if="${empty}" class="alert alert-warning">
+                    <audio  src="/empty.mp3" autoplay preload="auto"></audio>
+
                     <h6 th:text="'Aucun colis trouvé avec cette référence : '+${param.colis}"></h6>
                 </div>
                 <div th:if="${exist}" class="alert alert-danger">Colis déjà livré.</div>
@@ -95,6 +97,8 @@
                                            placeholder="Entrer le numéro de séquence"
                                            required>
                                     <div class="invalid-feedback" th:if="${notValidated}">
+                                        <audio  src="/error.mp3" autoplay preload="auto"></audio>
+
                                         Numéro de séquence existant ou invalide.
                                     </div>
                                 </div>

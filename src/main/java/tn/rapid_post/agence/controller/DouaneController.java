@@ -170,12 +170,12 @@ douaneRepo.save(douane);
 
 
         // Récupération du colis
-        Douane douane = douaneRepo.findByNumColis(colis).get();
+        Douane douane =new Douane();
+        if(douaneRepo.findByNumColis(colis.toUpperCase()).isEmpty() )
+        {model.addAttribute("empty", true);
+        return "fraisdouane";}
 
-        if (douane == null) {
-            model.addAttribute("empty", true);
-            return "fraisdouane";
-        }
+
         System.out.println("nom trouve pu num "+colis+" est "+douane.getNom());
         if (!douane.isPrinted()){
             notPrinted=true;

@@ -89,10 +89,14 @@
                         </div>
                         <div class="alert alert-warning text-center py-4"  th:if="${#lists.isEmpty(results) and (numb3 != null or tel != null)}">
                                 <span th:if="${numb3!='' and numb3!=null}" class="text-danger fw-bold fs-4">
+                                                    <audio  src="/empty.mp3" autoplay preload="auto"></audio>
+
                                     <i class="bi bi-envelope-x"></i>
                                     <h5 th:text="${'Aucun B3 trouvé avec ce numero de suivie : '+numb3}"></h5>
                                 </span>
                             <span th:if="${tel!='' and tel!=null}" class="text-danger  fw-bold fs-4" >
+                                                <audio  src="/empty.mp3" autoplay preload="auto"></audio>
+
                                 <i class="bi bi-telephone-x"></i>
                                 <h5 th:text="${'Aucun B3 trouvé avec ce numero de téléphone : '+tel}"></h5>
                                 </span>
