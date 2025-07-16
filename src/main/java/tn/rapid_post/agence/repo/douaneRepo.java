@@ -21,7 +21,7 @@ public interface douaneRepo extends JpaRepository<Douane,Long> {
 
     List<Douane> findByPrintedFalse();
 
-   Optional< Douane> findByNumColis(String num);
+    Douane findByNumColisIgnoreCase(String num);
 
     Douane findByBloc(String bloc);
 

@@ -170,12 +170,12 @@ douaneRepo.save(douane);
 
 
         // Récupération du colis
-        Douane douane =new Douane();
-        if(douaneRepo.findByNumColis(colis.toUpperCase()).isEmpty() )
-        {model.addAttribute("empty", true);
-        return "fraisdouane";}
+        Douane douane = douaneRepo.findByNumColisIgnoreCase(colis);
 
-
+        if (douane == null) {
+            model.addAttribute("empty", true);
+            return "fraisdouane";
+        }
         System.out.println("nom trouve pu num "+colis+" est "+douane.getNom());
         if (!douane.isPrinted()){
             notPrinted=true;
@@ -266,6 +266,8 @@ douaneRepo.save(douane);
         }
         return "fraisdouane";
     }
+
+
 
 
     @GetMapping("setprinted")
@@ -396,7 +398,7 @@ model.addAttribute("date1",LocalDate.now());
 
                 return "redirect:/avisedit";
             }}
-            if (douaneRepo.findByNumColis(numColis.toUpperCase()).isPresent()) {
+            if (douaneRepo.findByNumColisIgnoreCase(numColis.toUpperCase())!=null) {
                 System.out.println("entreer dans else not null "+numColis);
                 return "redirect:/avisedit?exist=" + true + "&colis=" + numColis.toUpperCase();
             } else {
@@ -590,8 +592,8 @@ System.out.println("admin recu "+admin);
         boolean empty=false;
 
         if(StringUtils.hasText(colis)){
-            if (douaneRepo.findByNumColis(colis).isPresent()){
-            douane=douaneRepo.findByNumColis(colis).get();
+            if (douaneRepo.findByNumColisIgnoreCase(colis)!=null){
+            douane=douaneRepo.findByNumColisIgnoreCase(colis);
 
                 if (douane.isDelivered()) {
                     System.out.println(douane.isDelivered());
