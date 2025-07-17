@@ -23,18 +23,22 @@
 <table class="table table-bordered">
     <thead>
     <th>Bloc</th>
-    <th>Num Colis</th>
-    <th>Nb colis</th>
-    <th>Déstinataire</th>
-    <th>Origine</th>
+    <th>Num </th>
+    <th>Nb </th>
+    <th>P(Kg)</th>
+    <th>Dést</th>
+    <th>Orig</th>
+    <th>Observation</th>
     </thead>
     <tbody></tbody>
     <tr th:each="douane,ind:${list}">
         <td th:text="${douane.bloc}"></td>
         <td th:text="${douane.numColis}"></td>
         <td th:text="${douane.nbColis}"></td>
+        <td th:text="${douane.poid}"></td>
         <td th:text="${douane.nom}"></td>
         <td th:text="${douane.origin}"></td>
+        <td></td>
     </tr>
 
 </table>

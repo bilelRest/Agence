@@ -28,14 +28,32 @@
     </div>
 <div th:if="${list.size==0}" >
     <h1 class="alert alert-secondary" >Aucun colis trouvé</h1>
+
 </div>
 
     <div th:if="${list.size()>0}" class="card-body">
+        <div style="margin-top:10px" class="alert alert-primary d-flex align-items-center justify-content-between p-3">
+            <div class="d-flex align-items-center">
+                <h4 class="m-0" th:text="'Total : ' + ${list.size()}"></h4>
+            </div>
+
+            <div th:if="${list.size() > 0}">
+                <form method="get" th:action="@{/manifestprint}" target="_blank" class="m-0">
+                    <input type="hidden" name="date1" th:value="${date1}">
+                    <button class="btn btn-success d-flex align-items-center">
+                        <i class="bi bi-printer me-2"></i>
+                        <span>Imprimer</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
         <table class="table table-striped">
             <thead>
             <th>Bloc</th>
             <th>Num Colis</th>
             <th>Nb colis</th>
+            <th>Poids</th>
             <th>Déstinataire</th>
             <th>Origine</th>
             </thead>
@@ -44,18 +62,14 @@
                 <td th:text="${douane.bloc}"></td>
                 <td th:text="${douane.numColis.toUpperCase()}"></td>
                 <td th:text="${douane.nbColis}"></td>
+                <td th:text="${douane.poid}"></td>
                 <td th:text="${douane.nom}"></td>
                 <td th:text="${douane.origin}"></td>
             </tr>
 
         </table>
     </div>
-    <div class="card-footer">
-        <form method="get" th:action="@{/manifestprint}" target="_blank">
-            <input type="hidden" name="date1" th:value="${date1}">
-        <button th:if="${list.size()>0}" class="btn btn-success" type="submit" ><i class="bi bi-printer" >Imprimer</i> </button>
-        </form>
-    </div>
+
 </div>
 
 </body>
