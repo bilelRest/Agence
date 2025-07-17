@@ -754,4 +754,8 @@ System.out.println(douane.get().getNumColis());
         model.addAttribute("date1",date1);
         return "manifestprint";
 }
+@GetMapping("distribution")
+    public String distribution(Model model){
+        return "distribution";
+}
 }

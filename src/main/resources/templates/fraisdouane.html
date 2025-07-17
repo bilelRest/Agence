@@ -47,7 +47,7 @@
 
                 <div class="container" th:if="${notPrinted}">
                     <h5>Non imprimé</h5>
-                    <a th:href="@{/setprinted(id=${douane.numColis})}" class="btn btn-warning">Marquer comme imprimé</a>
+                    <a th:href="@{/setprinted(id=${douane.idDouane})}" class="btn btn-warning">Marquer comme imprimé</a>
                 </div>
 
                 <!-- Détails du colis -->
@@ -78,7 +78,7 @@
                         </div>
                     </div>
 
-                    <div class="card-body">
+                    <div th:if="${notPrinted == false}" class="card-body">
                         <form method="get" th:action="@{/dounecalc}">
                             <input type="hidden" name="colis" th:value="${douane.numColis}">
                             <div class="row g-3">
