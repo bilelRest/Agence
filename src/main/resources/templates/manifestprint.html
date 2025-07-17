@@ -14,12 +14,11 @@
     </script>
 </head>
 <body>
-<div style="align-items:center">
-<h5>Agence Rapid Post Sfax ElBousten</h5>
-<h6>Manifeste des colis en douane</h6>
-<h6 th:text="'Date : '+${date1}"></h6>
+<div class="alert alert-primary text-center p-3 mb-4">
+    <h6 class="fw-bold mb-2">Agence Rapid Post Sfax ElBousten</h6>
+    <h4 class="m-0" th:text="'Manifeste des colis en douane : ' + ${date1}"></h4>
 </div>
-<br><br>
+
 <table class="table table-bordered">
     <thead>
     <th>Bloc</th>
