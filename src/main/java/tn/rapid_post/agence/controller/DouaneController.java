@@ -1,5 +1,6 @@
 package tn.rapid_post.agence.controller;
 
+import jakarta.servlet.http.Cookie;
 import net.sf.jasperreports.engine.fill.EvaluationBoundAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 import tn.rapid_post.agence.entity.Douane;
 import tn.rapid_post.agence.entity.HistoryDouane;
 import tn.rapid_post.agence.repo.douaneRepo;
@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
+@SessionAttributes("listColis")
 public class DouaneController {
     @Autowired
     private douaneRepo douaneRepo;
@@ -754,8 +755,61 @@ System.out.println(douane.get().getNumColis());
         model.addAttribute("date1",date1);
         return "manifestprint";
 }
-@GetMapping("distribution")
-    public String distribution(Model model){
+    @ModelAttribute("listColis")
+    public List<Douane> initListColis() {
+        return new ArrayList<>();
+    }
+
+    @GetMapping("/distribution")
+    public String distribution(Model model,
+                               @RequestParam(value = "agent", required = false) String agent,
+                               @RequestParam(value = "num", required = false) String num,
+                               @ModelAttribute("listColis") List<Douane> list) {
+
+        boolean exist = false;
+        boolean selected=false;
+boolean empty=false;
+
+        if (StringUtils.hasText(agent) && StringUtils.hasText(num)) {
+            selected=true;
+            Douane douane = douaneRepo.findByNumColisIgnoreCase(num);
+            if (douane != null) {
+                boolean alreadyInList = list.stream()
+                        .anyMatch(d -> d.getNumColis().equalsIgnoreCase(douane.getNumColis()));
+
+                if (alreadyInList) {
+                    exist = true; // ne pas ajouter
+                } else {
+                    list.add(douane); // ajouter car il n'existait pas
+                }
+            }else {
+                empty=true;
+                model.addAttribute("empty",empty);
+            }
+        }
+
+        List<String> agents = Arrays.asList(
+                "ABID Abd Elwaheb", "BEN AHMED Sadok", "KCHAOU Taher", "ELLOUZE Slim",
+                "HARRABI Aymen", "GHOULEM Khalil", "CHAKROUN Majd", "BOUALI Omar",
+                "GHANNOUCHI Ahmed Ibrahim", "BENABDALLAH Bilel"
+        );
+model.addAttribute("selected",selected);
+        model.addAttribute("agents", agents);
+        model.addAttribute("selectedAgent", agent != null ? agent : "");
+        model.addAttribute("list", list);
+        model.addAttribute("exist", exist);
+        model.addAttribute("num", num != null ? num : "");
+
         return "distribution";
-}
-}
+    }
+@GetMapping("print-avis")
+    public String printAvis(Model model, @ModelAttribute("listColis")List<Douane>list,
+                            @RequestParam("agent")String agent,
+                            SessionStatus status){
+        model.addAttribute("list", list);
+        model.addAttribute("agent",agent);
+        model.addAttribute("date",LocalDate.now());
+
+    status.setComplete();
+    return "printAvis";
+}}
