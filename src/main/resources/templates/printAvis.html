@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr"
-      xmlns:th="http://www.thymeleaf.org"
-      >
+      xmlns:th="http://www.thymeleaf.org">
 <head>
     <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
     <link rel="stylesheet" href="/webjars/bootstrap-icons/1.10.5/font/bootstrap-icons.css">
@@ -11,16 +10,16 @@
         window.print();
         }
     </script>
-    <title>Impression manifeste des avis</title>
+    <title>DNL DES AVIS DES COLIS EN DOUANE</title>
 </head>
 <body>
 <div class="text-center p-3 mb-4">
     <h6 class="fw-bold mb-2">Agence Rapid Post Sfax ElBousten</h6>
-    <h4 class="m-0" th:text="'Liste des avis des colis en douane : ' + ${date}"></h4>
+    <h4 class="m-0" th:text="'DNL des avis des colis en douane : ' + ${date}"></h4>
     <h4 class="m-0" th:text="'Agent :'+${agent}"></h4>
 </div>
 
-<table class="table table-bordered">
+<table style="border:solid 1px" class="table table-bordered ">
     <thead>
     <th>Numéro</th>
     <th>Bloc</th>
@@ -28,12 +27,13 @@
     <th>Décharge</th>
     </thead>
     <tbody>
-    <tr style="height:120px" th:each="col:${list}">
-        <td th:text="${col.numColis}"></td>
-        <td th:text="${col.bloc}"></td>
-        <td th:text="${col.nom}"></td>
-        <td></td>
+    <tr style="height:100px" th:each="col : ${list}">
+        <td style="vertical-align: middle;" th:text="${col.numColis}"></td>
+        <td style="vertical-align: middle;" th:text="${col.bloc}"></td>
+        <td style="vertical-align: middle;" th:text="${col.nom}"></td>
+        <td style="vertical-align: middle;"></td>
     </tr>
+
     </tbody>
 </table>
 </body>

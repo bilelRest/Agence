@@ -29,6 +29,10 @@
             }
         }
     </style>
+    <script>
+        const audio = document.getElementById("alertAudio");
+        audio.volume = 2.0; // Valeur entre 0.0 (silence) et 1.0 (volume max)
+    </script>
 </head>
 <body>
 
@@ -47,9 +51,17 @@
                 </select>
                 <input readonly style="border:none" class="bg-primary text-light" th:if="${selected}" th:value="${selectedAgent}" name="agent" >
 
-                <input th:if="${selectedAgent!=null and selectedAgent !=''}"
-                       onblur="this.form.submit()" name="num"
-                       type="text" class="form-control w-auto" placeholder="Num Colis" required>
+                <input
+                        th:if="${selectedAgent != null and selectedAgent != ''}"
+                        th:attr="autofocus=${selectedAgent != null and selectedAgent != ''}"
+                        name="num"
+                        type="text"
+                        class="form-control w-auto"
+                        placeholder="Num Colis"
+                        required
+                        onchange="this.form.submit()">
+
+
                 <button type="submit" class="btn btn-success">
                     <i class="bi bi-plus"></i>
                 </button>
@@ -61,7 +73,12 @@
 
         <!-- Alerte colis existant -->
         <div class="alert alert-warning no-print" th:if="${exist}">
-            <audio src="/empty.mp3" autoplay></audio>
+            <audio id="alertAudio" src="/empty.mp3" autoplay></audio>
+
+            <script>
+                const audio = document.getElementById("alertAudio");
+                audio.volume = 1.0; // Valeur entre 0.0 (silence) et 1.0 (volume max)
+            </script>
             <h4 th:text="'Colis déjà dans la liste : '+${num}"></h4>
         </div>
         <div class="alert alert-danger no-print" th:if="${empty}">

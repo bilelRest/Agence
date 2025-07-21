@@ -36,13 +36,13 @@
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-5">
                                     <label for="numb3" class="form-label">Numéro du B3</label>
-                                    <input type="text" class="form-control" id="numb3" name="numb3" placeholder="Ex: EAxxxxxxxxxTN"/>
+                                    <input onchange="this.form.submit()"  type="text" class="form-control" id="numb3" name="numb3" placeholder="Ex: EAxxxxxxxxxTN"/>
                                     <span th:if="${!#lists.isEmpty(results)}"  class=" alert alert-dismissable "
                                            th:text="${numb3 != null && numb3!= ''? 'Numéro de B3 saisie :'+numb3:''}"></span>
                                 </div>
                                 <div class="col-md-5">
                                     <label for="tel" class="form-label">Numéro de Téléphone</label>
-                                    <input type="text" class="form-control" id="tel"  name="tel" placeholder="Numéro de téléphone"/>
+                                    <input onchange="this.form.submit()" type="text" class="form-control" id="tel"  name="tel" placeholder="Numéro de téléphone"/>
                                     <span th:if="${!#lists.isEmpty(results)}" class=" alert alert-dismissable "
                                         th:text="${tel != null && tel!= ''? 'Téléphone saisie : '+tel:''}"></span>
                                 </div>
