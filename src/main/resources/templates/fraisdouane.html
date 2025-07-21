@@ -26,7 +26,7 @@
                     <div class="row g-3 align-items-end">
                         <div class="col-md-8">
                             <label for="colis" class="form-label fw-bold">Référence du colis</label>
-                            <input type="text" class="form-control" id="colis" name="colis"
+                            <input onchange="this.form.submit()" type="text" class="form-control" id="colis" name="colis"
                                    placeholder="Scanner le code-barres" required>
                         </div>
                         <div class="col-md-4">
